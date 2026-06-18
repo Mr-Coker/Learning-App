@@ -1,0 +1,63 @@
+{
+  "user": {
+    "name": "Alex",
+    "phase": "Phase 04 Scholar",
+    "xp": 850,
+    "maxXp": 1000
+  },
+  "watchCollection": [
+    {
+      "id": 1,
+      "title": "Quantum Mechanics Intro",
+      "category": "Physics",
+      "duration": "15m",
+      "locked": false
+    },
+    {
+      "id": 2,
+      "title": "Wave-Particle Duality",
+      "category": "Physics",
+      "duration": "25m",
+      "locked": true
+    }
+  ],
+  "readArchives": [
+    {
+      "id": 1,
+      "title": "The Industrial Revolution",
+      "category": "History",
+      "duration": "10m",
+      "locked": false
+    },
+    {
+      "id": 2,
+      "title": "Post-War Economics",
+      "category": "History",
+      "duration": "15m",
+      "locked": true
+    }
+  ],
+  "activeQuests": [
+    {
+      "id": 1,
+      "title": "Linear Equations Quiz",
+      "category": "Algebra",
+      "duration": "20m",
+      "locked": false
+    },
+    {
+      "id": 2,
+      "title": "Quadratic Functions Project",
+      "category": "Algebra",
+      "duration": "30m",
+      "locked": true
+    },
+    {
+      "id": 3,
+      "title": "Final Exam Prep",
+      "category": "Algebra",
+      "duration": "45m",
+      "locked": true
+    }
+  ]
+}

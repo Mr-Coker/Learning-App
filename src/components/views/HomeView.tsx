@@ -1,208 +1,154 @@
-import { PlayCircle, Lock, BookOpen, Edit, Zap } from 'lucide-react';
+import { PlayCircle, Lock, BookOpen, Edit, Zap, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export function HomeView() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate network delay for dynamic loading
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/data.json');
+        if (!response.ok) throw new Error('Failed to fetch data');
+        const jsonData = await response.json();
+        // Artificial delay to show loading state
+        setTimeout(() => {
+          setData(jsonData);
+          setLoading(false);
+        }, 800);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, []);
+
+  if (loading || !data) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Loader2 className="w-8 h-8 text-on-surface-variant animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-10 hide-scrollbar pb-24 md:pb-10 max-w-7xl mx-auto w-full">
       {/* Top Header Banner */}
-      <section className="bg-surface-container-high rounded-2xl p-6 border border-white/5 relative overflow-hidden mb-8 shadow-lg w-full">
-        {/* Abstract Glassmorphism Glow Background */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-container/20 rounded-full blur-[80px] pointer-events-none"></div>
-        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/10 rounded-full blur-[80px] pointer-events-none"></div>
-        
+      <section className="bg-surface-container-high rounded-none p-8 border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] relative overflow-hidden mb-12 transform hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0_0_rgba(0,0,0,1)] transition-all">
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="flex-1 w-full lg:w-auto">
-            <h2 className="font-geist text-2xl md:text-3xl text-on-surface mb-2 font-semibold">Welcome back, Alex! 🚀</h2>
+            <h2 className="font-serif text-4xl md:text-5xl font-black tracking-tighter uppercase text-on-surface mb-4">Welcome back,<br/><span className="text-on-surface-variant tracking-tight">{data.user.name}</span></h2>
             
-            <div className="bg-surface-container-highest/50 p-4 rounded-xl border border-white/5 mt-4 flex flex-col gap-2 max-w-md">
-              <div className="flex justify-between items-center">
-                <span className="font-geist text-sm font-medium text-primary">Level 4 Tech Scholar</span>
-                <span className="font-geist text-xs text-on-surface-variant">850 / 1000 XP</span>
+            <div className="mt-8 flex flex-col gap-2 max-w-md">
+              <div className="flex justify-between items-center tracking-widest text-[10px] font-mono uppercase text-on-surface-variant">
+                <span>{data.user.phase}</span>
+                <span>{data.user.xp} / {data.user.maxXp} XP</span>
               </div>
               
-              {/* Gamified XP Bar */}
-              <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden relative shadow-inner">
-                <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-secondary w-[85%] rounded-full shadow-[0_0_10px_rgba(164,230,255,0.5)]"></div>
+              {/* Minimalist Progress Bar */}
+              <div className="w-full h-[1px] bg-outline-variant relative">
+                <div className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${(data.user.xp / data.user.maxXp) * 100}%` }}></div>
               </div>
             </div>
           </div>
           
-          {/* Live Ticker */}
-          <div className="bg-surface-container/80 backdrop-blur-md border border-tertiary-container/30 px-4 py-2 rounded-full flex items-center gap-2 shadow-[0_0_15px_rgba(50,214,201,0.15)] animate-pulse lg:mt-0 mt-2">
-            <Zap size={16} className="text-tertiary-container fill-tertiary-container" />
-            <span className="font-geist font-medium text-sm text-tertiary-container">Next live session starts in 15 mins!</span>
+          {/* Status Label */}
+          <div className="border-2 border-black bg-surface px-6 py-2 rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex items-center gap-4 lg:mt-0 mt-4">
+            <div className="w-2 h-2 bg-primary border border-black rounded-none"></div>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface">Live Session in 15m</span>
           </div>
         </div>
       </section>
 
       {/* Task Tracks Section */}
-      <section className="flex flex-col gap-10">
+      <section className="flex flex-col gap-10 lg:gap-14">
         
         {/* WATCH Track */}
         <div className="relative group">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <span className="text-primary bg-primary/10 p-2 rounded-lg">
-              <PlayCircle size={20} />
-            </span>
-            <h3 className="font-geist text-xl text-on-surface uppercase tracking-wider font-semibold">Watch</h3>
+          <div className="flex items-center gap-3 mb-6 px-1">
+            <h3 className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Watch Collection</h3>
           </div>
-          <div className="flex gap-6 overflow-x-auto hide-scrollbar pb-4 snap-x snap-mandatory">
-            
-            {/* Unlocked Card */}
-            <a href="#" className="flex-none w-72 md:w-80 snap-start bg-surface-container-high rounded-xl border border-white/5 border-t-primary p-4 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(164,230,255,0.1)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group/card block h-40">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
-              <div className="relative z-10 flex flex-col h-full gap-4">
-                <div className="flex justify-between items-start">
-                  <span className="font-geist text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">Physics</span>
-                  <div className="flex items-center gap-1 text-on-surface-variant font-geist text-xs">
-                    <PlayCircle size={14} /> 15 mins
+          <div className="flex gap-4 md:gap-6 overflow-x-auto hide-scrollbar pb-4 snap-x snap-mandatory">
+            {data.watchCollection.map((item: any) => (
+              <a key={item.id} href="#" className={`flex-none w-72 md:w-80 snap-start bg-surface-container-highest rounded-none border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-all duration-200 relative flex flex-col justify-between h-48 md:h-56 group ${item.locked ? 'opacity-50 pointer-events-none' : ''}`}>
+                {item.locked && (
+                  <div className="absolute inset-0 bg-surface/30 backdrop-blur-[2px] z-20 flex items-center justify-center">
+                    <Lock size={20} className="text-on-surface-variant" />
+                  </div>
+                )}
+                <div className={`relative z-10 flex flex-col h-full justify-between ${item.locked ? '' : ''}`}>
+                  <div className="flex justify-between items-start">
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">{item.category}</span>
+                    <span className="font-mono text-[10px] text-on-surface-variant">{item.duration}</span>
+                  </div>
+                  <div>
+                    <h4 className={`font-serif text-xl font-bold uppercase tracking-tight ${item.locked ? 'text-on-surface-variant' : 'text-on-surface transition-all'}`}>{item.title}</h4>
                   </div>
                 </div>
-                <div>
-                  <h4 className="font-sans text-lg text-on-surface font-semibold group-hover/card:text-primary transition-colors">Quantum Mechanics Intro</h4>
-                </div>
-                <div className="mt-auto flex items-center gap-2 text-primary font-geist text-sm font-medium group-hover/card:drop-shadow-[0_0_8px_rgba(164,230,255,0.8)] transition-all">
-                  <PlayCircle size={18} /> Start Video
-                </div>
-              </div>
-            </a>
-            
-            {/* Locked Card */}
-            <div className="flex-none w-72 md:w-80 snap-start bg-surface-container rounded-xl border border-white/5 p-4 relative overflow-hidden opacity-60 pointer-events-none h-40">
-              <div className="absolute inset-0 bg-surface/50 backdrop-blur-sm z-20 flex items-center justify-center">
-                <Lock size={32} className="text-secondary drop-shadow-[0_0_12px_rgba(233,179,255,0.8)] fill-secondary" />
-              </div>
-              <div className="relative z-10 flex flex-col h-full gap-4 blur-[2px]">
-                <div className="flex justify-between items-start">
-                  <span className="font-geist text-xs px-2 py-1 bg-surface-variant text-on-surface-variant rounded-full">Physics</span>
-                  <div className="flex items-center gap-1 text-on-surface-variant font-geist text-xs">
-                    <PlayCircle size={14} /> 25 mins
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-sans text-lg text-on-surface font-semibold">Wave-Particle Duality</h4>
-                </div>
-              </div>
-            </div>
+              </a>
+            ))}
           </div>
         </div>
 
         {/* READ Track */}
         <div className="relative group">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <span className="text-secondary bg-secondary/10 p-2 rounded-lg">
-              <BookOpen size={20} />
-            </span>
-            <h3 className="font-geist text-xl text-on-surface uppercase tracking-wider font-semibold">Read</h3>
+          <div className="flex items-center gap-3 mb-6 px-1">
+            <h3 className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Read Archives</h3>
           </div>
-          <div className="flex gap-6 overflow-x-auto hide-scrollbar pb-4 snap-x snap-mandatory">
-            
-            {/* Unlocked Card */}
-            <a href="#" className="flex-none w-72 md:w-80 snap-start bg-surface-container-high rounded-xl border border-white/5 border-t-secondary p-4 hover:border-secondary/50 hover:shadow-[0_0_20px_rgba(233,179,255,0.1)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group/card block h-40">
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
-              <div className="relative z-10 flex flex-col h-full gap-4">
-                <div className="flex justify-between items-start">
-                  <span className="font-geist text-xs px-2 py-1 bg-secondary/10 text-secondary rounded-full">History</span>
-                  <div className="flex items-center gap-1 text-on-surface-variant font-geist text-xs">
-                    <BookOpen size={14} /> 10 mins
+          <div className="flex gap-4 md:gap-6 overflow-x-auto hide-scrollbar pb-4 snap-x snap-mandatory">
+            {data.readArchives.map((item: any) => (
+              <a key={item.id} href="#" className={`flex-none w-72 md:w-80 snap-start bg-surface-container-high rounded-none border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-all duration-200 relative flex flex-col justify-between h-48 md:h-56 group ${item.locked ? 'opacity-50 pointer-events-none' : ''}`}>
+                {item.locked && (
+                  <div className="absolute inset-0 bg-surface/30 backdrop-blur-[2px] z-20 flex items-center justify-center">
+                    <Lock size={20} className="text-on-surface-variant" />
+                  </div>
+                )}
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                  <div className="flex justify-between items-start">
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">{item.category}</span>
+                    <span className="font-mono text-[10px] text-on-surface-variant">{item.duration}</span>
+                  </div>
+                  <div>
+                    <h4 className={`font-serif text-xl font-bold uppercase tracking-tight ${item.locked ? 'text-on-surface-variant' : 'text-on-surface transition-all'}`}>{item.title}</h4>
                   </div>
                 </div>
-                <div>
-                  <h4 className="font-sans text-lg text-on-surface font-semibold group-hover/card:text-secondary transition-colors">The Industrial Revolution</h4>
-                </div>
-                <div className="mt-auto flex items-center gap-2 text-secondary font-geist text-sm font-medium group-hover/card:drop-shadow-[0_0_8px_rgba(233,179,255,0.8)] transition-all">
-                  <BookOpen size={18} /> Begin Reading
-                </div>
-              </div>
-            </a>
-            
-            {/* Locked Card */}
-            <div className="flex-none w-72 md:w-80 snap-start bg-surface-container rounded-xl border border-white/5 p-4 relative overflow-hidden opacity-60 pointer-events-none h-40">
-              <div className="absolute inset-0 bg-surface/50 backdrop-blur-sm z-20 flex items-center justify-center">
-                <Lock size={32} className="text-secondary drop-shadow-[0_0_12px_rgba(233,179,255,0.8)] fill-secondary" />
-              </div>
-              <div className="relative z-10 flex flex-col h-full gap-4 blur-[2px]">
-                <div className="flex justify-between items-start">
-                  <span className="font-geist text-xs px-2 py-1 bg-surface-variant text-on-surface-variant rounded-full">History</span>
-                  <div className="flex items-center gap-1 text-on-surface-variant font-geist text-xs">
-                    <BookOpen size={14} /> 15 mins
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-sans text-lg text-on-surface font-semibold">Post-War Economics</h4>
-                </div>
-              </div>
-            </div>
+              </a>
+            ))}
           </div>
         </div>
 
         {/* DO Track */}
         <div className="relative group">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <span className="text-tertiary bg-tertiary/10 p-2 rounded-lg">
-              <Edit size={20} />
-            </span>
-            <h3 className="font-geist text-xl text-on-surface uppercase tracking-wider font-semibold">Do</h3>
+          <div className="flex items-center gap-3 mb-6 px-1">
+            <h3 className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Active Quests</h3>
           </div>
-          <div className="flex gap-6 overflow-x-auto hide-scrollbar pb-4 snap-x snap-mandatory">
-            
-            {/* Unlocked Card */}
-            <a href="#" className="flex-none w-72 md:w-80 snap-start bg-surface-container-high rounded-xl border border-white/5 border-t-tertiary p-4 hover:border-tertiary/50 hover:shadow-[0_0_20px_rgba(91,243,229,0.1)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group/card block h-40">
-              <div className="absolute inset-0 bg-gradient-to-br from-tertiary/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
-              <div className="relative z-10 flex flex-col h-full gap-4">
-                <div className="flex justify-between items-start">
-                  <span className="font-geist text-xs px-2 py-1 bg-tertiary/10 text-tertiary rounded-full">Algebra</span>
-                  <div className="flex items-center gap-1 text-on-surface-variant font-geist text-xs">
-                    <Edit size={14} /> 20 mins
+          <div className="flex gap-4 md:gap-6 overflow-x-auto hide-scrollbar pb-4 snap-x snap-mandatory">
+            {data.activeQuests.map((item: any) => (
+              <a key={item.id} href="#" className={`flex-none w-72 md:w-80 snap-start bg-surface-container rounded-none border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-all duration-200 relative flex flex-col justify-between h-48 md:h-56 group ${item.locked ? 'opacity-50 pointer-events-none' : ''}`}>
+                {item.locked && (
+                  <div className="absolute inset-0 bg-surface/30 backdrop-blur-[2px] z-20 flex items-center justify-center">
+                    <Lock size={20} className="text-on-surface-variant" />
+                  </div>
+                )}
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                  <div className="flex justify-between items-start">
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">{item.category}</span>
+                    <span className="font-mono text-[10px] text-on-surface-variant">{item.duration}</span>
+                  </div>
+                  <div>
+                    <h4 className={`font-serif text-xl font-bold uppercase tracking-tight ${item.locked ? 'text-on-surface-variant' : 'text-on-surface transition-all'}`}>{item.title}</h4>
                   </div>
                 </div>
-                <div>
-                  <h4 className="font-sans text-lg text-on-surface font-semibold group-hover/card:text-tertiary transition-colors">Linear Equations Quiz</h4>
-                </div>
-                <div className="mt-auto flex items-center gap-2 text-tertiary font-geist text-sm font-medium group-hover/card:drop-shadow-[0_0_8px_rgba(91,243,229,0.8)] transition-all">
-                  <Edit size={18} /> Start Practice
-                </div>
-              </div>
-            </a>
-            
-            {/* Locked Card 1 */}
-            <div className="flex-none w-72 md:w-80 snap-start bg-surface-container rounded-xl border border-white/5 p-4 relative overflow-hidden opacity-60 pointer-events-none h-40">
-              <div className="absolute inset-0 bg-surface/50 backdrop-blur-sm z-20 flex items-center justify-center">
-                <Lock size={32} className="text-secondary drop-shadow-[0_0_12px_rgba(233,179,255,0.8)] fill-secondary" />
-              </div>
-              <div className="relative z-10 flex flex-col h-full gap-4 blur-[2px]">
-                <div className="flex justify-between items-start">
-                  <span className="font-geist text-xs px-2 py-1 bg-surface-variant text-on-surface-variant rounded-full">Algebra</span>
-                  <div className="flex items-center gap-1 text-on-surface-variant font-geist text-xs">
-                    <Edit size={14} /> 30 mins
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-sans text-lg text-on-surface font-semibold">Quadratic Functions Project</h4>
-                </div>
-              </div>
-            </div>
-            
-            {/* Locked Card 2 */}
-            <div className="flex-none w-72 md:w-80 snap-start bg-surface-container rounded-xl border border-white/5 p-4 relative overflow-hidden opacity-60 pointer-events-none h-40">
-              <div className="absolute inset-0 bg-surface/50 backdrop-blur-sm z-20 flex items-center justify-center">
-                <Lock size={32} className="text-secondary drop-shadow-[0_0_12px_rgba(233,179,255,0.8)] fill-secondary" />
-              </div>
-              <div className="relative z-10 flex flex-col h-full gap-4 blur-[2px]">
-                <div className="flex justify-between items-start">
-                  <span className="font-geist text-xs px-2 py-1 bg-surface-variant text-on-surface-variant rounded-full">Algebra</span>
-                  <div className="flex items-center gap-1 text-on-surface-variant font-geist text-xs">
-                    <Edit size={14} /> 45 mins
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-sans text-lg text-on-surface font-semibold">Final Exam Prep</h4>
-                </div>
-              </div>
-            </div>
-
+              </a>
+            ))}
           </div>
         </div>
       </section>
     </div>
   );
 }
+
