@@ -24,7 +24,7 @@ export default function App() {
           setSidebarOpen={setSidebarOpen}
         />
         
-        <main className="flex-1 flex flex-col min-h-0 bg-background pb-16 lg:pb-0">
+        <main className="flex-1 flex flex-col min-h-0 bg-background pb-16 md:pb-0">
           {currentView === 'home' && <HomeView />}
           {currentView === 'chat' && <ChatView />}
           {currentView === 'assignments' && <AssignmentsView />}
