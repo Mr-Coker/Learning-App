@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary-fixed: #b7eaff;
+  --color-primary-fixed-dim: #4cd6ff;
+  --color-on-primary-fixed: #001f28;
+  --color-on-primary-fixed-variant: #004e60;
+  
+  --color-secondary-fixed: #f6d9ff;
+  --color-secondary-fixed-dim: #e9b3ff;
+  --color-on-secondary-fixed: #310048;
+  --color-on-secondary-fixed-variant: #7200a3;
+
+  --color-tertiary-fixed: #62f9eb;
+  --color-tertiary-fixed-dim: #3cdccf;
+  --color-on-tertiary-fixed: #00201d;
+  --color-on-tertiary-fixed-variant: #00504a;
+
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  --color-surface-container-highest: #2f3544;
+  --color-surface-container-high: #242a39;
+  --color-surface-container: #191f2e;
+  --color-surface-container-low: #151b29;
+  --color-surface-container-lowest: #080e1c;
+  --color-surface-dim: #0d1321;
+  --color-surface-bright: #333948;
+  --color-surface-variant: #2f3544;
+  --color-surface: #0d1321;
+  --color-on-surface: #dde2f6;
+  --color-on-surface-variant: #bbc9cf;
+  --color-inverse-surface: #dde2f6;
+  --color-inverse-on-surface: #2a303f;
+  --color-surface-tint: #4cd6ff;
+
+  --color-background: #0d1321;
+  --color-on-background: #dde2f6;
+
+  --color-primary: #a4e6ff;
+  --color-on-primary: #003543;
+  --color-primary-container: #00d1ff;
+  --color-on-primary-container: #00566a;
+  --color-inverse-primary: #00677f;
+
+  --color-secondary: #e9b3ff;
+  --color-on-secondary: #510074;
+  --color-secondary-container: #7d01b1;
+  --color-on-secondary-container: #e5a9ff;
+
+  --color-tertiary: #5bf3e5;
+  --color-on-tertiary: #003733;
+  --color-tertiary-container: #32d6c9;
+  --color-on-tertiary-container: #005952;
+  
+  --color-outline: #859399;
+  --color-outline-variant: #3c494e;
+
+  /* Typography */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-geist: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-sans selection:bg-primary-container selection:text-on-primary-container antialiased;
+  }
+}
+
+  /* Custom scrollbar for horizontal tracks */
+  .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+  .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+  }
+
+  /* Custom generic scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: theme('colors.surface-container-highest'); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: theme('colors.outline-variant'); }
+
+  .glow-hover:hover {
+      box-shadow: 0 0 20px rgba(0, 209, 255, 0.4);
+  }
+
+  .upload-portal {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+  }
+
+  .upload-portal::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      background: conic-gradient(from 0deg, transparent, rgba(50, 214, 201, 0.2), rgba(50, 214, 201, 0.8), transparent);
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      animation: rotate 4s linear infinite;
+  }
+
+  .upload-portal:hover::before, .upload-portal.dragover::before {
+      opacity: 1;
+  }
+
+  @keyframes rotate {
+      100% { transform: rotate(360deg); }
+  }
+
+  .upload-portal-inner {
+      background: #121826;
+      z-index: 1;
+  }
+
+  .upload-portal .ready-text { display: none; }
+  .upload-portal:hover .default-text { display: none; }
+  .upload-portal:hover .ready-text { display: block; color: #32d6c9; text-shadow: 0 0 10px rgba(50,214,201,0.5); }
+
+  .neon-border-blue {
+      border: 1px solid theme('colors.primary');
+      box-shadow: 0 0 10px theme('colors.primary-fixed-dim'), inset 0 0 10px theme('colors.primary-fixed-dim');
+  }
+
+  .neon-border-blue-hover:hover {
+      box-shadow: 0 0 15px theme('colors.primary'), inset 0 0 15px theme('colors.primary');
+  }
+
+  .neon-purple-border { 
+      border: 1px solid theme('colors.secondary'); 
+      box-shadow: 0 0 15px rgba(233, 179, 255, 0.3); 
+  }
+
+  .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+  .accordion-active .accordion-content { max-height: 1000px; transition: max-height 0.5s ease-in; }
+  .accordion-icon { transition: transform 0.3s ease; }
+  .accordion-active .accordion-icon { transform: rotate(180deg); }
+

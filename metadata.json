@@ -1,0 +1,6 @@
+{
+  "name": "EduSphere Academic Hub",
+  "description": "Futuristic learning dashboard with gamified elements, chat, assignments, and digital notes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
