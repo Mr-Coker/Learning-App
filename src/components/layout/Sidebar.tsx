@@ -17,9 +17,10 @@ interface SidebarProps {
   setCurrentView: (v: ViewState) => void;
   sidebarOpen: boolean;
   setSidebarOpen: (o: boolean) => void;
+  onLogout: () => void;
 }
 
-export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOpen }: SidebarProps) {
+export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOpen, onLogout }: SidebarProps) {
   return (
     <>
       {/* Mobile overlay */}
@@ -114,7 +115,10 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
              <HelpCircle size={16} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Help</span>
           </a>
-          <a className="flex items-center gap-4 py-2 px-4 cursor-pointer text-on-surface-variant hover:text-on-surface transition-all font-medium group">
+          <a 
+            onClick={onLogout}
+            className="flex items-center gap-4 py-2 px-4 cursor-pointer text-on-surface-variant hover:text-on-surface transition-all font-medium group"
+          >
              <LogOut size={16} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Logout</span>
           </a>
