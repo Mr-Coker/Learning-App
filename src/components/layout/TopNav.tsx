@@ -26,7 +26,7 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
         </div>
       </div>
       
-      <div className="hidden md:flex gap-6 h-full items-end pb-3">
+      <div className="hidden md:flex items-center gap-6">
         <button 
           onClick={() => setCurrentView('home')} 
           className={`font-mono text-[10px] uppercase tracking-widest transition-all duration-300 px-2 rounded-none py-1 border-2 border-transparent ${currentView === 'home' ? 'bg-primary text-on-primary border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'text-on-surface-variant hover:text-on-surface hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]'}`}
