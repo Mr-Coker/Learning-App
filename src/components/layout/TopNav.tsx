@@ -13,7 +13,7 @@ interface TopNavProps {
 
 export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavProps) {
   return (
-    <header className="hidden md:flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface border-b-4 border-black z-50 sticky top-0 flex-shrink-0 shadow-[0_4px_0_0_rgba(0,0,0,1)]">
+    <header className="hidden md:flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface border-b-2 border-black z-50 sticky top-0 flex-shrink-0 ">
       <div className="flex items-center gap-4">
         <button 
           onClick={toggleSidebar}

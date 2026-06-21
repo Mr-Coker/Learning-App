@@ -59,8 +59,8 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
           </div>
         </div>
 
-        <div className="px-6 mb-8">
-          <button className="w-full border-2 border-black bg-surface text-on-surface font-mono text-[10px] uppercase tracking-widest py-3 rounded-none hover:bg-primary shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2">
+        <div className="px-6 mb-5">
+          <button className="w-full border-1 border-black bg-surface text-on-surface font-mono text-[10px] uppercase tracking-widest py-3 rounded-none hover:bg-primary shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2">
             <Plus size={14} />
             New Quest
           </button>
@@ -69,7 +69,7 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
         <nav className="flex-1 overflow-y-auto space-y-2">
           <a
             onClick={() => { setCurrentView('home'); setSidebarOpen(false); }}
-            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-2 rounded-none ${currentView === 'home' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
+            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-1 rounded-none ${currentView === 'home' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
           >
              <Home size={18} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Home</span>
@@ -77,7 +77,7 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
 
           <a
             onClick={() => { setCurrentView('chat'); setSidebarOpen(false); }}
-            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-2 rounded-none ${currentView === 'chat' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
+            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-1 rounded-none ${currentView === 'chat' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
           >
              <MessageSquare size={18} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Chat</span>
@@ -85,7 +85,7 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
 
           <a
             onClick={() => { setCurrentView('assignments'); setSidebarOpen(false); }}
-            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-2 rounded-none ${currentView === 'assignments' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
+            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-1 rounded-none ${currentView === 'assignments' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
           >
              <ClipboardList size={18} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Assignments</span>
@@ -93,18 +93,18 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
 
           <a
             onClick={() => { setCurrentView('notes'); setSidebarOpen(false); }}
-            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-2 rounded-none ${currentView === 'notes' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
+            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-1 rounded-none ${currentView === 'notes' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
           >
              <FileText size={18} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Notes</span>
           </a>
 
-          <a className="flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer text-on-surface-variant hover:text-on-surface transition-all border-2 border-transparent rounded-none hover:bg-surface-container hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]">
+          <a className="flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer text-on-surface-variant hover:text-on-surface transition-all border-1 border-transparent rounded-none hover:bg-surface-container hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]">
              <BarChart2 size={18} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Metrics</span>
           </a>
 
-          <a className="flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer text-on-surface-variant hover:text-on-surface transition-all border-2 border-transparent rounded-none hover:bg-surface-container hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]">
+          <a className="flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer text-on-surface-variant hover:text-on-surface transition-all border-1 border-transparent rounded-none hover:bg-surface-container hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]">
              <Users size={18} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Parents</span>
           </a>

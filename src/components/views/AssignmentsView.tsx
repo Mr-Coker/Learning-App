@@ -37,7 +37,7 @@ export function AssignmentsView() {
         <div className="p-4 md:p-6">
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-serif text-3xl font-black uppercase text-on-surface tracking-tighter">Active Quests</h2>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface border-2 border-black px-2 py-1 bg-surface-container-high shadow-[2px_2px_0_0_rgba(0,0,0,1)]">3 Pending</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface border-1 border-black px-2 py-1 bg-surface-container-high shadow-[2px_2px_0_0_rgba(0,0,0,1)]">3 Pending</span>
           </div>
           
           <div className="flex flex-col gap-4">
@@ -45,7 +45,7 @@ export function AssignmentsView() {
               <div 
                 key={quest.id}
                 onClick={() => handleQuestClick(quest)}
-                className={`border-4 rounded-none p-6 relative overflow-hidden group cursor-pointer transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] ${activeQuest.id === quest.id ? 'bg-surface-container-high border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]' : 'bg-surface-container-low border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)]'} ${quest.status === 'Done' ? 'opacity-50' : ''}`}
+                className={`border-2 rounded-none p-6 relative overflow-hidden group cursor-pointer transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] ${activeQuest.id === quest.id ? 'bg-surface-container-high border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]' : 'bg-surface-container-low border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)]'} ${quest.status === 'Done' ? 'opacity-50' : ''}`}
               >
                 <div className="flex items-start justify-between relative z-10">
                   <div>
@@ -55,7 +55,7 @@ export function AssignmentsView() {
                     </h3>
                     <p className="text-on-surface-variant font-sans text-xs mt-2">{quest.status === 'Done' ? 'Submitted' : `Due: ${quest.due}`}</p>
                   </div>
-                  <div className={`w-6 h-6 border-2 flex items-center justify-center shrink-0 ${activeQuest.id === quest.id ? 'border-black bg-primary shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'border-black bg-surface group-hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]'} transition-all`}>
+                  <div className={`w-6 h-6 border-1 flex items-center justify-center shrink-0 ${activeQuest.id === quest.id ? 'border-black bg-primary shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'border-black bg-surface group-hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]'} transition-all`}>
                     {quest.status === 'Done' ? (
                       <CheckCircle size={12} className="text-on-surface-variant" />
                     ) : quest.status !== '0%' ? (
@@ -99,7 +99,7 @@ export function AssignmentsView() {
             
             {/* Rewards Card */}
             {activeQuest.xp > 0 && (
-              <div className="border-4 border-black rounded-none p-6 flex flex-col items-center gap-2 min-w-[160px] relative overflow-hidden shadow-[4px_4px_0_0_rgba(0,0,0,1)] bg-surface-container-high">
+              <div className="border-2 border-black rounded-none p-6 flex flex-col items-center gap-2 min-w-[160px] relative overflow-hidden shadow-[px_px_0_0_rgba(0,0,0,1)] bg-surface-container-high">
                 <div className="absolute top-0 left-0 w-full h-2 bg-black"></div>
                 <span className="font-mono text-[10px] text-on-surface-variant tracking-widest uppercase">Acquisition</span>
                 <div className="flex items-baseline gap-1 mt-2">
@@ -111,7 +111,7 @@ export function AssignmentsView() {
           </div>
 
           {/* Instructions / Description */}
-          <div className="rounded-none p-6 md:p-8 border-4 border-black mb-10 bg-surface-container-highest shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
+          <div className="rounded-none p-6 md:p-8 border-2 border-black mb-10 bg-surface-container-highest shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
             <h3 className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-6 flex items-center gap-2">
               <FileText size={14} />
               Protocol Briefing
@@ -120,8 +120,8 @@ export function AssignmentsView() {
               Upload your completed analysis for the {activeQuest.category} module. Make sure to adhere strictly to the established guidelines. Accepted formats: PDF, JPG, PNG. Max size: 25MB.
             </p>
             <div className="flex gap-3">
-              <span className="font-mono text-[10px] px-3 py-1 text-on-surface border-2 border-black bg-surface shadow-[2px_2px_0_0_rgba(0,0,0,1)]">PDF</span>
-              <span className="font-mono text-[10px] px-3 py-1 text-on-surface border-2 border-black bg-surface shadow-[2px_2px_0_0_rgba(0,0,0,1)]">JPG</span>
+              <span className="font-mono text-[10px] px-3 py-1 text-on-surface border-1 border-black bg-surface shadow-[2px_2px_0_0_rgba(0,0,0,1)]">PDF</span>
+              <span className="font-mono text-[10px] px-3 py-1 text-on-surface border-1 border-black bg-surface shadow-[2px_2px_0_0_rgba(0,0,0,1)]">JPG</span>
             </div>
           </div>
 
@@ -134,8 +134,8 @@ export function AssignmentsView() {
                 <div className="w-12 h-12 border-2 border-black flex items-center justify-center mb-4 md:mb-6 group-hover/portal:scale-110 transition-transform bg-primary shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
                   <UploadCloud size={20} className="text-on-primary" />
                 </div>
-                <h4 className="font-serif text-xl md:text-2xl font-black uppercase tracking-tight text-on-surface mb-2">Drop payload here</h4>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">or click to browse</p>
+                <h4 className="font-serif text-xl md:text-2xl font-black uppercase tracking-tight text-white mb-2">Drop payload here</h4>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-white">or click to browse</p>
               </div>
               
               {/* Hover State */}
@@ -143,7 +143,7 @@ export function AssignmentsView() {
                 <div className="w-12 h-12 mx-auto bg-primary border-2 border-black flex items-center justify-center mb-4 md:mb-6 shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
                   <Rocket size={20} className="text-on-primary" />
                 </div>
-                <h4 className="font-serif text-xl md:text-2xl font-black uppercase tracking-tight text-on-surface mb-2">Ready to upload</h4>
+                <h4 className="font-serif text-xl md:text-2xl font-black uppercase tracking-tight text-white mb-2">Ready to upload</h4>
               </div>
 
             </div>
@@ -151,10 +151,10 @@ export function AssignmentsView() {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row justify-end gap-4 mt-8">
-            <button className="px-8 py-3 rounded-none font-mono text-[10px] uppercase tracking-widest text-on-surface border-2 border-black hover:bg-surface-container hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+            <button className="px-8 py-3 rounded-none font-mono text-[10px] uppercase tracking-widest text-on-surface border-1 border-black hover:bg-surface-container hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
               Save Draft
             </button>
-            <button className="px-8 py-3 rounded-none font-mono text-[10px] uppercase tracking-widest text-on-primary bg-primary border-2 border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2">
+            <button className="px-8 py-3 rounded-none font-mono text-[10px] uppercase tracking-widest text-on-primary bg-primary border-1 border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2">
               Transmit
               <Send size={14} />
             </button>

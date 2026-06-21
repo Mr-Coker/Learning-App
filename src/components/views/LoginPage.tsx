@@ -84,10 +84,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
       {/* Main Container */}
       <div className="flex-1 flex items-center justify-center my-8 z-10">
-        <div className="w-full max-w-md bg-[#F3F4F6] border-4 border-black rounded-none p-6 md:p-8 shadow-[8px_8px_0_0_rgba(0,0,0,1)] relative">
+        <div className="w-full max-w-md bg-[#F3F4F6] border-2 border-black rounded-none p-6 md:p-8 shadow-[6px_6px_0_0_rgba(0,0,0,1)] relative">
           
           {/* Corner Decors */}
-          <div className="absolute -top-3.5 -left-3.5 bg-white border-4 border-black px-1.5 py-0.5 font-mono text-[8px] font-bold text-black uppercase tracking-wider select-none z-20">
+          <div className="absolute -top-3.5 -left-3.5 bg-white border-2 border-black px-1.5 py-0.5 font-mono text-[8px] font-bold text-black uppercase tracking-wider select-none z-20">
             SECURE_NODE
           </div>
           
@@ -161,7 +161,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             {!isLoading && (
               <button
                 type="submit"
-                className="w-full bg-[#FFD833] border-4 border-black rounded-none py-3.5 font-mono text-xs font-bold uppercase tracking-widest text-black flex items-center justify-center gap-2 cursor-pointer transition-all duration-100 ease-in-out hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_0_rgba(0,0,0,1)] shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+                className="w-full bg-[#FFD833] border-2 border-black rounded-none py-3.5 font-mono text-xs font-bold uppercase tracking-widest text-black flex items-center justify-center gap-2 cursor-pointer transition-all duration-100 ease-in-out hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_0_rgba(0,0,0,1)] shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
               >
                 <span>ENTER ORBIT</span>
                 <ArrowRight size={14} />

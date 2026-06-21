@@ -30,18 +30,18 @@ export function NotesView() {
       <article className="flex-1 p-4 md:p-10 max-w-4xl mx-auto w-full relative overflow-y-auto h-full pb-20 md:pb-10">
         
         {/* Floating Toolbar */}
-        <div className="fixed top-24 right-4 md:right-10 z-10 flex flex-col gap-2 bg-surface-container-low border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-2 rounded-none">
-          <button className="text-on-surface-variant hover:text-on-surface p-2 rounded-xl hover:bg-outline-variant transition-colors" title="Increase Text Size">
+        <div className="fixed top-24 right-4 md:right-10 z-10 flex flex-col gap-2 bg-surface-container-low border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-2 rounded-none">
+          <button className="text-on-surface-variant hover:text-white p-2 rounded-xl hover:bg-outline-variant transition-colors" title="Increase Text Size">
             <Type size={16} />
           </button>
-          <button className="text-on-surface-variant hover:text-on-surface p-2 rounded-xl hover:bg-outline-variant transition-colors" title="Decrease Text Size">
+          <button className="text-on-surface-variant hover:text-white p-2 rounded-xl hover:bg-outline-variant transition-colors" title="Decrease Text Size">
             <MinusSquare size={16} />
           </button>
           <div className="w-full h-px bg-outline-variant my-1"></div>
-          <button className="text-on-surface-variant hover:text-on-surface p-2 rounded-xl hover:bg-outline-variant transition-colors" title="Bookmark">
+          <button className="text-on-surface-variant hover:text-white p-2 rounded-xl hover:bg-outline-variant transition-colors" title="Bookmark">
             <Bookmark size={16} />
           </button>
-          <button className="text-on-surface-variant hover:text-on-surface p-2 rounded-xl hover:bg-outline-variant transition-colors" title="Save Note">
+          <button className="text-on-surface-variant hover:text-white p-2 rounded-xl hover:bg-outline-variant transition-colors" title="Save Note">
             <Save size={16} />
           </button>
         </div>
@@ -57,15 +57,15 @@ export function NotesView() {
             </p>
 
             {/* Key Formula Box */}
-            <div className="border-4 border-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-8 relative overflow-hidden group mt-12 bg-surface-container-highest flex">
+            <div className="border-2 border-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-8 relative overflow-hidden group mt-12 bg-surface-container-highest flex">
               <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0 w-16 h-16 border-4 border-black rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex items-center justify-center bg-surface-container-high">
+                <div className="flex-shrink-0 w-16 h-16 border-2 border-black rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex items-center justify-center bg-surface-container-high">
                   <span className="font-serif text-2xl font-black uppercase text-on-surface">f(x)</span>
                 </div>
                 <div>
                   <h4 className="font-mono text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mb-4">Key Formula</h4>
                   <p className="font-serif text-3xl md:text-4xl font-black uppercase tracking-wider text-on-surface">y = mx + b</p>
-                  <p className="font-sans text-sm text-on-surface-variant mt-4 leading-relaxed">Where <span className="font-mono bg-outline-variant px-1 py-0.5 rounded text-on-surface">m</span> is the slope and <span className="font-mono bg-outline-variant px-1 py-0.5 rounded text-on-surface">b</span> is the y-intercept.</p>
+                  <p className="font-sans text-sm text-on-surface-variant mt-4 leading-relaxed">Where <span className="font-mono px-1 py-0.5 rounded text-on-surface">m</span> is the slope and <span className="font-mono px-1 py-0.5 rounded text-on-surface">b</span> is the y-intercept.</p>
                 </div>
               </div>
             </div>
@@ -75,7 +75,7 @@ export function NotesView() {
             </p>
 
             {/* Expandable Accordion */}
-            <div className="mt-12 border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none overflow-hidden" id="proof-accordion" onClick={(e) => {
+            <div className="mt-12 border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none overflow-hidden" id="proof-accordion" onClick={(e) => {
               e.currentTarget.classList.toggle('accordion-active');
             }}>
               <button className="w-full flex items-center justify-between p-6 text-left focus:outline-none hover:bg-surface-container transition-colors">
@@ -85,15 +85,15 @@ export function NotesView() {
                 </span>
                 <ChevronDown size={20} className="text-on-surface-variant accordion-icon" />
               </button>
-              <div className="accordion-content border-t-4 border-black">
+              <div className="accordion-content border-t-2 border-black">
                 <div className="p-6 md:p-8 space-y-6 font-sans text-sm text-on-surface-variant leading-loose bg-surface-container-low">
-                  <p>To prove that <code className="bg-outline-variant px-1.5 py-0.5 rounded font-mono text-xs text-on-surface">y - y₁ = m(x - x₁)</code> is equivalent to <code className="bg-outline-variant px-1.5 py-0.5 rounded font-mono text-xs text-on-surface">y = mx + b</code>:</p>
+                  <p>To prove that <code className="px-1.5 py-0.5 rounded font-mono text-xs text-on-surface">y - y₁ = m(x - x₁)</code> is equivalent to <code className="px-1.5 py-0.5 rounded font-mono text-xs text-on-surface">y = mx + b</code>:</p>
                   <ol className="list-decimal list-inside space-y-4 pl-2 font-mono text-xs">
-                    <li>Start with the point-slope form: <code className="bg-outline-variant px-1.5 py-0.5 rounded text-on-surface">y - y₁ = m(x - x₁)</code></li>
-                    <li>Distribute the slope <code className="bg-outline-variant px-1.5 py-0.5 rounded text-on-surface">m</code>: <code className="bg-outline-variant px-1.5 py-0.5 rounded text-on-surface">y - y₁ = mx - mx₁</code></li>
-                    <li>Isolate <code className="bg-outline-variant px-1.5 py-0.5 rounded text-on-surface">y</code>: <code className="bg-outline-variant px-1.5 py-0.5 rounded text-on-surface">y = mx - mx₁ + y₁</code></li>
-                    <li>Define <code className="bg-outline-variant px-1.5 py-0.5 rounded text-on-surface">b = y₁ - mx₁</code></li>
-                    <li>Substitute <code className="bg-outline-variant px-1.5 py-0.5 rounded text-on-surface">b</code> back into the equation: <code className="text-on-surface text-sm">y = mx + b</code></li>
+                    <li>Start with the point-slope form: <code className="px-1.5 py-0.5 rounded text-on-surface">y - y₁ = m(x - x₁)</code></li>
+                    <li>Distribute the slope <code className="px-1.5 py-0.5 rounded text-on-surface">m</code>: <code className="px-1.5 py-0.5 rounded text-on-surface">y - y₁ = mx - mx₁</code></li>
+                    <li>Isolate <code className=" px-1.5 py-0.5 rounded text-on-surface">y</code>: <code className="px-1.5 py-0.5 rounded text-on-surface">y = mx - mx₁ + y₁</code></li>
+                    <li>Define <code className="px-1.5 py-0.5 rounded text-on-surface">b = y₁ - mx₁</code></li>
+                    <li>Substitute <code className="px-1.5 py-0.5 rounded text-on-surface">b</code> back into the equation: <code className="text-on-surface text-sm">y = mx + b</code></li>
                   </ol>
                 </div>
               </div>
