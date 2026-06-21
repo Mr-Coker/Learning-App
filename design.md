@@ -1,5 +1,5 @@
 # EduSphere Design Specification
-*Version 1.0 — Neo-brutalist High-Contrast Learning Platform*
+*Version 1.1 — Neo-brutalist High-Contrast Learning Platform*
 
 This design document outlines the visual identity, styling tokens, responsive layout framework, and interactive behavior rules for **EduSphere**. It serves as the single source of truth for the UI/UX design and development teams.
 
@@ -99,10 +99,10 @@ EduSphere is structured as a single-screen dashboard layout with three main pers
 
 ### Layout Components:
 1.  **TopNav (Header):**
-    *   **Desktop:** Visible on screens `md` and up. Height: `20` (`5rem`). Fixed at the top with a bottom border `border-b-4 border-black` and shadow `shadow-[0_4px_0_0_rgba(0,0,0,1)]`.
+    *   **Desktop:** Visible on screens `md` and up. Height: `20` (`5rem`). Fixed at the top with a bottom border `border-b-2 border-black`. Contains tab buttons to switch views (`Dashboard`, `Quests`, `Notes`, `Library`) styled with active state backgrounds and brutalist shadows.
     *   **Mobile:** Hidden.
 2.  **Sidebar (Main Navigation Drawer):**
-    *   **Desktop:** Persistent left column, width `64` (`16rem`).
+    *   **Desktop:** Persistent left column, width `64` (`16rem`). Contains branding, rank details (e.g. `Gold Scholar`), a "New Quest" quick action button, and a main navigation list with active view highlights.
     *   **Mobile:** Hidden off-screen (`-translate-x-full`). Toggled into view as an absolute overlay drawer with backdrop blur using the mobile menu button in the header.
 3.  **BottomNav (Mobile Navigation):**
     *   **Desktop:** Hidden.
@@ -116,37 +116,44 @@ EduSphere is structured as a single-screen dashboard layout with three main pers
 
 ## 5. View-Specific UI Components
 
-### A. Home View (Dashboard)
-*   **Hero Welcome Banner:** Background is Sky Blue (`--color-surface-container-high`). Outlined in 4px black borders with an 8px solid shadow. Contains the user's name and XP progress.
+### A. Login Page (Terminal Verification Protocol)
+*   **Background Canvas:** Pure white layout with a custom dotted grid background (`radial-gradient`) for technical retro aesthetic.
+*   **System Status Header:** A top status bar with solid border indicating system online status and port configuration.
+*   **Login Box:** A centralized card (`#F3F4F6`) bounded by `border-2 border-black` with a heavy `shadow-[6px_6px_0_0_rgba(0,0,0,1)]`. Features a corner label `SECURE_NODE`.
+*   **Input Fields:** Strictly square fields with heavy outlines, transitioning to Mustard Yellow (`#FFF3C4`) background when focused.
+*   **Simulation Log Console:** When connecting, inputs are disabled and a terminal console appears at the bottom displaying step-by-step boot log prompts in light mint green (`#A7F3D0`).
+*   **Tester Presets:** Dotted border container offering quick buttons to pre-populate credentials for scholar and staff access tests.
+
+### B. Home View (Dashboard)
+*   **Hero Welcome Banner:** Background is Sky Blue (`#38BDF8`). Outlined in 2px black borders with a 6px solid shadow. Contains the user's name rendered inside a standalone white brutalist tag.
 *   **XP Progress Bar:** Underneath the XP counter, a custom progress bar uses a single-pixel line height. The background track is transparent-black outline, and the progress fill is a solid Mustard Yellow block.
 *   **Dynamic Scroll Tracks:** Horizontal scroll sections for WATCH, READ, and DO collections.
-    *   Tracks support touch-friendly kinetic scrolling, are snap-aligned (`snap-x snap-mandatory`), and have hidden scrollbars (`hide-scrollbar`).
-    *   Cards are colored based on their category: Mustard Yellow for WATCH, Sky Blue for READ, Mint Green for DO.
-    *   **Locked State:** Inactive cards display at `opacity-50` with a pointer-events blocker. A semi-transparent overlay is placed on top showing a centered solid-black padlock icon (`Lock` from lucide-react).
+*   **Locked State:** Inactive cards display at `opacity-50` with a pointer-events blocker. A semi-transparent overlay is placed on top showing a centered solid-black padlock icon.
 
-### B. Chat View (Messaging Workspace)
-*   **Inner Channel Column:** Left-hand list showing channels (`CH.01 MATH`, `CH.02 SCIENCE`). Uses a Cool Grey background and has a solid black divider separating it from the main stream. Active channel is marked by a solid black left border.
+### C. Chat View (Messaging Workspace)
+*   **Frequency Sidebar:** Left-hand list showing channels (`CH.01 MATH`, `CH.02 SCIENCE`). Uses a Cool Grey background. Active channel is marked by a solid black left border.
 *   **Message Stream:**
-    *   **Avatars:** Square images (`rounded-none`) enclosed in a `border-2 border-black` outline with a `shadow-[2px_2px_0_0_rgba(0,0,0,1)]`. Grayscale filter applied (`grayscale opacity-80`).
+    *   **Avatars:** Square images enclosed in a `border-2 border-black` outline with a `shadow-[2px_2px_0_0_rgba(0,0,0,1)]` and grayscale filter applied.
     *   **Standard Message Bubble:** Styled as flat cards with 4px borders and shadows.
-    *   **Staff replies:** Highlighted in Mustard Yellow background (`bg-primary`) with pure black text (`text-on-primary`) and a solid black `STAFF` badge.
+    *   **Staff Replies:** Highlighted in Mustard Yellow background (`bg-primary`) with pure black text and a solid black `STAFF` badge.
     *   **Upvoteable Cards:** Features interactive cards with a vote count, a status badge (`Unresolved` / `Resolved`), and details link.
 *   **Input Area:** Located at the bottom of the stream. Features an input container styled in Cool Grey with a 4px black border. The send button is a primary yellow square block.
 
-### C. Assignments View (Quest Canvas)
+### D. Assignments View (Quest Canvas)
 *   **Splitscreen Layout:**
-    *   **Left Column:** List of available quests. Active quest card translates offset with a heavy brutal shadow.
+    *   **Left Column:** List of available quests. Active quest card translates offset with a heavy brutal shadow. Completed quests display with a checkmark and strike-through styling.
     *   **Right Column:** Detailed quest brief and submission area.
-*   **Quest Progress Indicators:** Active quests display completion progress with an inline black line indicator and percentage count. Completed quests are struck out (`line-through` and `opacity-50`) and have a checkmark icon.
+*   **Rewards Box:** Displays the XP payoff for completing the active quest, presented inside a styled card.
 *   **Drag-and-Drop Portal:**
     *   A dotted border card (`border-4 border-dashed border-black`).
-    *   On mouse hover or drag-over, it transitions to a solid Mint Green background (`bg-surface-container`) with a custom scale animation on the upload icon.
+    *   On mouse hover or drag-over, it transitions to a solid background with a custom scale animation on the upload icon.
     *   Text toggles from "Drop payload here" to "Ready to upload".
 
-### D. Notes View (Reader Workspace)
-*   **Floating Action Bar:** Stays fixed to the right side of the notes canvas. Offers text resizing controls, saving, and bookmarking. Framed with a 4px black border and flat shadow.
+### E. Notes View (Reader Workspace)
+*   **Sticky Content Index:** Left sidebar showing the notes table of contents.
+*   **Floating Action Bar:** Stays fixed to the right side of the notes canvas. Offers text resizing controls, saving, and bookmarking. Framed with a 2px black border and flat shadow.
 *   **Key Formula Card:** Features mathematical formulas centered inside a custom frame. The formula is displayed in massive bold fonts (`text-3xl` to `text-4xl`) with a background container colored in Mustard Yellow.
-*   **Interactive Accordion Proofs:** Details are colloped by default. Clicking the accordion header rotates the chevron arrow, expands the inner details container smoothly (`transition-all`), and displays calculations in a monospaced font list.
+*   **Interactive Accordion Proofs:** Details are collapsed by default. Clicking the accordion header rotates the chevron arrow, expands the inner details container smoothly, and displays calculations in a monospaced font list.
 
 ---
 
@@ -161,7 +168,7 @@ Whenever an interactive card, button, or link is hovered, it shifts top-left whi
 *   **Active/Pressed state:** `translate-x-[2px] translate-y-[2px] shadow-[2px_2px_0_0_rgba(0,0,0,1)]`
 
 ### 2. Tab Navigation Transition
-Active tabs in headers or sidebar nav items transition color and borders instantly (or in a snappy `300ms` duration). Avoid long elastic animations; brutalism favors snappy, digital changes.
+Active tabs in headers or sidebar nav items transition color and borders instantly. Avoid long elastic animations; brutalism favors snappy, digital changes.
 
 ### 3. Accordion Height Transition
 Accordions animate max-height dynamically:
