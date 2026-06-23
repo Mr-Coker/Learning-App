@@ -32,9 +32,8 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
         />
       )}
 
-      {/* Sidebar container */}
       <aside className={`
-        fixed left-0 top-0 h-full w-64 bg-surface-container border-r border-outline-variant shadow-xl z-50 py-6 gap-2 flex flex-col flex-shrink-0
+        fixed left-0 top-0 h-full w-64 bg-surface-container border-r-4 border-black z-50 py-6 gap-2 flex flex-col flex-shrink-0
         transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
@@ -48,14 +47,11 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
         </button>
 
         <div className="px-6 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center overflow-hidden">
-              <div className="w-4 h-4 bg-on-primary rounded-full"></div>
-            </div>
-            <h2 className="font-serif text-2xl font-bold uppercase tracking-tighter text-on-surface">EduSphere</h2>
+          <div className="border-2 border-black bg-[#FFD833] text-black p-4 font-serif text-2xl font-black tracking-tighter uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-4 text-center">
+            EDUSPHERE
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-outline"></span>
+            <span className="w-1.5 h-1.5 bg-black"></span>
             <p className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">Rank: Gold Scholar</p>
           </div>
         </div>

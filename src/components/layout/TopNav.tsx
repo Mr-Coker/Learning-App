@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { 
   Bell, 
   Settings, 
@@ -11,9 +12,29 @@ interface TopNavProps {
   toggleSidebar: () => void;
 }
 
+const viewLabels: Record<ViewState, string> = {
+  home: "SYS // DASHBOARD",
+  chat: "SYS // COMMS_LINK",
+  assignments: "SYS // QUEST_LOG",
+  notes: "SYS // TRANSMISSIONS",
+  library: "SYS // DATA_HUB"
+};
+
 export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavProps) {
+  const [time, setTime] = useState('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <header className="hidden md:flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface border-b-2 border-black z-50 sticky top-0 flex-shrink-0 ">
+    <header className="hidden md:flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface border-b-4 border-black z-50 sticky top-0 flex-shrink-0 ">
       <div className="flex items-center gap-4">
         <button 
           onClick={toggleSidebar}
@@ -21,8 +42,8 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
         >
           <Menu size={24} />
         </button>
-        <div className="font-serif text-3xl md:text-4xl font-black tracking-tighter uppercase text-on-surface">
-          EduSphere
+        <div className="bg-black text-white px-3 py-1 font-mono text-xs uppercase tracking-widest inline-block border-2 border-black">
+          {viewLabels[currentView] || 'SYS // TERMINAL'}
         </div>
       </div>
       
@@ -54,6 +75,12 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
       </div>
 
       <div className="flex items-center gap-3 md:gap-4">
+        <div className="hidden lg:flex items-center gap-2 border-2 border-black bg-surface px-3 py-1 font-mono text-[10px] uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+          <span className="w-2 h-2 bg-emerald-500 animate-pulse inline-block border border-black"></span>
+          <span className="text-black font-bold">ONLINE</span>
+          <span className="text-gray-400">//</span>
+          <span className="text-black font-bold">{time}</span>
+        </div>
         <button className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] p-2 rounded-none transition-all duration-300 flex items-center justify-center">
           <Bell size={20} />
         </button>
