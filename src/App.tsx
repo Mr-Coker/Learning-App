@@ -6,6 +6,7 @@ import { HomeView } from './components/views/HomeView';
 import { ChatView } from './components/views/ChatView';
 import { AssignmentsView } from './components/views/AssignmentsView';
 import { NotesView } from './components/views/NotesView';
+import { LibraryView } from './components/views/LibraryView';
 import { LoginPage } from './components/views/LoginPage';
 import { ViewState } from './types';
 
@@ -48,6 +49,7 @@ export default function App() {
           {currentView === 'chat' && <ChatView />}
           {currentView === 'assignments' && <AssignmentsView />}
           {currentView === 'notes' && <NotesView />}
+          {currentView === 'library' && <LibraryView />}
         </main>
       </div>
       

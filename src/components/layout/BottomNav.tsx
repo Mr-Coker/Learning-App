@@ -2,8 +2,8 @@ import {
   Home, 
   MessageSquare, 
   ClipboardList, 
-  Radar,
-  FileText
+  FileText,
+  BookOpen
 } from 'lucide-react';
 import { ViewState } from '../../types';
 
@@ -45,6 +45,14 @@ export function BottomNav({ currentView, setCurrentView }: BottomNavProps) {
       >
         <FileText size={22} />
         <span className="font-mono text-[10px] mt-1 tracking-widest uppercase">Notes</span>
+      </button>
+
+      <button 
+        onClick={() => setCurrentView('library')}
+        className={`flex flex-col items-center justify-center transition-all duration-300 ${currentView === 'library' ? 'text-primary scale-110' : 'text-on-surface-variant hover:text-on-surface'}`}
+      >
+        <BookOpen size={22} />
+        <span className="font-mono text-[10px] mt-1 tracking-widest uppercase">Library</span>
       </button>
     </nav>
   );

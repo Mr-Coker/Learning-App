@@ -45,7 +45,10 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
         >
           Notes
         </button>
-        <button className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors duration-300 px-2 py-1 rounded-none border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+        <button 
+          onClick={() => setCurrentView('library')}
+          className={`font-mono text-[10px] uppercase tracking-widest transition-all duration-300 px-2 rounded-none py-1 border-2 border-transparent ${currentView === 'library' ? 'bg-primary text-on-primary border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'text-on-surface-variant hover:text-on-surface hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]'}`}
+        >
           Library
         </button>
       </div>

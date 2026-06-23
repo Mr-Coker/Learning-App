@@ -8,7 +8,8 @@ import {
   LogOut,
   Plus,
   X,
-  FileText
+  FileText,
+  BookOpen
 } from 'lucide-react';
 import { ViewState } from '../../types';
 
@@ -97,6 +98,14 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
           >
              <FileText size={18} />
              <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Notes</span>
+          </a>
+
+          <a
+            onClick={() => { setCurrentView('library'); setSidebarOpen(false); }}
+            className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-1 rounded-none ${currentView === 'library' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
+          >
+             <BookOpen size={18} />
+             <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Library</span>
           </a>
 
           <a className="flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer text-on-surface-variant hover:text-on-surface transition-all border-1 border-transparent rounded-none hover:bg-surface-container hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]">
