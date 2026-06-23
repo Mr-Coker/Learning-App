@@ -46,16 +46,16 @@ export default function App() {
   if (!isLoggedIn) {
     if (showRegister) {
       return (
-        <RegisterPage 
-          onRegisterSuccess={(email) => handleLogin(email)} 
-          onNavigateToLogin={() => setShowRegister(false)} 
+        <RegisterPage
+          onRegisterSuccess={(email) => handleLogin(email)}
+          onNavigateToLogin={() => setShowRegister(false)}
         />
       );
     }
     return (
-      <LoginPage 
-        onLogin={handleLogin} 
-        onNavigateToRegister={() => setShowRegister(true)} 
+      <LoginPage
+        onLogin={handleLogin}
+        onNavigateToRegister={() => setShowRegister(true)}
       />
     );
   }
@@ -64,16 +64,16 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
       <TopNav currentView={currentView} setCurrentView={setCurrentView} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      
+
       <div className="flex flex-1 overflow-hidden relative">
-        <Sidebar 
-          currentView={currentView} 
-          setCurrentView={setCurrentView} 
+        <Sidebar
+          currentView={currentView}
+          setCurrentView={setCurrentView}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           onLogout={handleLogout}
         />
-        
+
         <main className="flex-1 flex flex-col min-h-0 bg-background pb-16 md:pb-0">
           {currentView === 'home' && <HomeView userEmail={userEmail} />}
           {currentView === 'chat' && <ChatView />}
@@ -82,7 +82,7 @@ export default function App() {
           {currentView === 'library' && <LibraryView />}
         </main>
       </div>
-      
+
       <BottomNav currentView={currentView} setCurrentView={setCurrentView} />
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { 
-  Bell, 
-  Settings, 
+import {
+  Bell,
+  Settings,
   Menu
 } from 'lucide-react';
 import { ViewState } from '../../types';
@@ -36,7 +36,7 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
   return (
     <header className="hidden md:flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface border-b-4 border-black z-50 sticky top-0 flex-shrink-0 ">
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={toggleSidebar}
           className="lg:hidden text-on-surface-variant hover:text-on-surface"
         >
@@ -46,27 +46,27 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
           {viewLabels[currentView] || 'SYS // TERMINAL'}
         </div>
       </div>
-      
+
       <div className="hidden md:flex items-center gap-6">
-        <button 
-          onClick={() => setCurrentView('home')} 
+        <button
+          onClick={() => setCurrentView('home')}
           className={`font-mono text-[10px] uppercase tracking-widest transition-all duration-300 px-2 rounded-none py-1 border-2 border-transparent ${currentView === 'home' ? 'bg-primary text-on-primary border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'text-on-surface-variant hover:text-on-surface hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]'}`}
         >
           Dashboard
         </button>
-        <button 
+        <button
           onClick={() => setCurrentView('assignments')}
           className={`font-mono text-[10px] uppercase tracking-widest transition-all duration-300 px-2 rounded-none py-1 border-2 border-transparent ${currentView === 'assignments' ? 'bg-primary text-on-primary border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'text-on-surface-variant hover:text-on-surface hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]'}`}
         >
           Quests
         </button>
-        <button 
+        <button
           onClick={() => setCurrentView('notes')}
           className={`font-mono text-[10px] uppercase tracking-widest transition-all duration-300 px-2 rounded-none py-1 border-2 border-transparent ${currentView === 'notes' ? 'bg-primary text-on-primary border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'text-on-surface-variant hover:text-on-surface hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]'}`}
         >
           Notes
         </button>
-        <button 
+        <button
           onClick={() => setCurrentView('library')}
           className={`font-mono text-[10px] uppercase tracking-widest transition-all duration-300 px-2 rounded-none py-1 border-2 border-transparent ${currentView === 'library' ? 'bg-primary text-on-primary border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'text-on-surface-variant hover:text-on-surface hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)]'}`}
         >
@@ -88,10 +88,10 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
           <Settings size={20} />
         </button>
         <div className="w-9 h-9 md:w-10 md:h-10 rounded-none bg-secondary overflow-hidden border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-          <img 
-            className="w-full h-full object-cover" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZXUFLYBtv-tRHA6wW9oAHItHJiXq969tC_Kprve0Zx21kmHyt9pFdnvFGF5amrkdTpZfuCQSlWDJLULcoqk7sj2z_jLpxd4HarpkqZFmgTXYD_wH1_3RiBlMAiGsoi__PSWJwHK6UTWuogR5T0U0vNcdYO30LkTH0FHThwt4-yTWCVmpHXbcRFZO4clE0aDwsNJluimh7APlKIoE8AaE9S8YypODas3DE1lBRBWcRUujVfHSf7ENYoBkxYX92gBBBg0Su5s5tq84" 
-            alt="Student avatar" 
+          <img
+            className="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZXUFLYBtv-tRHA6wW9oAHItHJiXq969tC_Kprve0Zx21kmHyt9pFdnvFGF5amrkdTpZfuCQSlWDJLULcoqk7sj2z_jLpxd4HarpkqZFmgTXYD_wH1_3RiBlMAiGsoi__PSWJwHK6UTWuogR5T0U0vNcdYO30LkTH0FHThwt4-yTWCVmpHXbcRFZO4clE0aDwsNJluimh7APlKIoE8AaE9S8YypODas3DE1lBRBWcRUujVfHSf7ENYoBkxYX92gBBBg0Su5s5tq84"
+            alt="Student avatar"
           />
         </div>
       </div>
