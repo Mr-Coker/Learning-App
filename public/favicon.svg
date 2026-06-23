@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Hard Neo-Brutalist Black Frame -->
+  <rect x="0" y="0" width="32" height="32" fill="#000000" rx="0" />
+  
+  <!-- Large Outer Ring (Adapted Yellow from Screenshot) -->
+  <circle cx="16" cy="16" r="14" fill="#FFC933" stroke="#000000" stroke-width="1.5" />
+  
+  <!-- Central Hard Black Pupil (Adapted Black from Screenshot) -->
+  <circle cx="16" cy="16" r="6" fill="#000000" />
+  
+  <!-- Stark Tech Accent Dot -->
+  <rect x="16" y="8" width="1" height="1" fill="#FFFFFF" />
+</svg>

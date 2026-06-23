@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { TopNav } from './components/layout/TopNav';
 import { BottomNav } from './components/layout/BottomNav';
@@ -17,6 +17,19 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+
+  useEffect(() => {
+    const tabLabels: Record<ViewState, string> = {
+      home: "EDUSPHERE // DASHBOARD",
+      chat: "EDUSPHERE // COMMS_LINK",
+      assignments: "EDUSPHERE // QUESTS",
+      notes: "EDUSPHERE // TRANSMISSIONS",
+      library: "EDUSPHERE // DATA_HUB"
+    };
+
+    document.title = tabLabels[currentView] || "EduSphere // Terminal";
+  }, [currentView]);
+
 
   const handleLogin = (email: string) => {
     setUserEmail(email);
