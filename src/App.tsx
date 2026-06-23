@@ -8,6 +8,7 @@ import { AssignmentsView } from './components/views/AssignmentsView';
 import { NotesView } from './components/views/NotesView';
 import { LibraryView } from './components/views/LibraryView';
 import { LoginPage } from './components/views/LoginPage';
+import { RegisterPage } from './components/views/RegisterPage';
 import { ViewState } from './types';
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
   const [userEmail, setUserEmail] = useState('');
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   const handleLogin = (email: string) => {
     setUserEmail(email);
@@ -25,11 +27,26 @@ export default function App() {
     setIsLoggedIn(false);
     setUserEmail('');
     setCurrentView('home');
+    setShowRegister(false);
   };
 
   if (!isLoggedIn) {
-    return <LoginPage onLogin={handleLogin} />;
+    if (showRegister) {
+      return (
+        <RegisterPage 
+          onRegisterSuccess={(email) => handleLogin(email)} 
+          onNavigateToLogin={() => setShowRegister(false)} 
+        />
+      );
+    }
+    return (
+      <LoginPage 
+        onLogin={handleLogin} 
+        onNavigateToRegister={() => setShowRegister(true)} 
+      />
+    );
   }
+
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">

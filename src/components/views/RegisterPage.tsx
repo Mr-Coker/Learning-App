@@ -1,36 +1,35 @@
 import React, { useState } from 'react';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import { Shield, Sparkles, Terminal, ArrowRight, UserCheck, AlertTriangle } from 'lucide-react';
+import { UserRole } from '../../types';
 
-interface LoginPageProps {
-  onLogin: (username: string) => void;
-  onNavigateToRegister: () => void;
+interface RegisterPageProps {
+  onRegisterSuccess: (email: string) => void;
+  onNavigateToLogin: () => void;
 }
 
-export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
-  const [username, setUsername] = useState('');
+export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterPageProps) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<UserRole>('LEARNER');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
 
-  // Preset accounts for one-click high-fidelity testing
-  const presets = [
-    { user: 'scholar@edusphere.net', label: 'SCHOLAR_DEMO' },
-    { user: 'admin@edusphere.net', label: 'STAFF_DEMO' }
-  ];
+  const register = useMutation(api.users.registerUser);
 
-  const handlePresetClick = (email: string) => {
-    setUsername(email);
-    setPassword('orbital_access_key_2026');
-    setError('');
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!username.trim()) {
-      setError('ERROR: USER_PAYLOAD IS EMPTY');
+    if (!name.trim()) {
+      setError('ERROR: USER_NAME IS EMPTY');
+      return;
+    }
+    if (!email.trim()) {
+      setError('ERROR: USER_EMAIL IS EMPTY');
       return;
     }
     if (!password.trim()) {
@@ -39,24 +38,38 @@ export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
     }
 
     setIsLoading(true);
-    setLogs(['> INITIALIZING CONNECTION TO ORBITAL BEACON...']);
+    setLogs(['> INITIALIZING SECURE REGISTRATION PROTOCOL...']);
 
-    // Simulate connection logs for high-fidelity interactive feel
     setTimeout(() => {
       setLogs(prev => [...prev, '> RESOLVING NODE: EDUSPHERE.CENTRAL.API']);
     }, 250);
 
     setTimeout(() => {
-      setLogs(prev => [...prev, '> INJECTING SECURITY CREDENTIALS...']);
+      setLogs(prev => [...prev, '> VALIDATING UNIQUE ENDPOINT CREDENTIALS...']);
     }, 500);
 
-    setTimeout(() => {
-      setLogs(prev => [...prev, '> ACCESS GRANTED. SYNCHRONIZING FILESYSTEM...']);
-    }, 750);
+    // After 750ms, run the mutation
+    setTimeout(async () => {
+      try {
+        setLogs(prev => [...prev, '> WRITING ENCRYPTED CREDENTIALS TO DATABASE...']);
+        await register({
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          password: password,
+          role: role,
+        });
 
-    setTimeout(() => {
-      onLogin(username);
-    }, 1000);
+        setLogs(prev => [...prev, '> ACCOUNT SUCCESSFULLY DEPLOYED. INITIALIZING AUTO-LOGIN...']);
+        
+        setTimeout(() => {
+          setIsLoading(false);
+          onRegisterSuccess(email.trim().toLowerCase());
+        }, 500);
+      } catch (err: any) {
+        setIsLoading(false);
+        setError(err.message || 'REGISTRATION FAILED: UNKNOWN SYSTEM ERROR');
+      }
+    }, 750);
   };
 
   return (
@@ -72,7 +85,7 @@ export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-[#A7F3D0] border-2 border-black rounded-none"></div>
           <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
-            SYSTEM_STATUS // ONLINE
+            REGISTRATION_STATUS // ACTIVE
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -89,41 +102,60 @@ export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
           
           {/* Corner Decors */}
           <div className="absolute -top-3.5 -left-3.5 bg-white border-2 border-black px-1.5 py-0.5 font-mono text-[8px] font-bold text-black uppercase tracking-wider select-none z-20">
-            SECURE_NODE
+            NEW_NODE_CREATION
           </div>
           
           {/* Header */}
           <div className="text-center mb-8 border-b-4 border-black pb-4">
             <h1 className="font-serif text-4xl md:text-5xl font-black tracking-tighter uppercase text-black">
-              EDUSPHERE LOGIN
+              CREATE NODE
             </h1>
             <p className="font-mono text-[10px] uppercase tracking-widest text-gray-600 mt-2">
-              VERIFICATION_PROTOCOL // REQUIRED
+              REGISTRATION // PROTOCOL
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username/Email Input Container */}
-            <div className="flex flex-col space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name Input */}
+            <div className="flex flex-col space-y-1.5">
               <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black flex justify-between">
-                <span>USER_PAYLOAD //</span>
-                <span className="text-gray-400">EMAIL_OR_USERNAME</span>
+                <span>NODE_NAME //</span>
+                <span className="text-gray-400">FULL_NAME</span>
               </label>
               <input
                 type="text"
-                value={username}
+                value={name}
                 onChange={(e) => {
-                  setUsername(e.target.value);
+                  setName(e.target.value);
                   setError('');
                 }}
                 disabled={isLoading}
-                placeholder="ENTER USERNAME OR EMAIL"
+                placeholder="ENTER FULL NAME"
                 className="w-full bg-white border-2 border-black rounded-none p-3 font-sans text-sm font-semibold uppercase text-black placeholder-gray-400 focus:outline-none focus:bg-[#FFF3C4] transition-colors"
               />
             </div>
 
-            {/* Password Input Container */}
-            <div className="flex flex-col space-y-2">
+            {/* Email Input */}
+            <div className="flex flex-col space-y-1.5">
+              <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black flex justify-between">
+                <span>USER_PAYLOAD //</span>
+                <span className="text-gray-400">EMAIL_ADDRESS</span>
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError('');
+                }}
+                disabled={isLoading}
+                placeholder="ENTER EMAIL ADDRESS"
+                className="w-full bg-white border-2 border-black rounded-none p-3 font-sans text-sm font-semibold uppercase text-black placeholder-gray-400 focus:outline-none focus:bg-[#FFF3C4] transition-colors"
+              />
+            </div>
+
+            {/* Password Input */}
+            <div className="flex flex-col space-y-1.5">
               <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black flex justify-between">
                 <span>ACCESS_KEY //</span>
                 <span className="text-gray-400">PASSWORD</span>
@@ -139,6 +171,40 @@ export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
                 placeholder="••••••••••••"
                 className="w-full bg-white border-2 border-black rounded-none p-3 font-sans text-sm font-semibold text-black placeholder-gray-400 focus:outline-none focus:bg-[#FFF3C4] transition-colors"
               />
+            </div>
+
+            {/* User Role Selection */}
+            <div className="flex flex-col space-y-1.5">
+              <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black flex justify-between">
+                <span>ASSIGNED_ROLE //</span>
+                <span className="text-gray-400">LEARNER_VS_TRANSMITTER</span>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole('LEARNER')}
+                  disabled={isLoading}
+                  className={`border-2 border-black rounded-none py-2 px-3 font-mono text-[10px] font-bold uppercase cursor-pointer transition-all duration-100 ${
+                    role === 'LEARNER' 
+                      ? 'bg-[#38BDF8] text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                      : 'bg-white text-black hover:bg-gray-100'
+                  }`}
+                >
+                  LEARNER
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('TRANSMITTER')}
+                  disabled={isLoading}
+                  className={`border-2 border-black rounded-none py-2 px-3 font-mono text-[10px] font-bold uppercase cursor-pointer transition-all duration-100 ${
+                    role === 'TRANSMITTER' 
+                      ? 'bg-[#A7F3D0] text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                      : 'bg-white text-black hover:bg-gray-100'
+                  }`}
+                >
+                  TRANSMITTER
+                </button>
+              </div>
             </div>
 
             {/* Simulated Error Alert */}
@@ -158,48 +224,27 @@ export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
               </div>
             )}
 
-            {/* Primary Action Submit Button */}
+            {/* Submit & Switch Actions */}
             {!isLoading && (
-              <div className="space-y-3">
+              <div className="space-y-3 pt-2">
                 <button
                   type="submit"
                   className="w-full bg-[#FFD833] border-2 border-black rounded-none py-3.5 font-mono text-xs font-bold uppercase tracking-widest text-black flex items-center justify-center gap-2 cursor-pointer transition-all duration-100 ease-in-out hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_0_rgba(0,0,0,1)] shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
                 >
-                  <span>ENTER ORBIT</span>
+                  <span>REGISTER NODE</span>
                   <ArrowRight size={14} />
                 </button>
+
                 <button
                   type="button"
-                  onClick={onNavigateToRegister}
-                  className="w-full bg-white border-2 border-black rounded-none py-2.5 font-mono text-[9px] font-bold uppercase text-black hover:bg-gray-100 transition-colors"
+                  onClick={onNavigateToLogin}
+                  className="w-full bg-white border-2 border-black rounded-none py-2 font-mono text-[9px] font-bold uppercase text-black hover:bg-gray-100 transition-colors"
                 >
-                  NEW PROTOCOL? REGISTER NEW NODE
+                  ALREADY REGISTERED? PROCEED TO LOGIN
                 </button>
               </div>
             )}
-
           </form>
-
-          {/* Quick presets for testers */}
-          <div className="mt-8 pt-6 border-t-2 border-dashed border-black">
-            <span className="font-mono text-[8px] font-bold text-gray-500 uppercase tracking-widest block mb-2">
-              SIMULATED_ACCOUNTS // CLICK_TO_FILL
-            </span>
-            <div className="grid grid-cols-2 gap-3">
-              {presets.map((preset) => (
-                <button
-                  key={preset.user}
-                  type="button"
-                  onClick={() => handlePresetClick(preset.user)}
-                  disabled={isLoading}
-                  className="bg-white border border-black rounded-none py-1.5 px-2 font-mono text-[9px] font-bold uppercase text-black hover:bg-[#38BDF8] active:bg-[#A7F3D0] cursor-pointer transition-colors text-left flex items-center justify-between"
-                >
-                  <span>{preset.label}</span>
-                  <UserCheck size={10} />
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
