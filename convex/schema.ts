@@ -6,9 +6,58 @@ export default defineSchema({
     name: v.string(),
     email: v.string(),
     passwordHash: v.string(),
-    role: v.string(),
+    role: v.union(
+      v.literal("student"), 
+      v.literal("teacher"), 
+      v.literal("admin"), 
+      v.literal("LEARNER"), 
+      v.literal("TRANSMITTER")
+    ),
+    classId: v.optional(v.string()),
+    xp: v.number(),
     createdAt: v.number(),
   }).index("by_email", ["email"]),
+
+  subjects: defineTable({
+    name: v.string(),
+    code: v.string(),
+    teacherId: v.id("users"),
+  }).index("by_teacherId", ["teacherId"]),
+
+  quests: defineTable({
+    title: v.string(),
+    description: v.string(),
+    subjectId: v.id("subjects"),
+    xpReward: v.number(),
+    dueDate: v.string(),
+  }).index("by_subjectId", ["subjectId"]),
+
+  questSubmissions: defineTable({
+    questId: v.id("quests"),
+    studentId: v.id("users"),
+    status: v.union(v.literal("pending"), v.literal("completed")),
+    submittedAt: v.number(),
+  })
+    .index("by_questId", ["questId"])
+    .index("by_studentId", ["studentId"]),
+
+  messages: defineTable({
+    senderId: v.id("users"),
+    receiverId: v.id("users"),
+    content: v.string(),
+    type: v.union(v.literal("teacher_student"), v.literal("admin_teacher")),
+    createdAt: v.number(),
+  })
+    .index("by_senderId", ["senderId"])
+    .index("by_receiverId", ["receiverId"]),
+
+  financialMetrics: defineTable({
+    amount: v.number(),
+    paymentStatus: v.union(v.literal("success"), v.literal("failed")),
+    studentId: v.id("users"),
+    timestamp: v.number(),
+  }).index("by_studentId", ["studentId"]),
+
   activityLogs: defineTable({
     type: v.string(),
     message: v.string(),

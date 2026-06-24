@@ -61,3 +61,24 @@ export const getRecentActivity = query({
     }));
   },
 });
+
+export const getAdminMetrics = query({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    const totalStudents = users.filter(u => u.role === "student" || u.role === "LEARNER").length;
+    const totalFacilitators = users.filter(u => u.role === "teacher" || u.role === "TRANSMITTER").length;
+
+    const payments = await ctx.db.query("financialMetrics").collect();
+    const totalRevenue = payments
+      .filter(p => p.paymentStatus === "success")
+      .reduce((sum, p) => sum + p.amount, 0);
+
+    return {
+      totalStudents,
+      totalFacilitators,
+      totalRevenue,
+    };
+  },
+});
+
