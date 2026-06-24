@@ -62,11 +62,15 @@ export function TopNav({ currentView, setCurrentView, role, onLogout }: TopNavPr
       {/* Tier 1 Header */}
       <div className="flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface">
         {/* Brand / Logo */}
-        <div className="flex items-center gap-4">
-          <div className="font-serif text-xl sm:text-2xl font-black uppercase tracking-tighter text-black select-none">
-            EDUSPHERE
-          </div>
-        </div>
+        <button 
+          onClick={() => setCurrentView('home')}
+         className="flex items-center gap-2 px-2 py-1"
+        >
+          <img src="/favicon.svg" alt="EduSphere logo" className="h-10 w-10 object-contain" />
+          <span className="font-serif text-xl sm:text-3xl font-black uppercase tracking-tighter select-none">
+            EduSphere
+          </span>
+        </button>
 
         {/* Desktop Tabs (md:flex) */}
         <div className="hidden md:flex items-center gap-2 lg:gap-4">

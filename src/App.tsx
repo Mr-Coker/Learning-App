@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { TopNav } from './components/layout/TopNav';
-import { BottomNav } from './components/layout/BottomNav';
 import { HomeView } from './components/views/HomeView';
 import { ChatView } from './components/views/ChatView';
 import { AssignmentsView } from './components/views/AssignmentsView';
@@ -205,10 +204,6 @@ export default function App() {
             )}
           </main>
         </div>
-        
-        {userRole === 'student' && (
-          <BottomNav currentView={currentView} setCurrentView={setCurrentView} />
-        )}
       </div>
     );
   }
