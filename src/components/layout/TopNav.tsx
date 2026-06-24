@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
+import { 
   Bell,
   Settings,
   Menu
@@ -36,7 +36,7 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
   return (
     <header className="hidden md:flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface border-b-4 border-black z-50 sticky top-0 flex-shrink-0 ">
       <div className="flex items-center gap-4">
-        <button
+        <button 
           onClick={toggleSidebar}
           className="lg:hidden text-on-surface-variant hover:text-on-surface"
           aria-label="Toggle navigation menu"

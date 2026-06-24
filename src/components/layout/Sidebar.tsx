@@ -1,4 +1,4 @@
-import {
+import { 
   Home,
   MessageSquare,
   ClipboardList,
@@ -11,6 +11,8 @@ import {
   FileText,
   BookOpen
 } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import { ViewState } from '../../types';
 
 interface SidebarProps {
@@ -26,7 +28,7 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
     <>
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
+        <div 
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -37,10 +39,10 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
         transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-
+        
         {/* Mobile close button */}
-        <button
-          onClick={() => setSidebarOpen(false)}
+          <button 
+            onClick={() => setSidebarOpen(false)}
           className="absolute top-4 right-4 lg:hidden text-on-surface-variant hover:text-on-surface"
         >
           <X size={24} />
@@ -91,7 +93,7 @@ export function Sidebar({ currentView, setCurrentView, sidebarOpen, setSidebarOp
           <a
             onClick={() => { setCurrentView('notes'); setSidebarOpen(false); }}
             className={`flex items-center gap-4 px-6 py-3 mx-2 cursor-pointer transition-all border-1 rounded-none ${currentView === 'notes' ? 'text-on-surface border-black bg-surface-container shadow-[4px_4px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container border-transparent hover:border-black hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
-          >
+              >
             <FileText size={18} />
             <span className="font-mono text-[10px] uppercase tracking-widest mt-1">Notes</span>
           </a>
