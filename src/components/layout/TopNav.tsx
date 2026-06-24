@@ -17,7 +17,9 @@ const viewLabels: Record<ViewState, string> = {
   chat: "SYS // COMMS_LINK",
   assignments: "SYS // QUEST_LOG",
   notes: "SYS // TRANSMISSIONS",
-  library: "SYS // DATA_HUB"
+  library: "SYS // DATA_HUB",
+  teacher: "SYS // TEACHER_CONSOLE",
+  admin: "SYS // ADMIN_CONSOLE"
 };
 
 export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavProps) {

@@ -6,9 +6,10 @@ import { Id } from '../../../convex/_generated/dataModel';
 
 interface TeacherDashboardProps {
   userEmail: string;
+  onLogout?: () => void;
 }
 
-export function TeacherDashboard({ userEmail }: TeacherDashboardProps) {
+export function TeacherDashboard({ userEmail, onLogout }: TeacherDashboardProps) {
   const teacher = useQuery(api.users.getCurrentUserRole, { email: userEmail });
   const subjects = useQuery(api.teacher.getTeacherSubjects, { teacherEmail: userEmail });
   const students = useQuery(api.admin.getStudentRoster);
@@ -71,9 +72,19 @@ export function TeacherDashboard({ userEmail }: TeacherDashboardProps) {
             NODE_LINK: {userEmail} // STRUCTURAL_ROLE: {teacher?.role || 'TEACHER'}
           </p>
         </div>
-        <div className="border-2 border-black bg-black text-white px-3 py-1 font-mono text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-[2px_2px_0_0_#FFD833]">
-          <Award size={14} className="text-[#FFD833]" />
-          <span>FACILITATOR // ACTIVE</span>
+        <div className="flex items-center gap-3">
+          <div className="border-2 border-black bg-black text-white px-3 py-1 font-mono text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-[2px_2px_0_0_#FFD833] hidden sm:flex">
+            <Award size={14} className="text-[#FFD833]" />
+            <span>FACILITATOR // ACTIVE</span>
+          </div>
+          {onLogout && (
+            <button 
+              onClick={onLogout}
+              className="border-2 border-black bg-[#FF3B30] text-white px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-colors shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
+            >
+              LOGOUT
+            </button>
+          )}
         </div>
       </div>
 

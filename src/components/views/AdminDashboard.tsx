@@ -6,9 +6,10 @@ import { Id } from '../../../convex/_generated/dataModel';
 
 interface AdminDashboardProps {
   userEmail: string;
+  onLogout?: () => void;
 }
 
-export function AdminDashboard({ userEmail }: AdminDashboardProps) {
+export function AdminDashboard({ userEmail, onLogout }: AdminDashboardProps) {
   const adminProfile = useQuery(api.users.getCurrentUserRole, { email: userEmail });
   const stats = useQuery(api.dashboard.getAdminMetrics);
   const roster = useQuery(api.admin.getStudentRoster);
@@ -57,9 +58,19 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
             AUTHORIZED OPERATOR: {userEmail} // LEVEL_5_OVERRIDE
           </p>
         </div>
-        <div className="border-2 border-[#FFD833] bg-black text-[#FFD833] px-3 py-1 font-mono text-xs uppercase tracking-widest flex items-center gap-1.5">
-          <Shield size={14} />
-          <span>CONSOLE // ROOT</span>
+        <div className="flex items-center gap-3">
+          <div className="border-2 border-[#FFD833] bg-black text-[#FFD833] px-3 py-1 font-mono text-xs uppercase tracking-widest flex items-center gap-1.5 hidden sm:flex">
+            <Shield size={14} />
+            <span>CONSOLE // ROOT</span>
+          </div>
+          {onLogout && (
+            <button 
+              onClick={onLogout}
+              className="border-2 border-black bg-[#FF3B30] text-white px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-colors shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
+            >
+              LOGOUT
+            </button>
+          )}
         </div>
       </div>
 
