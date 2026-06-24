@@ -3,13 +3,15 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Book, Users, MessageSquare, Send, ShieldAlert, Award } from 'lucide-react';
 import { Id } from '../../../convex/_generated/dataModel';
+import { ViewState } from '../../types';
 
 interface TeacherDashboardProps {
   userEmail: string;
   onLogout?: () => void;
+  currentView: ViewState;
 }
 
-export function TeacherDashboard({ userEmail, onLogout }: TeacherDashboardProps) {
+export function TeacherDashboard({ userEmail, onLogout, currentView }: TeacherDashboardProps) {
   const teacher = useQuery(api.users.getCurrentUserRole, { email: userEmail });
   const subjects = useQuery(api.teacher.getTeacherSubjects, { teacherEmail: userEmail });
   const students = useQuery(api.admin.getStudentRoster);
@@ -62,69 +64,47 @@ export function TeacherDashboard({ userEmail, onLogout }: TeacherDashboardProps)
 
   return (
     <div className="flex-1 flex flex-col p-6 md:p-10 bg-white overflow-y-auto select-none">
-      {/* Immersive Header */}
-      <div className="border-4 border-black bg-[#FFD833] text-black p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="font-serif text-3xl font-black uppercase tracking-tighter">
-            FACILITATOR_DASHBOARD // {teacher?.name || 'SYS_USER'}
-          </h1>
-          <p className="font-mono text-xs uppercase tracking-widest text-black/70 mt-1">
-            NODE_LINK: {userEmail} // STRUCTURAL_ROLE: {teacher?.role || 'TEACHER'}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="border-2 border-black bg-black text-white px-3 py-1 font-mono text-xs uppercase tracking-widest flex items-center gap-1.5 shadow-[2px_2px_0_0_#FFD833] hidden sm:flex">
-            <Award size={14} className="text-[#FFD833]" />
-            <span>FACILITATOR // ACTIVE</span>
-          </div>
-          {onLogout && (
-            <button 
-              onClick={onLogout}
-              className="border-2 border-black bg-[#FF3B30] text-white px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-colors shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
-            >
-              LOGOUT
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Subject Grid */}
-      <div className="mb-10">
-        <div className="font-mono text-xs uppercase tracking-widest text-black font-bold mb-4 flex items-center gap-2">
-          <Book size={14} />
-          <span>REGISTERED_SUBJECTS // L1_CORE</span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {subjects?.map((subj) => (
-            <div
-              key={subj._id}
-              className="border-4 border-black p-6 bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all cursor-pointer flex flex-col justify-between"
-            >
-              <div>
-                <span className="font-mono text-xs uppercase tracking-widest bg-black text-white px-2 py-0.5 border border-black font-bold">
-                  {subj.code}
-                </span>
-                <h3 className="font-serif text-xl font-bold uppercase tracking-tight mt-3 mb-1">
-                  {subj.name}
-                </h3>
-              </div>
-              <div className="mt-6 pt-4 border-t-2 border-black flex justify-between items-center">
-                <span className="font-mono text-[10px] uppercase tracking-wider font-bold">ASSIGNED_STUDENTS</span>
-                <div className="border-2 border-black bg-white px-3 py-1 font-mono font-bold text-sm shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                  {subj.assignedStudents}
+      {currentView === 'home' && (
+        <div className="mb-10">
+          <div className="font-mono text-xs uppercase tracking-widest text-black font-bold mb-4 flex items-center gap-2">
+            <Book size={14} />
+            <span>REGISTERED_SUBJECTS // L1_CORE</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {subjects?.map((subj) => (
+              <div
+                key={subj._id}
+                className="border-4 border-black p-6 bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all cursor-pointer flex flex-col justify-between"
+              >
+                <div>
+                  <span className="font-mono text-xs uppercase tracking-widest bg-black text-white px-2 py-0.5 border border-black font-bold">
+                    {subj.code}
+                  </span>
+                  <h3 className="font-serif text-xl font-bold uppercase tracking-tight mt-3 mb-1">
+                    {subj.name}
+                  </h3>
+                </div>
+                <div className="mt-6 pt-4 border-t-2 border-black flex justify-between items-center">
+                  <span className="font-mono text-[10px] uppercase tracking-wider font-bold">ASSIGNED_STUDENTS</span>
+                  <div className="border-2 border-black bg-white px-3 py-1 font-mono font-bold text-sm shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                    {subj.assignedStudents}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Split Chat Hub */}
-      <div>
-        <div className="font-mono text-xs uppercase tracking-widest text-black font-bold mb-4 flex items-center gap-2">
-          <MessageSquare size={14} />
-          <span>COMMUNICATION_HUB // PIPELINES</span>
-        </div>
+      {currentView === 'chat' && (
+        <div>
+          <div className="font-mono text-xs uppercase tracking-widest text-black font-bold mb-4 flex items-center gap-2">
+            <MessageSquare size={14} />
+            <span>COMMUNICATION_HUB // PIPELINES</span>
+          </div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-3 border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] bg-white min-h-[450px]">
           {/* Sidebar Area */}
@@ -248,6 +228,7 @@ export function TeacherDashboard({ userEmail, onLogout }: TeacherDashboardProps)
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

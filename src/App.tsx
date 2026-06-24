@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Sidebar } from './components/layout/Sidebar';
 import { TopNav } from './components/layout/TopNav';
 import { BottomNav } from './components/layout/BottomNav';
 import { HomeView } from './components/views/HomeView';
@@ -89,7 +88,6 @@ export default function App() {
   const [userEmail, setUserEmail] = useState(() => localStorage.getItem('edusphere_email') || '');
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('edusphere_email'));
   const [currentView, setCurrentView] = useState<ViewState>('home');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
 
   // Synchronized Convex real-time state for user profile/role
@@ -170,48 +168,56 @@ export default function App() {
     );
   }
 
-  // Structural portal rendering based on user role
-  switch (userRole) {
-    case 'student':
-      return (
-        <div className="flex flex-col h-screen overflow-hidden bg-background">
-          <TopNav currentView={currentView} setCurrentView={setCurrentView} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-          
-          <div className="flex flex-1 overflow-hidden relative">
-            <Sidebar 
-              currentView={currentView} 
-              setCurrentView={setCurrentView} 
-              sidebarOpen={sidebarOpen}
-              setSidebarOpen={setSidebarOpen}
-              onLogout={handleLogout}
-            />
-            
-            <main className="flex-1 flex flex-col min-h-0 bg-background pb-16 md:pb-0">
-              {currentView === 'home' && <HomeView userEmail={userEmail} />}
-              {currentView === 'chat' && <ChatView />}
-              {currentView === 'assignments' && <AssignmentsView />}
-              {currentView === 'notes' && <NotesView />}
-              {currentView === 'library' && <LibraryView />}
-            </main>
-          </div>
-          
-          <BottomNav currentView={currentView} setCurrentView={setCurrentView} />
-        </div>
-      );
-
-    case 'teacher':
-      return <TeacherDashboard userEmail={userEmail} onLogout={handleLogout} />;
-
-    case 'admin':
-      return <AdminDashboard userEmail={userEmail} onLogout={handleLogout} />;
-
-    default:
-      // In case of an unrecognized role, render Login fallback
-      return (
-        <LoginPage 
-          onLogin={handleLogin} 
-          onNavigateToRegister={() => setShowRegister(true)} 
+  if (userRole === 'student' || userRole === 'teacher' || userRole === 'admin') {
+    return (
+      <div className="flex flex-col h-screen overflow-hidden bg-background">
+        <TopNav 
+          currentView={currentView} 
+          setCurrentView={setCurrentView} 
+          role={userRole} 
+          onLogout={handleLogout} 
         />
-      );
+        
+        <div className="flex flex-1 overflow-hidden relative">
+          <main className="flex-1 flex flex-col min-h-0 bg-background pb-16 md:pb-0">
+            {userRole === 'student' && (
+              <>
+                {currentView === 'home' && <HomeView userEmail={userEmail} />}
+                {currentView === 'chat' && <ChatView />}
+                {currentView === 'assignments' && <AssignmentsView />}
+                {currentView === 'notes' && <NotesView />}
+                {currentView === 'library' && <LibraryView />}
+              </>
+            )}
+            {userRole === 'teacher' && (
+              <TeacherDashboard 
+                userEmail={userEmail} 
+                onLogout={handleLogout} 
+                currentView={currentView} 
+              />
+            )}
+            {userRole === 'admin' && (
+              <AdminDashboard 
+                userEmail={userEmail} 
+                onLogout={handleLogout} 
+                currentView={currentView} 
+              />
+            )}
+          </main>
+        </div>
+        
+        {userRole === 'student' && (
+          <BottomNav currentView={currentView} setCurrentView={setCurrentView} />
+        )}
+      </div>
+    );
   }
+
+  // In case of an unrecognized role, render Login fallback
+  return (
+    <LoginPage 
+      onLogin={handleLogin} 
+      onNavigateToRegister={() => setShowRegister(true)} 
+    />
+  );
 }
