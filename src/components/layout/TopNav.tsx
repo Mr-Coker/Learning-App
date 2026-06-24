@@ -39,6 +39,8 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
         <button
           onClick={toggleSidebar}
           className="lg:hidden text-on-surface-variant hover:text-on-surface"
+          aria-label="Toggle navigation menu"
+          title="Toggle Navigation Menu"
         >
           <Menu size={24} />
         </button>
@@ -81,10 +83,18 @@ export function TopNav({ currentView, setCurrentView, toggleSidebar }: TopNavPro
           <span className="text-gray-400">//</span>
           <span className="text-black font-bold">{time}</span>
         </div>
-        <button className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] p-2 rounded-none transition-all duration-300 flex items-center justify-center">
+        <button 
+          aria-label="Notifications"
+          title="Notifications"
+          className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] p-2 rounded-none transition-all duration-300 flex items-center justify-center"
+        >
           <Bell size={20} />
         </button>
-        <button className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] p-2 rounded-none transition-all duration-300 flex items-center justify-center">
+        <button 
+          aria-label="Settings"
+          title="Settings"
+          className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] p-2 rounded-none transition-all duration-300 flex items-center justify-center"
+        >
           <Settings size={20} />
         </button>
         <div className="w-9 h-9 md:w-10 md:h-10 rounded-none bg-secondary overflow-hidden border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
