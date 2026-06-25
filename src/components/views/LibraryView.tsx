@@ -11,10 +11,13 @@ import {
   Layers 
 } from 'lucide-react';
 
-/* ─── Type Definitions ──────────────────────────────────────────────── */
 type LibraryScreen = 'grades' | 'topics' | 'note_detail';
 
-export function LibraryView() {
+interface LibraryViewProps {
+  onNoteSelect?: (noteId: string) => void;
+}
+
+export function LibraryView({ onNoteSelect }: LibraryViewProps) {
   const subjects = useQuery(api.admin.listSubjects);
 
   const [screen, setScreen] = useState<LibraryScreen>('grades');
@@ -227,8 +230,12 @@ export function LibraryView() {
                 <div
                   key={note._id}
                   onClick={() => {
-                    setSelectedNote(note);
-                    setScreen('note_detail');
+                    if (onNoteSelect) {
+                      onNoteSelect(note._id);
+                    } else {
+                      setSelectedNote(note);
+                      setScreen('note_detail');
+                    }
                   }}
                   className="border-4 border-black bg-white rounded-none p-5 flex items-start gap-4 transition-all duration-100 cursor-pointer hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
                 >

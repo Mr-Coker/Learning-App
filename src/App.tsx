@@ -88,6 +88,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('edusphere_email'));
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [showRegister, setShowRegister] = useState(false);
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
   // Synchronized Convex real-time state for user profile/role
   const user = useQuery(api.users.getCurrentUserRole, userEmail ? { email: userEmail } : 'skip');
@@ -117,7 +118,8 @@ export default function App() {
         library: "EDUSPHERE // DATA_HUB",
         teacher: "EDUSPHERE // TEACHER_CONSOLE",
         admin: "EDUSPHERE // ADMIN_CONSOLE",
-        communication: "EDUSPHERE // COMMS_LINK"
+        communication: "EDUSPHERE // COMMS_LINK",
+        admin_subjects: "EDUSPHERE // SUBJECTS"
       };
 
       document.title = tabLabels[currentView] || "EduSphere // Terminal";
@@ -143,6 +145,7 @@ export default function App() {
     setUserEmail('');
     setCurrentView('home');
     setShowRegister(false);
+    setActiveNoteId(null);
   };
 
   // Render Loader screen during real-time queries
@@ -186,8 +189,20 @@ export default function App() {
                 {currentView === 'chat' && <ChatView userEmail={userEmail} />}
                 {currentView === 'communication' && <ChatView userEmail={userEmail} />}
                 {currentView === 'assignments' && <AssignmentsView />}
-                {currentView === 'notes' && <NotesView />}
-                {currentView === 'library' && <LibraryView />}
+                {currentView === 'notes' && (
+                  <NotesView 
+                    activeNoteId={activeNoteId} 
+                    setActiveNoteId={setActiveNoteId} 
+                  />
+                )}
+                {currentView === 'library' && (
+                  <LibraryView 
+                    onNoteSelect={(noteId) => {
+                      setActiveNoteId(noteId);
+                      setCurrentView('notes');
+                    }} 
+                  />
+                )}
               </>
             )}
             {userRole === 'teacher' && (

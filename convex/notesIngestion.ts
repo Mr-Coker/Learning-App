@@ -153,3 +153,12 @@ export const getNotesBySubject = query({
     return notes;
   },
 });
+
+export const getNoteById = query({
+  args: {
+    noteId: v.id("notes"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.noteId);
+  },
+});
