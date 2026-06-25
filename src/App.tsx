@@ -116,7 +116,8 @@ export default function App() {
         notes: "EDUSPHERE // TRANSMISSIONS",
         library: "EDUSPHERE // DATA_HUB",
         teacher: "EDUSPHERE // TEACHER_CONSOLE",
-        admin: "EDUSPHERE // ADMIN_CONSOLE"
+        admin: "EDUSPHERE // ADMIN_CONSOLE",
+        communication: "EDUSPHERE // COMMS_LINK"
       };
 
       document.title = tabLabels[currentView] || "EduSphere // Terminal";
@@ -183,6 +184,7 @@ export default function App() {
               <>
                 {currentView === 'home' && <HomeView userEmail={userEmail} />}
                 {currentView === 'chat' && <ChatView />}
+                {currentView === 'communication' && <ChatView />}
                 {currentView === 'assignments' && <AssignmentsView />}
                 {currentView === 'notes' && <NotesView />}
                 {currentView === 'library' && <LibraryView />}
