@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
+import { staticCurriculumNotes } from '../../data/curriculumNotes';
 import { 
   ChevronDown, 
   ChevronRight, 
@@ -118,7 +119,7 @@ export function LibraryView({ onNoteSelect }: LibraryViewProps) {
           <div className="border-b-4 border-black pb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <span className="font-mono text-[9px] font-bold text-gray-500 uppercase tracking-widest block mb-2">
-                {selectedNote.summaryBadge}
+                STATIC NOTE // {selectedNote.classLevel.toUpperCase()}
               </span>
               <h1 className="font-serif text-3xl md:text-5xl font-black uppercase tracking-tighter text-black leading-none">
                 {selectedNote.title}
@@ -134,61 +135,63 @@ export function LibraryView({ onNoteSelect }: LibraryViewProps) {
 
           {/* Content Blocks */}
           <div className="space-y-8 max-w-3xl">
-            {selectedNote.contentBlocks.map((block: any, idx: number) => {
-              switch (block.type) {
-                case 'challenge_callout':
-                  return (
-                    <div 
-                      key={idx}
-                      className="border-4 border-black bg-[#FFD833] p-6 shadow-[6px_6px_0_0_rgba(0,0,0,1)] rounded-none relative overflow-hidden"
-                    >
-                      <div className="absolute -top-1 -right-1 bg-black text-[#FFD833] border-l-2 border-b-2 border-black px-2 py-0.5 font-mono text-[8px] font-black uppercase tracking-wider">
-                        EXAM_INTEL
+            {(() => {
+              const staticNote = staticCurriculumNotes.find(n => n.id === selectedNote.staticLookupKey);
+              const blocks = staticNote ? staticNote.contentBlocks : [];
+              return blocks.map((block: any, idx: number) => {
+                switch (block.type) {
+                  case 'challenge_callout':
+                    return (
+                      <div 
+                        key={idx}
+                        className="border-4 border-black bg-[#FFD833] p-6 shadow-[6px_6px_0_0_rgba(0,0,0,1)] rounded-none relative overflow-hidden"
+                      >
+                        <div className="absolute -top-1 -right-1 bg-black text-[#FFD833] border-l-2 border-b-2 border-black px-2 py-0.5 font-mono text-[8px] font-black uppercase tracking-wider">
+                          EXAM_INTEL
+                        </div>
+                        {block.heading && (
+                          <h4 className="font-serif text-lg font-black uppercase tracking-tight text-black mb-2">
+                            {block.heading}
+                          </h4>
+                        )}
+                        <p className="font-mono text-xs font-bold uppercase tracking-wide leading-relaxed text-black">
+                          {block.body}
+                        </p>
                       </div>
-                      {block.heading && (
-                        <h4 className="font-serif text-lg font-black uppercase tracking-tight text-black mb-2">
-                          {block.heading}
-                        </h4>
-                      )}
-                      <p className="font-mono text-xs font-bold uppercase tracking-wide leading-relaxed text-black">
-                        {block.body}
-                      </p>
-                    </div>
-                  );
-                case 'bullet_list':
-                  return (
-                    <div key={idx} className="space-y-3">
-                      {block.heading && (
-                        <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
-                          {block.heading}
-                        </h3>
-                      )}
-                      <ul className="list-none space-y-2.5 pl-4 border-l-4 border-black">
-                        {block.body.split('\n').map((point: string, pIdx: number) => (
-                          <li key={pIdx} className="font-mono text-xs uppercase tracking-wider text-black font-semibold flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-black inline-block flex-shrink-0"></span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                case 'text':
-                default:
-                  return (
-                    <div key={idx} className="space-y-2">
-                      {block.heading && (
-                        <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
-                          {block.heading}
-                        </h3>
-                      )}
-                      <p className="font-sans text-sm text-black leading-relaxed font-semibold">
-                        {block.body}
-                      </p>
-                    </div>
-                  );
-              }
-            })}
+                    );
+                  case 'bullet_point':
+                    return (
+                      <div key={idx} className="space-y-2">
+                        {block.heading && (
+                          <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
+                            {block.heading}
+                          </h3>
+                        )}
+                        <div className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-black inline-block flex-shrink-0 mt-1.5"></span>
+                          <p className="font-mono text-xs uppercase tracking-wider text-black font-semibold">
+                            {block.body}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  case 'text':
+                  default:
+                    return (
+                      <div key={idx} className="space-y-2">
+                        {block.heading && (
+                          <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
+                            {block.heading}
+                          </h3>
+                        )}
+                        <p className="font-sans text-sm text-black leading-relaxed font-semibold">
+                          {block.body}
+                        </p>
+                      </div>
+                    );
+                }
+              });
+            })()}
           </div>
         </div>
       ) : screen === 'topics' && selectedGrade && selectedSubject ? (
@@ -283,7 +286,7 @@ export function LibraryView({ onNoteSelect }: LibraryViewProps) {
                                   {note.subTopicTitle || note.title}
                                 </span>
                                 <span className="font-mono text-[8px] text-gray-500 uppercase tracking-wider font-bold block mt-0.5">
-                                  {note.classLevel} &middot; {note.contentBlocks?.length || 0} BLOCKS
+                                  {note.classLevel} &middot; {staticCurriculumNotes.find(n => n.id === note.staticLookupKey)?.contentBlocks?.length || 0} BLOCKS
                                 </span>
                               </div>
                             </div>

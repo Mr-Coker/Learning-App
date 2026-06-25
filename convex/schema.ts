@@ -74,21 +74,8 @@ export default defineSchema({
 
   notes: defineTable({
     title: v.string(),
-    classLevel: v.string(),
     subjectId: v.id("subjects"),
-    summaryBadge: v.string(),
-    contentBlocks: v.array(
-      v.object({
-        type: v.union(v.literal("text"), v.literal("challenge_callout"), v.literal("bullet_point")),
-        heading: v.optional(v.string()),
-        body: v.string(),
-      })
-    ),
-    chapterNumber: v.optional(v.number()),
-    fileStorageId: v.optional(v.string()),
-    subTopicIndex: v.optional(v.number()),
-    subTopicTitle: v.optional(v.string()),
-    staticLookupKey: v.optional(v.string()),
-    createdAt: v.number(),
+    classLevel: v.string(),       // e.g., "Basic 9"
+    staticLookupKey: v.string(),  // e.g., "algorithm-basics" to match src/data/curriculumNotes.ts keys
   }).index("by_subjectId", ["subjectId"]),
 });

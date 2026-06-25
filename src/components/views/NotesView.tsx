@@ -9,7 +9,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
 import { useState } from 'react';
-import { staticCurriculumNotes } from '../../data/curriculumNotes';
+import { staticCurriculumNotes as curriculumNotes } from '../../data/curriculumNotes';
 
 interface NotesViewProps {
   activeNoteId: string | null;
@@ -21,7 +21,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>('IDLE'); // IDLE, SAVING, SAVED
 
-  const noteData = useQuery(
+  const noteMetadata = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
   );
@@ -44,7 +44,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     );
   }
 
-  if (noteData === undefined) {
+  if (noteMetadata === undefined) {
     return (
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="border-4 border-black bg-black text-[#FFD833] p-8 font-mono text-xs font-bold uppercase tracking-widest text-center shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
@@ -54,42 +54,17 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     );
   }
 
-  const staticNote = noteData?.staticLookupKey 
-    ? staticCurriculumNotes.find(n => n.id === noteData.staticLookupKey) 
-    : null;
+  const fullLessonContent = curriculumNotes.find(
+    (n) => n.id === noteMetadata?.staticLookupKey
+  );
 
-  const contentBlocksToRender = staticNote 
-    ? staticNote.contentBlocks 
-    : (noteData?.contentBlocks || []);
+  const contentBlocksToRender = fullLessonContent ? fullLessonContent.contentBlocks : [];
 
-  if (!noteData || (!noteData.contentBlocks && !staticNote) || contentBlocksToRender.length === 0) {
+  if (!noteMetadata || !fullLessonContent || contentBlocksToRender.length === 0) {
     return <div className="p-6 border-4 border-black font-bold uppercase">[ TRANSMISSION_EMPTY: SEED REAL CHUNK DATA VIA ADMIN ]</div>;
   }
 
-  const isBinaryOrRawPayload = (text: string): boolean => {
-    if (!text) return false;
-    if (text.startsWith('%PDF') || text.includes('\\x00') || text.startsWith('data:')) {
-      return true;
-    }
-    let nonPrintableCount = 0;
-    const checkLength = Math.min(text.length, 500);
-    for (let i = 0; i < checkLength; i++) {
-      const charCode = text.charCodeAt(i);
-      if ((charCode < 32 && charCode !== 9 && charCode !== 10 && charCode !== 13) || charCode > 126) {
-        nonPrintableCount++;
-      }
-    }
-    if (nonPrintableCount > checkLength * 0.15) {
-      return true;
-    }
-    return false;
-  };
-
-  const filteredBlocks = contentBlocksToRender.filter(
-    (block: any) => !isBinaryOrRawPayload(block.body)
-  );
-
-  const dbNoteToc = filteredBlocks
+  const dbNoteToc = contentBlocksToRender
     ?.map((block: any, idx: number) => {
       if (block.heading) {
         return { id: `block-${idx}`, label: block.heading };
@@ -113,13 +88,13 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           {/* Topic Details Info */}
           <div className="space-y-4">
             <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold">Current Transmission //</h3>
-            {noteData ? (
+            {noteMetadata ? (
               <div className="p-3 border-2 border-black bg-[#A7F3D0] shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex flex-col gap-1">
                 <span className="font-mono text-[8px] font-bold text-emerald-800 uppercase tracking-widest">
                   PAYLOAD
                 </span>
                 <span className="font-serif text-xs font-black uppercase text-black leading-tight break-words">
-                  {noteData.title}
+                  {noteMetadata.title}
                 </span>
               </div>
             ) : (
@@ -156,7 +131,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         {/* Status Indicators */}
         <div className="mt-8 pt-4 border-t border-black/10 font-mono text-[8px] text-gray-400 uppercase tracking-widest space-y-1">
           <div>NODE // NOTES_VIEW</div>
-          <div>STATUS // {noteData ? 'COMPILED' : 'SYNCING'}</div>
+          <div>STATUS // {noteMetadata ? 'COMPILED' : 'SYNCING'}</div>
         </div>
       </aside>
 
@@ -216,31 +191,31 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           >
             ← RETURN_TO_LIBRARY
           </button>
-          {noteData && (
+          {noteMetadata && (
             <div className="p-3 border-2 border-black bg-[#A7F3D0] font-mono text-[9px] font-bold uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-              VIEWING: {noteData.title}
+              VIEWING: {noteMetadata.title}
             </div>
           )}
         </div>
 
         {/* Content Canvas */}
         <div className="mt-4 md:mt-0 space-y-16" style={{ fontSize: `${textSize}px` }}>
-          {noteData ? (
+          {noteMetadata ? (
             <section className="space-y-8" id="db-note">
               <div className="space-y-2">
                 <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block animate-pulse">
-                  {noteData.summaryBadge}
+                  STATIC NOTE // {noteMetadata.classLevel.toUpperCase()}
                 </span>
                 <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
-                  {noteData.title}
+                  {noteMetadata.title}
                 </h1>
                 <p className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2 text-left">
-                  TARGET CLASS: {noteData.classLevel}
+                  TARGET CLASS: {noteMetadata.classLevel}
                 </p>
               </div>
 
               <div className="space-y-8 max-w-3xl">
-                {noteData.contentBlocks && filteredBlocks.map((block: any, idx: number) => {
+                {contentBlocksToRender.map((block: any, idx: number) => {
                   switch (block.type) {
                     case 'challenge_callout':
                       return (
