@@ -9,6 +9,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
 import { useState } from 'react';
+import { staticCurriculumNotes } from '../../data/curriculumNotes';
 
 interface NotesViewProps {
   activeNoteId: string | null;
@@ -43,6 +44,28 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     );
   }
 
+  if (noteData === undefined) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+        <div className="border-4 border-black bg-black text-[#FFD833] p-8 font-mono text-xs font-bold uppercase tracking-widest text-center shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
+          [ LOADING_AND_DECRYPTING_CURRICULUM_DATA... ]
+        </div>
+      </div>
+    );
+  }
+
+  const staticNote = noteData?.staticLookupKey 
+    ? staticCurriculumNotes.find(n => n.id === noteData.staticLookupKey) 
+    : null;
+
+  const contentBlocksToRender = staticNote 
+    ? staticNote.contentBlocks 
+    : (noteData?.contentBlocks || []);
+
+  if (!noteData || (!noteData.contentBlocks && !staticNote) || contentBlocksToRender.length === 0) {
+    return <div className="p-6 border-4 border-black font-bold uppercase">[ TRANSMISSION_EMPTY: SEED REAL CHUNK DATA VIA ADMIN ]</div>;
+  }
+
   const isBinaryOrRawPayload = (text: string): boolean => {
     if (!text) return false;
     if (text.startsWith('%PDF') || text.includes('\\x00') || text.startsWith('data:')) {
@@ -62,9 +85,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     return false;
   };
 
-  const filteredBlocks = noteData?.contentBlocks?.filter(
+  const filteredBlocks = contentBlocksToRender.filter(
     (block: any) => !isBinaryOrRawPayload(block.body)
-  ) || [];
+  );
 
   const dbNoteToc = filteredBlocks
     ?.map((block: any, idx: number) => {

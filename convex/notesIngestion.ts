@@ -239,3 +239,25 @@ export const getNoteFileUrl = query({
     return await ctx.storage.getUrl(args.storageId);
   },
 });
+
+export const registerNoteMetadata = mutation({
+  args: {
+    title: v.string(),
+    classLevel: v.string(),
+    subjectId: v.id("subjects"),
+    staticLookupKey: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const summaryBadge = `STATIC NOTE // ${args.classLevel.toUpperCase()}`;
+    const noteId = await ctx.db.insert("notes", {
+      title: args.title,
+      classLevel: args.classLevel,
+      subjectId: args.subjectId,
+      summaryBadge,
+      staticLookupKey: args.staticLookupKey,
+      contentBlocks: [],
+      createdAt: Date.now(),
+    });
+    return noteId;
+  },
+});

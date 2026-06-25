@@ -88,6 +88,7 @@ export default defineSchema({
     fileStorageId: v.optional(v.string()),
     subTopicIndex: v.optional(v.number()),
     subTopicTitle: v.optional(v.string()),
+    staticLookupKey: v.optional(v.string()),
     createdAt: v.number(),
   }).index("by_subjectId", ["subjectId"]),
 });
