@@ -21,6 +21,7 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
 
   // Step 2 states
   const [classLevel, setClassLevel] = useState('Basic 9');
+  const [activeCurriculumTracks, setActiveCurriculumTracks] = useState<string[]>([]);
   const [focusSubjects, setFocusSubjects] = useState<string[]>([]);
   const [specialtyDesignation, setSpecialtyDesignation] = useState('');
   const [teachingSubjects, setTeachingSubjects] = useState<string[]>([]);
@@ -64,6 +65,12 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
     );
   };
 
+  const handleCurriculumTrackChange = (track: string) => {
+    setActiveCurriculumTracks(prev =>
+      prev.includes(track) ? prev.filter(t => t !== track) : [...prev, track]
+    );
+  };
+
   const handleTeachingSubjectChange = (subject: string) => {
     setTeachingSubjects(prev =>
       prev.includes(subject) ? prev.filter(s => s !== subject) : [...prev, subject]
@@ -103,6 +110,7 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
           focusSubjects: role === 'LEARNER' ? focusSubjects : undefined,
           specialtyDesignation: role === 'TRANSMITTER' ? specialtyDesignation.trim() : undefined,
           teachingSubjects: role === 'TRANSMITTER' ? teachingSubjects : undefined,
+          activeCurriculumTracks: role === 'LEARNER' ? activeCurriculumTracks : undefined,
         });
 
         setLogs(prev => [...prev, '> PROFILE SYNCHRONIZED. INITIATING WORKSPACE DEPLOYMENT...']);
@@ -281,7 +289,7 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
                 <>
                   <div className="flex flex-col space-y-1.5">
                     <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
-                      ACADEMIC CLASS LEVEL //
+                      Current Academic Class //
                     </label>
                     <select
                       value={classLevel}
@@ -292,10 +300,30 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
                       <option value="Basic 7">Basic 7</option>
                       <option value="Basic 8">Basic 8</option>
                       <option value="Basic 9">Basic 9</option>
-                      <option value="Senior Secondary 1">Senior Secondary 1</option>
-                      <option value="Senior Secondary 2">Senior Secondary 2</option>
-                      <option value="Senior Secondary 3">Senior Secondary 3</option>
                     </select>
+                  </div>
+
+                  <div className="flex flex-col space-y-2">
+                    <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
+                      BECE Revision Framework: Select all curriculum tiers you need to review/access //
+                    </label>
+                    <div className="bg-white border-2 border-black p-3 space-y-2">
+                      {['Basic 7', 'Basic 8', 'Basic 9'].map((track) => (
+                        <label key={track} className="flex items-center gap-2 cursor-pointer font-mono text-[10px] uppercase text-black font-bold">
+                          <input
+                            type="checkbox"
+                            checked={activeCurriculumTracks.includes(track)}
+                            onChange={() => handleCurriculumTrackChange(track)}
+                            disabled={isLoading}
+                            className="w-4 h-4 border-2 border-black rounded-none bg-white accent-black cursor-pointer"
+                          />
+                          <span>{track} Curriculum</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="border-2 border-black bg-black text-white p-3 font-mono text-[9px] uppercase tracking-wider leading-relaxed">
+                      [ BECE_PREP_MODE: Accessing foundational topics from lower classes is highly recommended for exam candidates. ]
+                    </div>
                   </div>
 
                   <div className="flex flex-col space-y-2">

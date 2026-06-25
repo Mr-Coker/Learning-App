@@ -11,6 +11,7 @@ export const registerUser = mutation({
     focusSubjects: v.optional(v.array(v.string())),
     specialtyDesignation: v.optional(v.string()),
     teachingSubjects: v.optional(v.array(v.string())),
+    activeCurriculumTracks: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const emailLower = args.email.trim().toLowerCase();
@@ -43,6 +44,7 @@ export const registerUser = mutation({
       focusSubjects: args.focusSubjects,
       specialtyDesignation: args.specialtyDesignation,
       teachingSubjects: args.teachingSubjects,
+      activeCurriculumTracks: args.activeCurriculumTracks,
     });
     return userId;
   },

@@ -20,6 +20,7 @@ export default defineSchema({
     focusSubjects: v.optional(v.array(v.string())),
     specialtyDesignation: v.optional(v.string()),
     teachingSubjects: v.optional(v.array(v.string())),
+    activeCurriculumTracks: v.optional(v.array(v.string())),
   }).index("by_email", ["email"]),
 
   subjects: defineTable({
