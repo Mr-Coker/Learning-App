@@ -1,4 +1,4 @@
-import { action, mutation } from "./_generated/server";
+import { action, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
@@ -138,5 +138,18 @@ export const ingestNoteText = action({
     });
 
     return noteId;
+  },
+});
+
+export const getNotesBySubject = query({
+  args: {
+    subjectId: v.id("subjects"),
+  },
+  handler: async (ctx, args) => {
+    const notes = await ctx.db
+      .query("notes")
+      .withIndex("by_subjectId", (q) => q.eq("subjectId", args.subjectId))
+      .collect();
+    return notes;
   },
 });
