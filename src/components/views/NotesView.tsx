@@ -11,11 +11,11 @@ import { Id } from '../../../convex/_generated/dataModel';
 import { useState } from 'react';
 
 interface NotesViewProps {
-  activeNoteId?: string | null;
-  setActiveNoteId?: (id: string | null) => void;
+  activeNoteId: string | null;
+  onBack: () => void;
 }
 
-export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
+export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const [textSize, setTextSize] = useState<number>(14); // in pixels
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>('IDLE'); // IDLE, SAVING, SAVED
@@ -85,6 +85,13 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
       {/* Table of Contents & Topic Selector Sidebar (Left Column) */}
       <aside className="hidden md:block w-72 p-6 overflow-y-auto border-r border-outline-variant bg-[#F3F4F6] flex-shrink-0 h-full flex flex-col justify-between">
         <div className="space-y-8">
+          {/* Back button */}
+          <button 
+            onClick={onBack}
+            className="flex items-center gap-2 text-black hover:bg-black hover:text-white px-3 py-2 border-2 border-black rounded-none font-mono text-[9px] uppercase tracking-wider transition-all duration-100 cursor-pointer shadow-[2px_2px_0_0_rgba(0,0,0,1)] bg-white w-full justify-center"
+          >
+            ← RETURN_TO_LIBRARY
+          </button>
           {/* Topic Details Info */}
           <div className="space-y-4">
             <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold">Current Transmission //</h3>
@@ -184,11 +191,19 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
         </div>
 
         {/* Mobile Info Bar */}
-        {activeDbNote && (
-          <div className="md:hidden mb-6 p-3 border-2 border-black bg-[#A7F3D0] font-mono text-[9px] font-bold uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-            VIEWING: {activeDbNote.title}
-          </div>
-        )}
+        <div className="md:hidden mb-6 flex flex-col gap-2">
+          <button 
+            onClick={onBack}
+            className="flex items-center gap-2 text-black hover:bg-black hover:text-white px-3 py-2 border-2 border-black rounded-none font-mono text-[9px] uppercase tracking-wider transition-all duration-100 cursor-pointer shadow-[2px_2px_0_0_rgba(0,0,0,1)] bg-white justify-center"
+          >
+            ← RETURN_TO_LIBRARY
+          </button>
+          {activeDbNote && (
+            <div className="p-3 border-2 border-black bg-[#A7F3D0] font-mono text-[9px] font-bold uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+              VIEWING: {activeDbNote.title}
+            </div>
+          )}
+        </div>
 
         {/* Content Canvas */}
         <div className="mt-4 md:mt-0 space-y-16" style={{ fontSize: `${textSize}px` }}>
@@ -209,11 +224,7 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
 
                 <div className="flex-1 w-full border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] bg-white h-[600px] overflow-hidden">
                   {fileUrl ? (
-                    <iframe 
-                      src={fileUrl} 
-                      className="w-full h-full border-0" 
-                      title={activeDbNote.title}
-                    />
+                    <iframe src={fileUrl} className="w-full flex-1 h-[70vh] border-4 border-black rounded-none bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)]" title={activeDbNote.title} />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center p-8 font-mono text-xs font-bold uppercase tracking-widest bg-gray-50">
                       [ RETRIEVING SECURE FILE TARGET... ]
@@ -236,56 +247,31 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
                 </div>
 
                 <div className="space-y-8 max-w-3xl">
-                  {filteredBlocks.map((block: any, idx: number) => {
+                  {activeDbNote.contentBlocks && filteredBlocks.map((block: any, idx: number) => {
                     switch (block.type) {
                       case 'challenge_callout':
                         return (
-                          <div 
-                            key={idx}
-                            id={`block-${idx}`}
-                            className="border-4 border-black bg-[#FFD833] p-6 shadow-[6px_6px_0_0_rgba(0,0,0,1)] rounded-none relative overflow-hidden"
-                          >
-                            <div className="absolute -top-1 -right-1 bg-black text-[#FFD833] border-l-2 border-b-2 border-black px-2 py-0.5 font-mono text-[8px] font-black uppercase tracking-wider">
-                              EXAM_INTEL
-                            </div>
+                          <div key={idx} id={`block-${idx}`}>
                             {block.heading && (
                               <h4 className="font-serif text-lg font-black uppercase tracking-tight text-black mb-2">
                                 {block.heading}
                               </h4>
                             )}
-                            <p className="font-mono text-xs font-bold uppercase tracking-wide leading-relaxed text-black">
+                            <div className="bg-[#FFD833] border-4 border-black rounded-none p-4 my-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] font-bold">
                               {block.body}
-                            </p>
-                          </div>
-                        );
-                      case 'bullet_list':
-                        return (
-                          <div key={idx} id={`block-${idx}`} className="space-y-3">
-                            {block.heading && (
-                              <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
-                                {block.heading}
-                              </h3>
-                            )}
-                            <ul className="list-none space-y-2.5 pl-4 border-l-4 border-black">
-                              {block.body.split('\n').map((point: string, pIdx: number) => (
-                                <li key={pIdx} className="font-mono text-xs uppercase tracking-wider text-black font-semibold flex items-center gap-2">
-                                  <span className="w-1.5 h-1.5 bg-black inline-block flex-shrink-0"></span>
-                                  <span>{point}</span>
-                                </li>
-                              ))}
-                            </ul>
+                            </div>
                           </div>
                         );
                       case 'text':
                       default:
                         return (
-                          <div key={idx} id={`block-${idx}`} className="space-y-2">
+                          <div key={idx} id={`block-${idx}`}>
                             {block.heading && (
-                              <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
+                              <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black mb-2">
                                 {block.heading}
                               </h3>
                             )}
-                            <p className="font-sans text-sm text-black leading-relaxed font-semibold">
+                            <p className="text-base md:text-lg text-black leading-relaxed mb-4">
                               {block.body}
                             </p>
                           </div>

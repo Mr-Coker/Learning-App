@@ -192,7 +192,10 @@ export default function App() {
                 {currentView === 'notes' && (
                   <NotesView 
                     activeNoteId={activeNoteId} 
-                    setActiveNoteId={setActiveNoteId} 
+                    onBack={() => {
+                      setActiveNoteId(null);
+                      setCurrentView('library');
+                    }} 
                   />
                 )}
                 {currentView === 'library' && (
