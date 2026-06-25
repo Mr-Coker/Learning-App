@@ -1,7 +1,7 @@
-import { 
-  Type, 
-  MinusSquare, 
-  Bookmark, 
+import {
+  Type,
+  MinusSquare,
+  Bookmark,
   Save,
   ChevronDown
 } from 'lucide-react';
@@ -21,7 +21,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>('IDLE'); // IDLE, SAVING, SAVED
 
-  const noteMetadata = useQuery(
+  const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
   );
@@ -44,7 +44,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     );
   }
 
-  if (noteMetadata === undefined) {
+  if (noteData === undefined) {
     return (
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="border-4 border-black bg-black text-[#FFD833] p-8 font-mono text-xs font-bold uppercase tracking-widest text-center shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
@@ -55,12 +55,12 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   }
 
   const fullLessonContent = curriculumNotes.find(
-    (n) => n.id === noteMetadata?.staticLookupKey
+    (n) => n.id === noteData?.staticLookupKey
   );
 
   const contentBlocksToRender = fullLessonContent ? fullLessonContent.contentBlocks : [];
 
-  if (!noteMetadata || !fullLessonContent || contentBlocksToRender.length === 0) {
+  if (!noteData || !fullLessonContent || contentBlocksToRender.length === 0) {
     return <div className="p-6 border-4 border-black font-bold uppercase">[ TRANSMISSION_EMPTY: SEED REAL CHUNK DATA VIA ADMIN ]</div>;
   }
 
@@ -79,7 +79,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
       <aside className="hidden md:block w-72 p-6 overflow-y-auto border-r border-outline-variant bg-[#F3F4F6] flex-shrink-0 h-full flex flex-col justify-between">
         <div className="space-y-8">
           {/* Back button */}
-          <button 
+          <button
             onClick={onBack}
             className="flex items-center gap-2 text-black hover:bg-black hover:text-white px-3 py-2 border-2 border-black rounded-none font-mono text-[9px] uppercase tracking-wider transition-all duration-100 cursor-pointer shadow-[2px_2px_0_0_rgba(0,0,0,1)] bg-white w-full justify-center"
           >
@@ -88,13 +88,13 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           {/* Topic Details Info */}
           <div className="space-y-4">
             <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold">Current Transmission //</h3>
-            {noteMetadata ? (
+            {noteData ? (
               <div className="p-3 border-2 border-black bg-[#A7F3D0] shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex flex-col gap-1">
                 <span className="font-mono text-[8px] font-bold text-emerald-800 uppercase tracking-widest">
                   PAYLOAD
                 </span>
                 <span className="font-serif text-xs font-black uppercase text-black leading-tight break-words">
-                  {noteMetadata.title}
+                  {noteData.title}
                 </span>
               </div>
             ) : (
@@ -113,8 +113,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
               {dbNoteToc.length > 0 ? (
                 dbNoteToc.map((item) => (
                   <li key={item.id}>
-                    <a 
-                      href={`#${item.id}`} 
+                    <a
+                      href={`#${item.id}`}
                       className="hover:text-black transition-colors block py-2 border-l-2 border-transparent hover:border-black pl-4 text-gray-600 font-bold"
                     >
                       {item.label}
@@ -131,48 +131,48 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         {/* Status Indicators */}
         <div className="mt-8 pt-4 border-t border-black/10 font-mono text-[8px] text-gray-400 uppercase tracking-widest space-y-1">
           <div>NODE // NOTES_VIEW</div>
-          <div>STATUS // {noteMetadata ? 'COMPILED' : 'SYNCING'}</div>
+          <div>STATUS // {noteData ? 'COMPILED' : 'SYNCING'}</div>
         </div>
       </aside>
 
       {/* Reading Canvas (Right Column) */}
       <article className="flex-1 p-4 md:p-10 max-w-4xl mx-auto w-full relative overflow-y-auto h-full pb-20 md:pb-10">
-        
+
         {/* Floating Toolbar */}
         <div className="fixed top-24 right-4 md:right-10 z-15 flex flex-col gap-2 bg-[#F3F4F6] border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-2 rounded-none">
-          <button 
+          <button
             onClick={() => setTextSize(prev => Math.min(prev + 2, 24))}
-            className="text-black hover:bg-black hover:text-white p-2 rounded-none border border-transparent hover:border-black transition-colors cursor-pointer" 
+            className="text-black hover:bg-black hover:text-white p-2 rounded-none border border-transparent hover:border-black transition-colors cursor-pointer"
             title="Increase Text Size"
           >
             <Type size={16} />
           </button>
-          <button 
+          <button
             onClick={() => setTextSize(prev => Math.max(prev - 2, 12))}
-            className="text-black hover:bg-black hover:text-white p-2 rounded-none border border-transparent hover:border-black transition-colors cursor-pointer" 
+            className="text-black hover:bg-black hover:text-white p-2 rounded-none border border-transparent hover:border-black transition-colors cursor-pointer"
             title="Decrease Text Size"
           >
             <MinusSquare size={16} />
           </button>
-          
+
           <div className="w-full h-px bg-black my-1"></div>
-          
-          <button 
+
+          <button
             onClick={() => setIsBookmarked(prev => !prev)}
             className={`p-2 rounded-none border border-transparent hover:border-black transition-all cursor-pointer
               ${isBookmarked ? 'bg-[#38BDF8] text-black border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' : 'text-black hover:bg-black hover:text-white'}
-            `} 
+            `}
             title="Bookmark"
           >
             <Bookmark size={16} className={isBookmarked ? 'fill-current' : ''} />
           </button>
-          
-          <button 
+
+          <button
             onClick={handleSave}
             disabled={saveStatus !== 'IDLE'}
             className={`p-2 rounded-none border border-transparent hover:border-black transition-all cursor-pointer disabled:opacity-50
               ${saveStatus === 'SAVED' ? 'bg-[#A7F3D0] text-black border-black' : 'text-black hover:bg-black hover:text-white'}
-            `} 
+            `}
             title="Save Note"
           >
             {saveStatus === 'SAVING' ? (
@@ -185,37 +185,37 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
         {/* Mobile Info Bar */}
         <div className="md:hidden mb-6 flex flex-col gap-2">
-          <button 
+          <button
             onClick={onBack}
             className="flex items-center gap-2 text-black hover:bg-black hover:text-white px-3 py-2 border-2 border-black rounded-none font-mono text-[9px] uppercase tracking-wider transition-all duration-100 cursor-pointer shadow-[2px_2px_0_0_rgba(0,0,0,1)] bg-white justify-center"
           >
             ← RETURN_TO_LIBRARY
           </button>
-          {noteMetadata && (
+          {noteData && (
             <div className="p-3 border-2 border-black bg-[#A7F3D0] font-mono text-[9px] font-bold uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-              VIEWING: {noteMetadata.title}
+              VIEWING: {noteData.title}
             </div>
           )}
         </div>
 
         {/* Content Canvas */}
         <div className="mt-4 md:mt-0 space-y-16" style={{ fontSize: `${textSize}px` }}>
-          {noteMetadata ? (
+          {noteData ? (
             <section className="space-y-8" id="db-note">
               <div className="space-y-2">
                 <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block animate-pulse">
-                  STATIC NOTE // {noteMetadata.classLevel.toUpperCase()}
+                  STATIC NOTE // {noteData.classLevel.toUpperCase()}
                 </span>
                 <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
-                  {noteMetadata.title}
+                  {noteData.title}
                 </h1>
                 <p className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2 text-left">
-                  TARGET CLASS: {noteMetadata.classLevel}
+                  TARGET CLASS: {noteData.classLevel}
                 </p>
               </div>
 
               <div className="space-y-8 max-w-3xl">
-                {contentBlocksToRender.map((block: any, idx: number) => {
+                {fullLessonContent && fullLessonContent.contentBlocks.map((block: any, idx: number) => {
                   switch (block.type) {
                     case 'challenge_callout':
                       return (
