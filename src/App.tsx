@@ -169,7 +169,7 @@ export default function App() {
 
   if (userRole === 'student' || userRole === 'teacher' || userRole === 'admin') {
     return (
-      <div className="flex flex-col h-screen overflow-hidden bg-background">
+      <div className="min-h-screen w-full flex flex-col bg-[#F0F0F0] overflow-hidden">
         <TopNav 
           currentView={currentView} 
           setCurrentView={setCurrentView} 
@@ -178,7 +178,7 @@ export default function App() {
         />
         
         <div className="flex flex-1 overflow-hidden relative">
-          <main className="flex-1 flex flex-col min-h-0 bg-background pb-16 md:pb-0">
+          <main className="flex-1 w-full overflow-y-auto px-4 md:px-8 py-6">
             {userRole === 'student' && (
               <>
                 {currentView === 'home' && <HomeView userEmail={userEmail} />}
