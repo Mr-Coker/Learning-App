@@ -162,3 +162,12 @@ export const getNoteById = query({
     return await ctx.db.get(args.noteId);
   },
 });
+
+export const getNoteDetails = query({
+  args: {
+    noteId: v.id("notes"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.noteId);
+  },
+});

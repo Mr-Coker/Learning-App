@@ -3,28 +3,12 @@ import {
   MinusSquare, 
   Bookmark, 
   Save,
-  BrainCircuit,
-  ChevronDown,
-  BookOpen,
-  Terminal,
-  Cpu,
-  Layers,
-  Search,
-  ListOrdered
+  ChevronDown
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
 import { useState } from 'react';
-
-type TopicId = 'linear-equations' | 'algorithms';
-
-interface Topic {
-  id: TopicId;
-  title: string;
-  category: string;
-  toc: { id: string; label: string }[];
-}
 
 interface NotesViewProps {
   activeNoteId?: string | null;
@@ -32,44 +16,14 @@ interface NotesViewProps {
 }
 
 export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
-  const [activeTopic, setActiveTopic] = useState<TopicId>('linear-equations');
   const [textSize, setTextSize] = useState<number>(14); // in pixels
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>('IDLE'); // IDLE, SAVING, SAVED
-  
-  // Accordion active state for Step-by-Step Proof / Walkthroughs
-  const [accordionActive, setAccordionActive] = useState<boolean>(false);
 
   const activeDbNote = useQuery(
-    api.notesIngestion.getNoteById,
+    api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
   );
-
-  const topics: Topic[] = [
-    {
-      id: 'linear-equations',
-      title: "Linear Equations",
-      category: "Mathematics",
-      toc: [
-        { id: "intro", label: "I. Introduction" },
-        { id: "slope-intercept", label: "II. Slope-Intercept Form" },
-        { id: "proof-accordion", label: "III. Step-by-Step Proof" },
-        { id: "practice", label: "IV. Practice Problems" }
-      ]
-    },
-    {
-      id: 'algorithms',
-      title: "Introduction to Algorithms",
-      category: "Computer Science",
-      toc: [
-        { id: "what-is-algorithm", label: "I. Definition & Analogy" },
-        { id: "characteristics", label: "II. Key Characteristics" },
-        { id: "constructs", label: "III. Programming Constructs" },
-        { id: "computational-concepts", label: "IV. Abstraction & Decomposition" },
-        { id: "examples", label: "V. Practical Algorithms" }
-      ]
-    }
-  ];
 
   const handleSave = () => {
     setSaveStatus('SAVING');
@@ -79,51 +33,47 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
     }, 1000);
   };
 
-  const handleTopicChange = (topicId: TopicId) => {
-    setActiveTopic(topicId);
-    setAccordionActive(false);
-  };
+  if (!activeNoteId) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-6 bg-white min-h-[400px] w-full">
+        <div className="border-4 border-black bg-black text-[#FFD833] p-8 font-mono text-xs font-bold uppercase tracking-widest text-center shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-xl">
+          [ NO_ACTIVE_TRANSMISSION: PLEASE_SELECT_A_LESSON_NOTE_FROM_THE_LIBRARY ]
+        </div>
+      </div>
+    );
+  }
 
-  const activeTopicDetails = topics.find(t => t.id === activeTopic)!;
+  const dbNoteToc = activeDbNote?.contentBlocks
+    ?.map((block: any, idx: number) => {
+      if (block.heading) {
+        return { id: `block-${idx}`, label: block.heading };
+      }
+      return null;
+    })
+    .filter((item: any): item is { id: string; label: string } => item !== null) || [];
 
   return (
     <div className="flex-1 flex overflow-hidden relative w-full h-full bg-white select-none">
       {/* Table of Contents & Topic Selector Sidebar (Left Column) */}
       <aside className="hidden md:block w-72 p-6 overflow-y-auto border-r border-outline-variant bg-[#F3F4F6] flex-shrink-0 h-full flex flex-col justify-between">
         <div className="space-y-8">
-          {/* Topic Selector */}
+          {/* Topic Details Info */}
           <div className="space-y-4">
-            <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold">Select Topic //</h3>
-            <div className="flex flex-col gap-2">
-              {activeNoteId && activeDbNote && (
-                <div className="mb-2 p-3 border-2 border-black bg-[#A7F3D0] shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex flex-col gap-1">
-                  <span className="font-mono text-[8px] font-bold text-emerald-800 uppercase tracking-widest">
-                    ACTIVE payload
-                  </span>
-                  <span className="font-serif text-xs font-black uppercase text-black leading-tight break-words">
-                    {activeDbNote.title}
-                  </span>
-                </div>
-              )}
-              {topics.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => {
-                    handleTopicChange(t.id);
-                    if (setActiveNoteId) setActiveNoteId(null);
-                  }}
-                  className={`w-full text-left p-3 border-2 border-black rounded-none font-mono text-[10px] uppercase tracking-wider transition-all duration-100 flex items-center justify-between cursor-pointer
-                    ${!activeNoteId && activeTopic === t.id 
-                      ? 'bg-[#FFD833] shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
-                      : 'bg-white hover:bg-gray-100'
-                    }
-                  `}
-                >
-                  <span className="truncate mr-2">{t.title}</span>
-                  <BookOpen size={12} />
-                </button>
-              ))}
-            </div>
+            <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold">Current Transmission //</h3>
+            {activeDbNote ? (
+              <div className="p-3 border-2 border-black bg-[#A7F3D0] shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex flex-col gap-1">
+                <span className="font-mono text-[8px] font-bold text-emerald-800 uppercase tracking-widest">
+                  PAYLOAD
+                </span>
+                <span className="font-serif text-xs font-black uppercase text-black leading-tight break-words">
+                  {activeDbNote.title}
+                </span>
+              </div>
+            ) : (
+              <div className="p-3 border-2 border-black bg-gray-200 font-mono text-[9px] font-bold uppercase text-gray-500 animate-pulse">
+                LOADING TITLE...
+              </div>
+            )}
           </div>
 
           <hr className="border-t-2 border-dashed border-black/30" />
@@ -132,27 +82,8 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
           <div className="space-y-4">
             <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold">Contents</h3>
             <ul className="space-y-2 font-mono text-[10px] uppercase tracking-widest">
-              {activeNoteId && activeDbNote ? (
-                activeDbNote.contentBlocks
-                  .map((block: any, idx: number) => {
-                    if (block.heading) {
-                      return { id: `block-${idx}`, label: block.heading };
-                    }
-                    return null;
-                  })
-                  .filter((item: any): item is { id: string; label: string } => item !== null)
-                  .map((item) => (
-                    <li key={item.id}>
-                      <a 
-                        href={`#${item.id}`} 
-                        className="hover:text-black transition-colors block py-2 border-l-2 border-transparent hover:border-black pl-4 text-gray-600 font-bold"
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))
-              ) : (
-                activeTopicDetails.toc.map((item) => (
+              {dbNoteToc.length > 0 ? (
+                dbNoteToc.map((item) => (
                   <li key={item.id}>
                     <a 
                       href={`#${item.id}`} 
@@ -162,6 +93,8 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
                     </a>
                   </li>
                 ))
+              ) : (
+                <li className="text-gray-400 font-mono text-[8px]">[ NO SECTION HEADINGS ]</li>
               )}
             </ul>
           </div>
@@ -170,7 +103,7 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
         {/* Status Indicators */}
         <div className="mt-8 pt-4 border-t border-black/10 font-mono text-[8px] text-gray-400 uppercase tracking-widest space-y-1">
           <div>NODE // NOTES_VIEW</div>
-          <div>STATUS // COMPILED</div>
+          <div>STATUS // {activeDbNote ? 'COMPILED' : 'SYNCING'}</div>
         </div>
       </aside>
 
@@ -222,429 +155,95 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
           </button>
         </div>
 
-        {/* Mobile Topic Switcher */}
-        <div className="md:hidden mb-6 flex gap-2 overflow-x-auto pb-2 border-b border-black">
-          {topics.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => {
-                handleTopicChange(t.id);
-                if (setActiveNoteId) setActiveNoteId(null);
-              }}
-              className={`flex-none px-3 py-2 border-2 border-black font-mono text-[9px] uppercase tracking-wider
-                ${!activeNoteId && activeTopic === t.id ? 'bg-[#FFD833] font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'bg-white'}
-              `}
-            >
-              {t.title}
-            </button>
-          ))}
-          {activeNoteId && activeDbNote && (
-            <div className="flex-none px-3 py-2 border-2 border-black bg-[#A7F3D0] font-mono text-[9px] font-bold uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-              {activeDbNote.title}
-            </div>
-          )}
-        </div>
+        {/* Mobile Info Bar */}
+        {activeDbNote && (
+          <div className="md:hidden mb-6 p-3 border-2 border-black bg-[#A7F3D0] font-mono text-[9px] font-bold uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+            VIEWING: {activeDbNote.title}
+          </div>
+        )}
 
         {/* Content Canvas */}
         <div className="mt-4 md:mt-0 space-y-16" style={{ fontSize: `${textSize}px` }}>
-          
-          {activeNoteId ? (
-            activeDbNote ? (
-              <section className="space-y-8" id="db-note">
-                <div className="space-y-2">
-                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block animate-pulse">
-                    {activeDbNote.summaryBadge}
-                  </span>
-                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">
-                    {activeDbNote.title}
-                  </h1>
-                  <p className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2">
-                    TARGET CLASS: {activeDbNote.classLevel}
-                  </p>
-                </div>
-
-                <div className="space-y-8 max-w-3xl">
-                  {activeDbNote.contentBlocks.map((block: any, idx: number) => {
-                    switch (block.type) {
-                      case 'challenge_callout':
-                        return (
-                          <div 
-                            key={idx}
-                            id={`block-${idx}`}
-                            className="border-4 border-black bg-[#FFD833] p-6 shadow-[6px_6px_0_0_rgba(0,0,0,1)] rounded-none relative overflow-hidden"
-                          >
-                            <div className="absolute -top-1 -right-1 bg-black text-[#FFD833] border-l-2 border-b-2 border-black px-2 py-0.5 font-mono text-[8px] font-black uppercase tracking-wider">
-                              EXAM_INTEL
-                            </div>
-                            {block.heading && (
-                              <h4 className="font-serif text-lg font-black uppercase tracking-tight text-black mb-2">
-                                {block.heading}
-                              </h4>
-                            )}
-                            <p className="font-mono text-xs font-bold uppercase tracking-wide leading-relaxed text-black">
-                              {block.body}
-                            </p>
-                          </div>
-                        );
-                      case 'bullet_list':
-                        return (
-                          <div key={idx} id={`block-${idx}`} className="space-y-3">
-                            {block.heading && (
-                              <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
-                                {block.heading}
-                              </h3>
-                            )}
-                            <ul className="list-none space-y-2.5 pl-4 border-l-4 border-black">
-                              {block.body.split('\n').map((point: string, pIdx: number) => (
-                                <li key={pIdx} className="font-mono text-xs uppercase tracking-wider text-black font-semibold flex items-center gap-2">
-                                  <span className="w-1.5 h-1.5 bg-black inline-block flex-shrink-0"></span>
-                                  <span>{point}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        );
-                      case 'text':
-                      default:
-                        return (
-                          <div key={idx} id={`block-${idx}`} className="space-y-2">
-                            {block.heading && (
-                              <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
-                                {block.heading}
-                              </h3>
-                            )}
-                            <p className="font-sans text-sm text-black leading-relaxed font-semibold">
-                              {block.body}
-                            </p>
-                          </div>
-                        );
-                    }
-                  })}
-                </div>
-              </section>
-            ) : (
-              <div className="flex-1 flex items-center justify-center p-8">
-                <div className="border-4 border-black bg-black text-[#FFD833] p-8 font-mono text-xs font-bold uppercase tracking-widest text-center shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
-                  [ DOWNLOADING COGNITIVE DATASTREAM... ]
-                </div>
-              </div>
-            )
-          ) : activeTopic === 'linear-equations' ? (
-            /* ==========================================
-               TOPIC: LINEAR EQUATIONS
-               ========================================== */
-            <section className="space-y-8" id="linear-equations-note">
+          {activeDbNote ? (
+            <section className="space-y-8" id="db-note">
               <div className="space-y-2">
-                <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
-                  MODULE_01 // {activeTopicDetails.category.toUpperCase()}
+                <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block animate-pulse">
+                  {activeDbNote.summaryBadge}
                 </span>
                 <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">
-                  Linear Equations
+                  {activeDbNote.title}
                 </h1>
-              </div>
-
-              <p className="font-sans text-on-surface-variant leading-loose" id="intro">
-                A linear equation is an algebraic equation in which each term is either a constant or the product of a constant and a single <span className="border-b border-dashed border-black hover:border-black cursor-help text-black font-bold transition-colors">variable</span>. Linear equations can have one or more variables. The most basic form is a linear equation in one variable, which produces a straight line when graphed on a Cartesian coordinate system.
-              </p>
-
-              {/* Key Formula Box */}
-              <div className="border-2 border-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6 md:p-8 relative overflow-hidden group mt-12 bg-[#FFD833] flex" id="slope-intercept">
-                <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                  <div className="flex-shrink-0 w-16 h-16 border-2 border-black rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex items-center justify-center bg-white">
-                    <span className="font-serif text-2xl font-black uppercase text-black">f(x)</span>
-                  </div>
-                  <div>
-                    <h4 className="font-mono text-[10px] text-gray-700 uppercase tracking-[0.2em] mb-2 font-bold">Key Formula //</h4>
-                    <p className="font-serif text-3xl md:text-4xl font-black uppercase tracking-wider text-black">y = mx + b</p>
-                    <p className="font-sans text-sm text-gray-800 mt-3 leading-relaxed">
-                      Where <span className="font-mono px-1 py-0.5 border border-black bg-white text-black font-bold">m</span> is the slope and <span className="font-mono px-1 py-0.5 border border-black bg-white text-black font-bold">b</span> is the y-intercept.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <p className="font-sans text-on-surface-variant leading-loose mt-8">
-                Understanding the slope-intercept form is crucial because it immediately gives you visual information about the line. The slope tells you the steepness and direction, while the y-intercept provides a concrete starting point on the y-axis.
-              </p>
-
-              {/* Expandable Accordion */}
-              <div 
-                className={`mt-12 border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none overflow-hidden transition-all
-                  ${accordionActive ? 'bg-[#F3F4F6]' : 'bg-white'}
-                `} 
-                id="proof-accordion"
-              >
-                <button 
-                  onClick={() => setAccordionActive(prev => !prev)}
-                  className="w-full flex items-center justify-between p-6 text-left focus:outline-none hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-serif text-xl md:text-2xl font-black uppercase text-black flex items-center gap-4">
-                    <BrainCircuit size={20} className="text-black" />
-                    Step-by-Step Proof
-                  </span>
-                  <ChevronDown 
-                    size={20} 
-                    className={`text-black transition-transform duration-200
-                      ${accordionActive ? 'transform rotate-180' : ''}
-                    `} 
-                  />
-                </button>
-                
-                {accordionActive && (
-                  <div className="border-t-2 border-black p-6 md:p-8 space-y-6 font-sans text-sm text-gray-700 leading-loose bg-white">
-                    <p>To prove that <code className="px-1.5 py-0.5 border border-black bg-gray-50 font-mono text-xs text-black font-bold">y - y₁ = m(x - x₁)</code> is equivalent to <code className="px-1.5 py-0.5 border border-black bg-gray-50 font-mono text-xs text-black font-bold">y = mx + b</code>:</p>
-                    <ol className="list-decimal list-inside space-y-4 pl-2 font-mono text-xs text-black">
-                      <li>Start with the point-slope form: <code className="px-1.5 py-0.5 bg-gray-50 text-black font-bold">y - y₁ = m(x - x₁)</code></li>
-                      <li>Distribute the slope <code className="px-1.5 py-0.5 bg-gray-50 text-black font-bold">m</code>: <code className="px-1.5 py-0.5 bg-gray-50 text-black font-bold">y - y₁ = mx - mx₁</code></li>
-                      <li>Isolate <code className=" px-1.5 py-0.5 bg-gray-50 text-black font-bold">y</code>: <code className="px-1.5 py-0.5 bg-gray-50 text-black font-bold">y = mx - mx₁ + y₁</code></li>
-                      <li>Define <code className="px-1.5 py-0.5 bg-gray-50 text-black font-bold">b = y₁ - mx₁</code></li>
-                      <li>Substitute <code className="px-1.5 py-0.5 bg-gray-50 text-black font-bold">b</code> back into the equation: <code className="text-black text-sm font-bold bg-[#A7F3D0] px-2 py-0.5 border border-black">y = mx + b</code></li>
-                    </ol>
-                  </div>
-                )}
-              </div>
-
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-black/30 to-transparent"></div>
-
-              {/* Practice problems */}
-              <section className="space-y-6 opacity-80 hover:opacity-100 transition-opacity pb-10" id="practice">
-                <h2 className="font-serif text-3xl font-black uppercase text-black tracking-tighter">Practice Problems //</h2>
-                <p className="font-sans text-sm text-gray-600 leading-relaxed">
-                  Calculate the slope-intercept form for the line passing through points <span className="font-mono text-black font-bold bg-[#A7F3D0] px-1.5 py-0.5 border border-black">(2, 4)</span> and <span className="font-mono text-black font-bold bg-[#A7F3D0] px-1.5 py-0.5 border border-black">(5, 10)</span>.
+                <p className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2">
+                  TARGET CLASS: {activeDbNote.classLevel}
                 </p>
-              </section>
+              </div>
+
+              <div className="space-y-8 max-w-3xl">
+                {activeDbNote.contentBlocks.map((block: any, idx: number) => {
+                  switch (block.type) {
+                    case 'challenge_callout':
+                      return (
+                        <div 
+                          key={idx}
+                          id={`block-${idx}`}
+                          className="border-4 border-black bg-[#FFD833] p-6 shadow-[6px_6px_0_0_rgba(0,0,0,1)] rounded-none relative overflow-hidden"
+                        >
+                          <div className="absolute -top-1 -right-1 bg-black text-[#FFD833] border-l-2 border-b-2 border-black px-2 py-0.5 font-mono text-[8px] font-black uppercase tracking-wider">
+                            EXAM_INTEL
+                          </div>
+                          {block.heading && (
+                            <h4 className="font-serif text-lg font-black uppercase tracking-tight text-black mb-2">
+                              {block.heading}
+                            </h4>
+                          )}
+                          <p className="font-mono text-xs font-bold uppercase tracking-wide leading-relaxed text-black">
+                            {block.body}
+                          </p>
+                        </div>
+                      );
+                    case 'bullet_list':
+                      return (
+                        <div key={idx} id={`block-${idx}`} className="space-y-3">
+                          {block.heading && (
+                            <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
+                              {block.heading}
+                            </h3>
+                          )}
+                          <ul className="list-none space-y-2.5 pl-4 border-l-4 border-black">
+                            {block.body.split('\n').map((point: string, pIdx: number) => (
+                              <li key={pIdx} className="font-mono text-xs uppercase tracking-wider text-black font-semibold flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 bg-black inline-block flex-shrink-0"></span>
+                                <span>{point}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    case 'text':
+                    default:
+                      return (
+                        <div key={idx} id={`block-${idx}`} className="space-y-2">
+                          {block.heading && (
+                            <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black">
+                              {block.heading}
+                            </h3>
+                          )}
+                          <p className="font-sans text-sm text-black leading-relaxed font-semibold">
+                            {block.body}
+                          </p>
+                        </div>
+                      );
+                  }
+                })}
+              </div>
             </section>
           ) : (
-            /* ==========================================
-               TOPIC: ALGORITHMS (pdf Content)
-               ========================================== */
-            <section className="space-y-8" id="algorithms-note">
-              <div className="space-y-2">
-                <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
-                  MODULE_02 // {activeTopicDetails.category.toUpperCase()}
-                </span>
-                <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">
-                  Introduction to Algorithms
-                </h1>
+            <div className="flex items-center justify-center p-8">
+              <div className="border-4 border-black bg-black text-[#FFD833] p-8 font-mono text-xs font-bold uppercase tracking-widest text-center shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
+                [ DOWNLOADING COGNITIVE DATASTREAM... ]
               </div>
-
-              {/* Section 1: What is an Algorithm */}
-              <div className="space-y-4" id="what-is-algorithm">
-                <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
-                  <Terminal size={20} />
-                  1. What is an Algorithm?
-                </h2>
-                <p className="font-sans text-gray-700 leading-loose">
-                  An <strong className="text-black font-black">algorithm</strong> is a finite set of instructions, commands, or a step-by-step procedure carried out in a specific order to solve logical, mathematical, or real-world problems.
-                </p>
-
-                {/* Concept box: Analogy */}
-                <div className="bg-[#38BDF8] border-2 border-black p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none">
-                  <h4 className="font-mono text-[9px] font-bold text-black uppercase tracking-wider mb-2">Real-World Analogy //</h4>
-                  <p className="font-sans text-sm text-black leading-relaxed">
-                    A cooking recipe is a classic analogy. It outlines step-by-step instructions, taking inputs (raw ingredients) to produce a specific output (the finished meal).
-                  </p>
-                </div>
-
-                {/* Grid Components */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                  <div className="border border-black p-4 bg-white">
-                    <span className="font-mono text-[9px] font-bold text-gray-500 block mb-1">PROBLEM //</span>
-                    <p className="font-sans text-xs text-black">A real-world instance or issue requiring a program or set of instructions.</p>
-                  </div>
-                  <div className="border border-black p-4 bg-white">
-                    <span className="font-mono text-[9px] font-bold text-gray-500 block mb-1">INPUT //</span>
-                    <p className="font-sans text-xs text-black">The necessary and desired values provided to the algorithm.</p>
-                  </div>
-                  <div className="border border-black p-4 bg-white">
-                    <span className="font-mono text-[9px] font-bold text-gray-500 block mb-1">PROCESSING UNIT //</span>
-                    <p className="font-sans text-xs text-black">The component (like the CPU) that executes the input to produce outcomes.</p>
-                  </div>
-                  <div className="border border-black p-4 bg-white">
-                    <span className="font-mono text-[9px] font-bold text-gray-500 block mb-1">OUTPUT //</span>
-                    <p className="font-sans text-xs text-black">The final outcome or result produced by the program.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 2: Characteristics */}
-              <div className="space-y-4 pt-6" id="characteristics">
-                <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
-                  <Cpu size={20} />
-                  2. Key Characteristics
-                </h2>
-                <p className="font-sans text-gray-700 leading-loose">
-                  To be effective, any computer algorithm must possess the following structural traits:
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                    <span className="font-mono text-[9px] font-black text-black">INPUT / OUTPUT</span>
-                    <p className="font-sans text-xs text-gray-700 mt-1">Requires some input values (non-zero) and results in one or more outcomes.</p>
-                  </div>
-                  <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                    <span className="font-mono text-[9px] font-black text-black">UNAMBIGUITY</span>
-                    <p className="font-sans text-xs text-gray-700 mt-1">Instructions must be perfectly clear, straightforward, and unambiguous.</p>
-                  </div>
-                  <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                    <span className="font-mono text-[9px] font-black text-black">FINITENESS</span>
-                    <p className="font-sans text-xs text-gray-700 mt-1">Must have a limited, countable number of instructions (it must end).</p>
-                  </div>
-                  <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                    <span className="font-mono text-[9px] font-black text-black">LANGUAGE INDEPENDENT</span>
-                    <p className="font-sans text-xs text-gray-700 mt-1">Instructions must be generic enough to run on any programming syntax.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 3: Programming Constructs */}
-              <div className="space-y-4 pt-6" id="constructs">
-                <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
-                  <Layers size={20} />
-                  3. Programming Constructs
-                </h2>
-                <p className="font-sans text-gray-700 leading-loose">
-                  Programs are built using three fundamental structures that dictate execution flow:
-                </p>
-
-                <div className="space-y-6">
-                  {/* Sequence */}
-                  <div className="border-2 border-black rounded-none p-6 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-[#FFD833] border border-black font-mono text-[8px] font-bold px-1.5 py-0.5">I</span>
-                      <h4 className="font-serif text-lg font-bold text-black uppercase">SEQUENCE</h4>
-                    </div>
-                    <p className="font-sans text-xs text-gray-600 leading-relaxed">
-                      The most basic construct where instructions occur and execute one after another in order. The computer runs code line-by-line, from top to bottom.
-                    </p>
-                  </div>
-
-                  {/* Selection */}
-                  <div className="border-2 border-black rounded-none p-6 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-[#38BDF8] border border-black font-mono text-[8px] font-bold px-1.5 py-0.5">II</span>
-                      <h4 className="font-serif text-lg font-bold text-black uppercase">SELECTION</h4>
-                    </div>
-                    <p className="font-sans text-xs text-gray-600 leading-relaxed">
-                      Determines which path a program takes depending on whether a condition is met. Achieved using <code className="px-1 bg-gray-100 border font-mono">IF</code> statement selections.
-                    </p>
-                  </div>
-
-                  {/* Iteration */}
-                  <div className="border-2 border-black rounded-none p-6 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-[#A7F3D0] border border-black font-mono text-[8px] font-bold px-1.5 py-0.5">III</span>
-                      <h4 className="font-serif text-lg font-bold text-black uppercase">ITERATION (LOOPING)</h4>
-                    </div>
-                    <p className="font-sans text-xs text-gray-600 leading-relaxed">
-                      The repeated execution of a specific section of code while a program is running. A loop repeats a set of steps as many times as required without code duplication.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 4: Computational Concepts */}
-              <div className="space-y-4 pt-6" id="computational-concepts">
-                <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
-                  <BrainCircuit size={20} />
-                  4. Key Computational Concepts
-                </h2>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Abstraction */}
-                  <div className="border-2 border-black p-6 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-3">
-                    <h4 className="font-serif text-xl font-bold uppercase text-black">ABSTRACTION</h4>
-                    <p className="font-sans text-xs text-black leading-relaxed">
-                      The process of hiding background details or unnecessary implementation complexities so users only see the required information.
-                    </p>
-                    <div className="bg-white/80 p-3 border border-black text-[10px] font-sans leading-relaxed text-black/80">
-                      <strong>Example:</strong> When using a washing machine, you simply put in clothes. You don't need to know the engineering mechanisms.
-                    </div>
-                  </div>
-
-                  {/* Decomposition */}
-                  <div className="border-2 border-black p-6 bg-[#A7F3D0] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-3">
-                    <h4 className="font-serif text-xl font-bold uppercase text-black">DECOMPOSITION</h4>
-                    <p className="font-sans text-xs text-black leading-relaxed">
-                      The process of breaking down a large, complex problem into smaller, more manageable parts.
-                    </p>
-                    <div className="bg-white/80 p-3 border border-black text-[10px] font-sans leading-relaxed text-black/80">
-                      <strong>Why it matters:</strong> Smaller parts are easier to design, test, and solve. Problems are harder to resolve on a CPU without this step.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-black/30 to-transparent"></div>
-
-              {/* Section 5: Practical Examples */}
-              <div className="space-y-6 pt-6" id="examples">
-                <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
-                  <ListOrdered size={20} />
-                  5. Practical Examples & Applications
-                </h2>
-
-                {/* Multiplication */}
-                <div className="border-2 border-black p-6 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-4">
-                  <h4 className="font-serif text-lg font-bold text-black uppercase tracking-tight">A. Simple Multiplication Plan</h4>
-                  <p className="font-sans text-xs text-gray-600">A step-by-step plan to multiply two numbers and display the result:</p>
-                  
-                  <div className="bg-[#F3F4F6] border border-black p-4 font-mono text-xs space-y-1.5 text-black">
-                    <div>STEP 1 // Start</div>
-                    <div>STEP 2 // Declare three integers: x, y, and z</div>
-                    <div>STEP 3 // Define the values of x and y</div>
-                    <div>STEP 4 // Multiply the values of x and y</div>
-                    <div>STEP 5 // Store the result of Step 4 into z</div>
-                    <div>STEP 6 // Print z</div>
-                    <div>STEP 7 // End</div>
-                  </div>
-                </div>
-
-                {/* Linear Search */}
-                <div 
-                  className={`border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none overflow-hidden transition-all
-                    ${accordionActive ? 'bg-[#F3F4F6]' : 'bg-white'}
-                  `} 
-                >
-                  <button 
-                    onClick={() => setAccordionActive(prev => !prev)}
-                    className="w-full flex items-center justify-between p-6 text-left focus:outline-none hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="font-serif text-lg font-bold uppercase text-black flex items-center gap-4">
-                      <Search size={18} className="text-black" />
-                      B. Linear Search Walkthrough
-                    </span>
-                    <ChevronDown 
-                      size={20} 
-                      className={`text-black transition-transform duration-200
-                        ${accordionActive ? 'transform rotate-180' : ''}
-                      `} 
-                    />
-                  </button>
-                  
-                  {accordionActive && (
-                    <div className="border-t-2 border-black p-6 md:p-8 space-y-6 font-sans text-sm text-gray-700 leading-loose bg-white">
-                      <p>
-                        <strong>Linear Search</strong> is the simplest sequential searching method, where you start at one end of a list and check every single element one by one until the desired item (the "key") is found.
-                      </p>
-                      
-                      <div className="border-l-4 border-black pl-4 py-2 space-y-2">
-                        <div className="font-mono text-xs font-bold text-black">VISUAL WALKTHROUGH //</div>
-                        <div className="font-mono text-xs text-gray-600">Given array: arr[] = [10, 50, 30, 70, 80, 20, 90, 40] and Target Key = 30</div>
-                        <ol className="list-decimal list-inside space-y-2 pl-2 font-mono text-[11px] mt-2 text-black">
-                          <li>Compare Key (30) with arr[0] (10) &rarr; Not equal. Move to next.</li>
-                          <li>Compare Key (30) with arr[1] (50) &rarr; Not equal. Move to next.</li>
-                          <li>Compare Key (30) with arr[2] (30) &rarr; <span className="bg-[#A7F3D0] border border-black px-1 font-bold">Match found!</span> Yields success and returns index 2.</li>
-                        </ol>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-              </div>
-            </section>
+            </div>
           )}
-
         </div>
       </article>
     </div>
