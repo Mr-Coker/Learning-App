@@ -4,6 +4,7 @@ import { api } from '../../../convex/_generated/api';
 import { Shield, Users, CreditCard, Send, Activity, MessageSquare } from 'lucide-react';
 import { Id } from '../../../convex/_generated/dataModel';
 import { ViewState } from '../../types';
+import { NoteIngester } from './NoteIngester';
 
 interface AdminDashboardProps {
   userEmail: string;
@@ -258,6 +259,12 @@ export function AdminDashboard({ userEmail, onLogout, currentView }: AdminDashbo
 
             </div>
           </div>
+        </div>
+      )}
+
+      {currentView === 'notes' && (
+        <div className="flex justify-center items-center py-6">
+          <NoteIngester />
         </div>
       )}
     </div>

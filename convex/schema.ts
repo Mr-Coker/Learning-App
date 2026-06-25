@@ -71,4 +71,19 @@ export default defineSchema({
     userId: v.string(),
     createdAt: v.number(),
   }).index("by_userId", ["userId"]),
+
+  notes: defineTable({
+    title: v.string(),
+    classLevel: v.string(),
+    subjectId: v.id("subjects"),
+    summaryBadge: v.string(),
+    contentBlocks: v.array(
+      v.object({
+        type: v.union(v.literal("text"), v.literal("challenge_callout"), v.literal("bullet_list")),
+        heading: v.optional(v.string()),
+        body: v.string(),
+      })
+    ),
+    createdAt: v.number(),
+  }).index("by_subjectId", ["subjectId"]),
 });

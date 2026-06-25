@@ -11,6 +11,7 @@
 import type * as admin from "../admin.js";
 import type * as chat from "../chat.js";
 import type * as dashboard from "../dashboard.js";
+import type * as notesIngestion from "../notesIngestion.js";
 import type * as teacher from "../teacher.js";
 import type * as users from "../users.js";
 
@@ -24,6 +25,7 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   chat: typeof chat;
   dashboard: typeof dashboard;
+  notesIngestion: typeof notesIngestion;
   teacher: typeof teacher;
   users: typeof users;
 }>;

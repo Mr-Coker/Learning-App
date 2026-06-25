@@ -39,7 +39,8 @@ const roleTabs: Record<AppRole, Array<{ view: ViewState; label: string }>> = {
   admin: [
     { view: 'home', label: 'System Overview' },
     { view: 'assignments', label: 'Class Roster' },
-    { view: 'library', label: 'Financial Terminal' }
+    { view: 'library', label: 'Financial Terminal' },
+    { view: 'notes', label: 'Note Ingester' }
   ]
 };
 
