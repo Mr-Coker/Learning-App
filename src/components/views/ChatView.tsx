@@ -1,153 +1,363 @@
-import { PlusCircle, Send, ArrowUp, ArrowRight, Shield } from 'lucide-react';
+import { useState } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { Id } from '../../../convex/_generated/dataModel';
+import { Send, MessageSquare, ShieldAlert } from 'lucide-react';
 
-export function ChatView() {
-  return (
-    <div className="flex-1 flex overflow-hidden w-full relative">
-      {/* Channels Sidebar (Inner Left Column) */}
-      <div className="w-56 md:w-64 bg-surface-container-low border-r border-outline-variant flex flex-col hidden md:flex flex-shrink-0 h-full">
-        <div className="p-8 border-b border-outline-variant">
-          <h3 className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Frequency</h3>
+interface ChatViewProps {
+  userEmail: string;
+}
+
+export function ChatView({ userEmail }: ChatViewProps) {
+  const user = useQuery(api.users.getCurrentUserRole, { email: userEmail });
+  const allSubjects = useQuery(api.chat.getAllSubjects);
+
+  // States
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [messageText, setMessageText] = useState('');
+
+  // Mutator
+  const sendMessageMutation = useMutation(api.chat.sendMessage);
+
+  // Teacher specific subjects
+  const teacherSubjects = useQuery(
+    api.teacher.getTeacherSubjects,
+    user?.role === 'teacher' ? { teacherEmail: userEmail } : 'skip'
+  );
+
+  // Active threads for a subject (Teacher only)
+  const activeThreads = useQuery(
+    api.chat.getSubjectThreads,
+    user?.role === 'teacher' && selectedSubjectId
+      ? { subjectId: selectedSubjectId as Id<"subjects"> }
+      : 'skip'
+  );
+
+  // Messages log
+  const messages = useQuery(
+    user?.role === 'teacher'
+      ? api.chat.getSubjectMessages
+      : api.chat.getSubjectMessages,
+    user && selectedSubjectId
+      ? {
+          subjectId: selectedSubjectId as Id<"subjects">,
+          studentId: (user.role === 'teacher' ? selectedStudentId : user._id) as Id<"users">,
+        }
+      : 'skip'
+  );
+
+  if (!user) {
+    return (
+      <div className="h-full flex items-center justify-center font-mono text-xs uppercase tracking-widest animate-pulse">
+        Initializing Secure Telemetry Channel...
+      </div>
+    );
+  }
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!messageText.trim() || !selectedSubjectId) return;
+
+    try {
+      if (user.role === 'student') {
+        const subjectsList = allSubjects || [];
+        const currentSubj = subjectsList.find(s => s._id === selectedSubjectId);
+        if (!currentSubj) return;
+
+        await sendMessageMutation({
+          senderId: user._id as Id<"users">,
+          receiverId: currentSubj.teacherId as Id<"users">,
+          subjectId: selectedSubjectId as Id<"subjects">,
+          content: messageText.trim(),
+          type: 'teacher_student',
+        });
+      } else if (user.role === 'teacher') {
+        if (!selectedStudentId) return;
+        await sendMessageMutation({
+          senderId: user._id as Id<"users">,
+          receiverId: selectedStudentId as Id<"users">,
+          subjectId: selectedSubjectId as Id<"subjects">,
+          content: messageText.trim(),
+          type: 'teacher_student',
+        });
+      }
+      setMessageText('');
+    } catch (err: any) {
+      alert(`Error transmitting message: ${err.message}`);
+    }
+  };
+
+  // Student view configuration
+  if (user.role === 'student') {
+    const activeSubject = allSubjects?.find(s => s._id === selectedSubjectId);
+
+    return (
+      <div className="flex-1 flex overflow-hidden w-full h-full min-h-[500px] border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] select-none">
+        {/* Subject Directory Sidebar */}
+        <div className="w-56 md:w-64 bg-[#F9FAFB] border-r-4 border-black flex flex-col flex-shrink-0 h-full">
+          <div className="p-4 border-b-4 border-black bg-[#FFD833] text-black">
+            <h3 className="font-mono text-xs font-black uppercase tracking-wider">
+              SUBJECTS_DIRECTORY
+            </h3>
+          </div>
+          <div className="flex-1 overflow-y-auto divide-y-2 divide-black">
+            {allSubjects?.map((subj) => {
+              const isSelected = selectedSubjectId === subj._id;
+              return (
+                <button
+                  key={subj._id}
+                  onClick={() => setSelectedSubjectId(subj._id)}
+                  className={`w-full text-left p-4 font-mono text-[10px] md:text-xs uppercase tracking-wider transition-all cursor-pointer block ${
+                    isSelected
+                      ? 'bg-black text-white font-bold'
+                      : 'bg-white text-black hover:bg-gray-100 hover:translate-x-[2px]'
+                  }`}
+                >
+                  <span className="opacity-60 block text-[9px] mb-1">// {subj.code}</span>
+                  {subj.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <a href="#" className="block px-4 py-3 rounded-none bg-outline-variant text-on-surface font-mono text-[10px] uppercase tracking-widest border-l-2 border-on-surface">
-              <span className="opacity-50">CH.01</span> MATH
-          </a>
-          <a href="#" className="block px-4 py-3 rounded-none text-on-surface-variant hover:text-on-surface transition-colors font-mono text-[10px] uppercase tracking-widest border-l-2 border-transparent">
-              <span className="opacity-50">CH.02</span> SCIENCE
-          </a>
-          <a href="#" className="block px-4 py-3 rounded-none text-on-surface-variant hover:text-on-surface transition-colors font-mono text-[10px] uppercase tracking-widest border-l-2 border-transparent">
-              <span className="opacity-50">CH.03</span> LITERATURE
-          </a>
-          <a href="#" className="block px-4 py-3 rounded-none text-on-surface-variant hover:text-on-surface transition-colors font-mono text-[10px] uppercase tracking-widest border-l-2 border-transparent">
-              <span className="opacity-50">CH.04</span> SYSTEMS
-          </a>
+
+        {/* Chat Area */}
+        <div className="flex-1 flex flex-col bg-[#F3F4F6] relative h-full">
+          {selectedSubjectId ? (
+            <>
+              {/* Header with Teacher Obscurity Rules */}
+              <header className="h-20 border-b-4 border-black px-6 bg-white flex items-center justify-between flex-shrink-0">
+                <div className="flex flex-col">
+                  <span className="font-serif text-lg md:text-xl font-black uppercase tracking-tight">
+                    {activeSubject?.name}
+                  </span>
+                  <span className="font-mono text-[9px] tracking-widest text-[#FF3B30] font-bold">
+                    [ FACILITATOR IDENTITY CLASSIFIED ]
+                  </span>
+                </div>
+                <div className="text-xs border border-black px-2 py-1 bg-black text-white font-mono uppercase tracking-widest">
+                  SECURE_DESK
+                </div>
+              </header>
+
+              {/* Messages Stream */}
+              <div className="flex-1 p-6 overflow-y-auto space-y-4 flex flex-col">
+                <div className="flex justify-center my-2">
+                  <span className="text-[9px] border-2 border-black px-3 py-1 bg-black text-white font-mono uppercase tracking-widest shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                    &gt;&gt; SECURE ENCRYPTED NODE INTERACTION INITIALIZED &lt;&lt;
+                  </span>
+                </div>
+
+                {messages?.map((msg) => {
+                  const isSelf = msg.senderId === user._id;
+                  return (
+                    <div
+                      key={msg._id}
+                      className={`flex flex-col max-w-[75%] ${
+                        isSelf ? 'align-self-end self-end items-end' : 'align-self-start self-start items-start'
+                      }`}
+                    >
+                      <div
+                        className={`p-4 border-2 border-black rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] font-mono text-xs ${
+                          isSelf ? 'bg-white text-black' : 'bg-[#FFD833] text-black font-bold'
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                      <span className="text-[8px] text-gray-500 font-mono mt-1 px-1">
+                        {isSelf ? 'STUDENT' : 'OFFICIAL INSTRUCTION'} // {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Input Bar */}
+              <form onSubmit={handleSendMessage} className="border-t-4 border-black flex flex-shrink-0 bg-white">
+                <input
+                  type="text"
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  placeholder="TRANSMIT CHALLENGE DETAILS OR BOTTLENECKS..."
+                  className="flex-1 bg-white p-4 font-mono text-xs uppercase tracking-widest placeholder-gray-400 focus:outline-none focus:bg-amber-50"
+                />
+                <button
+                  type="submit"
+                  className="bg-black text-white hover:bg-white hover:text-black border-l-4 border-black px-6 py-4 font-mono text-xs uppercase tracking-widest font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  <span>SEND</span>
+                  <Send size={12} />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col justify-center items-center text-center p-8">
+              <MessageSquare size={48} className="text-black mb-3 animate-bounce" />
+              <span className="font-mono text-xs uppercase tracking-widest text-black font-black">
+                SELECT A SUBJECT CODE
+              </span>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-gray-400 mt-2">
+                TRANSCEIVER ONLINE // SECURE CONNECTIONS DETECTED
+              </span>
+            </div>
+          )}
         </div>
       </div>
+    );
+  }
 
-      {/* Chat Stream (Right Column) */}
-      <div className="flex-1 flex flex-col bg-background relative h-full">
-        {/* Chat Header */}
-        <header className="h-20 flex items-center px-4 md:px-8 border-b border-outline-variant bg-background/80 backdrop-blur-md z-10 flex-shrink-0">
-          <div className="flex items-baseline gap-4">
-            <span className="text-2xl md:text-3xl font-serif font-black uppercase text-on-surface tracking-tighter">Math</span>
-            <span className="text-[10px] text-on-surface-variant uppercase tracking-widest font-mono hidden sm:block mt-2">Calculus & Algebra protocols.</span>
-          </div>
-        </header>
+  // Teacher experience view
+  if (user.role === 'teacher') {
+    const activeSubject = teacherSubjects?.find(s => s._id === selectedSubjectId);
+    const activeStudent = activeThreads?.find(st => st._id === selectedStudentId);
 
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-10">
-          
-          {/* System Message */}
-          <div className="flex justify-center">
-            <span className="bg-outline-variant text-on-surface-variant font-mono text-[10px] uppercase tracking-widest px-6 py-2 border border-outline-variant text-center">
-              Connection Established
+    return (
+      <div className="flex-1 flex overflow-hidden w-full h-full min-h-[500px] border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] select-none">
+        {/* Sidebar with Subject switcher tabs & active student threads */}
+        <div className="w-64 bg-[#F9FAFB] border-r-4 border-black flex flex-col flex-shrink-0 h-full">
+          {/* Subject Selector Tabs */}
+          <div className="border-b-4 border-black bg-black p-3 text-white">
+            <span className="font-mono text-[10px] uppercase font-black tracking-widest">
+              FACILITATING_COURSES
             </span>
           </div>
-
-          {/* Regular Message */}
-          <div className="flex gap-6">
-            <img 
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop" 
-              alt="User Avatar" 
-              className="w-10 h-10 rounded-none border-2 border-black flex-shrink-0 object-cover grayscale opacity-80 shadow-[2px_2px_0_0_rgba(0,0,0,1)]" 
-            />
-            <div>
-              <div className="flex items-baseline gap-3 mb-2">
-                <span className="font-mono text-[10px] text-on-surface uppercase tracking-widest">AV_01</span>
-                <span className="font-mono text-[10px] text-on-surface-variant">10:42</span>
-              </div>
-              <div className="bg-surface-container-high rounded-none border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6 text-on-surface-variant font-sans text-sm inline-block max-w-[90%] md:max-w-[80%] leading-relaxed">
-                Hey everyone, is anyone else struggling with problem 4 on the derivatives worksheet? I keep getting zero in the denominator.
-              </div>
-            </div>
+          <div className="bg-white border-b-2 border-black p-2 flex flex-col gap-1.5">
+            {teacherSubjects?.map((subj) => {
+              const isSelected = selectedSubjectId === subj._id;
+              return (
+                <button
+                  key={subj._id}
+                  onClick={() => {
+                    setSelectedSubjectId(subj._id);
+                    setSelectedStudentId(null);
+                  }}
+                  className={`w-full text-left px-3 py-2 font-mono text-[10px] uppercase tracking-wider transition-all rounded-none border-2 border-black cursor-pointer ${
+                    isSelected ? 'bg-[#FFD833] text-black font-bold' : 'bg-white hover:bg-gray-100'
+                  }`}
+                >
+                  {subj.code} - {subj.name}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Upvoteable Question Card */}
-          <div className="flex gap-6">
-            <img 
-              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1024&auto=format&fit=crop" 
-              alt="User Avatar" 
-              className="w-10 h-10 rounded-full flex-shrink-0 object-cover grayscale opacity-80" 
-            />
-            <div className="w-full max-w-2xl">
-              <div className="flex items-baseline gap-3 mb-2">
-                <span className="font-mono text-[10px] text-on-surface uppercase tracking-widest">SJ_02</span>
-                <span className="font-mono text-[10px] text-on-surface-variant">10:45</span>
-              </div>
-              <div className="bg-surface-container border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none p-8 relative overflow-hidden group">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 gap-2">
-                  <h4 className="font-serif text-xl font-bold uppercase tracking-tight text-on-surface flex-1">Chain Rule Application</h4>
-                  <span className="text-on-surface-variant px-2 py-0.5 border border-outline rounded-none text-[10px] font-mono uppercase tracking-widest w-fit">Unresolved</span>
-                </div>
-                <p className="font-sans text-sm text-on-surface-variant mb-6 leading-relaxed">
-                  When applying the chain rule to f(x) = sin(cos(x^2)), do I derive the x^2 first or the outer sine function? The textbook examples are a bit ambiguous on the order of operations here.
-                </p>
-                <div className="flex justify-between items-center mt-6 pt-6 border-t border-outline-variant">
-                  <button className="flex items-center gap-3 text-on-surface-variant hover:text-on-surface transition-colors font-mono text-[10px] uppercase tracking-widest">
-                    <ArrowUp size={14} /> 12 Upvotes
-                  </button>
-                  <button className="text-on-surface-variant hover:text-on-surface font-mono text-[10px] uppercase tracking-widest transition-colors flex items-center gap-2">
-                    View Data <ArrowRight size={14} />
-                  </button>
-                </div>
-              </div>
-            </div>
+          {/* Incoming Student Issue Threads */}
+          <div className="p-3 border-b-2 border-black bg-gray-100 flex items-center justify-between">
+            <span className="font-mono text-[9px] uppercase font-bold text-gray-600">
+              INCOMING STUDENT CHALLENGES
+            </span>
           </div>
-
-          {/* Teacher Response */}
-          <div className="flex gap-6">
-            <div className="w-10 h-10 rounded-none border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex-shrink-0 bg-primary flex items-center justify-center">
-              <Shield size={16} className="text-on-primary" />
-            </div>
-            <div>
-              <div className="flex items-center flex-wrap gap-3 mb-2">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface">Director</span>
-                <span className="bg-primary text-on-primary flex items-center gap-1 px-2 py-0.5 rounded-none text-[8px] font-mono uppercase tracking-widest leading-none">
-                   STAFF
-                </span>
-                <span className="font-mono text-[10px] text-on-surface-variant">10:52</span>
+          <div className="flex-1 overflow-y-auto divide-y-2 divide-black">
+            {activeThreads?.map((thread) => {
+              const isSelected = selectedStudentId === thread._id;
+              return (
+                <button
+                  key={thread._id}
+                  onClick={() => setSelectedStudentId(thread._id)}
+                  className={`w-full text-left p-4 font-mono text-xs uppercase tracking-wider transition-all cursor-pointer block ${
+                    isSelected ? 'bg-black text-white font-bold' : 'bg-white hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <span className="font-bold block truncate max-w-[120px]">{thread.name}</span>
+                    <span className="text-[8px] opacity-60">
+                      {new Date(thread.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-[9px] opacity-75 truncate mt-1 lowercase font-light">
+                    {thread.lastMessage}
+                  </p>
+                </button>
+              );
+            })}
+            {(!selectedSubjectId || !activeThreads || activeThreads.length === 0) && (
+              <div className="p-8 text-center font-mono text-[9px] tracking-wider text-gray-400">
+                NO ACTIVE CHANNELS REPORTED ON THIS NODE
               </div>
-              <div className="bg-primary text-on-primary rounded-none border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6 font-sans text-sm inline-block max-w-[90%] md:max-w-[80%] leading-relaxed font-medium">
-                Excellent question. Always work from the outside in. First derive sin(u), then cos(v), and finally x^2. I've placed a diagram in the archives that breaks this down.
-              </div>
-            </div>
-          </div>
-
-          {/* Regular Message */}
-          <div className="flex gap-6">
-            <div className="w-10 h-10 rounded-none border-2 border-black flex-shrink-0 bg-surface shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex items-center justify-center">
-            </div>
-            <div>
-              <div className="flex items-baseline gap-3 mb-2">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface">OP_04</span>
-                <span className="font-mono text-[10px] text-on-surface-variant">10:55</span>
-              </div>
-              <div className="bg-surface-container-high rounded-none border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6 text-on-surface-variant font-sans text-sm inline-block max-w-[90%] md:max-w-[80%] leading-relaxed">
-                Ah, outside in makes so much more sense. Thanks!
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Message Input */}
-        <div className="p-4 md:p-8 bg-background/90 backdrop-blur-md border-t border-outline-variant flex-shrink-0">
-          <div className="relative flex items-center max-w-4xl mx-auto">
-            <button className="absolute left-3 md:left-6 text-on-surface-variant hover:text-on-surface transition-colors">
-              <PlusCircle size={20} />
-            </button>
-            <input 
-              type="text" 
-              className="w-full bg-surface-container-low border-4 border-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] py-4 pl-12 md:pl-16 pr-16 text-on-surface font-sans text-sm focus:shadow-[6px_6px_0_0_rgba(0,0,0,1)] focus:outline-none transition-all" 
-              placeholder="Transmit message..." 
-            />
-            <button className="absolute right-3 md:right-4 bg-primary text-on-primary p-2 border-2 border-black rounded-none hover:bg-primary/90 transition-all flex items-center justify-center">
-              <Send size={16} />
-            </button>
+            )}
           </div>
         </div>
 
+        {/* Chat Area */}
+        <div className="flex-1 flex flex-col bg-[#F3F4F6] relative h-full">
+          {selectedSubjectId && selectedStudentId ? (
+            <>
+              {/* Header */}
+              <header className="h-20 border-b-4 border-black px-6 bg-white flex items-center justify-between flex-shrink-0">
+                <div className="flex flex-col">
+                  <span className="font-serif text-lg md:text-xl font-black uppercase tracking-tight">
+                    {activeStudent?.name}
+                  </span>
+                  <span className="font-mono text-[9px] tracking-widest text-[#FFD833] font-bold bg-black px-1.5 py-0.5 w-fit uppercase">
+                    SUBJECT // {activeSubject?.name}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs border-2 border-black px-2.5 py-1 bg-[#FF3B30] text-white font-mono uppercase tracking-widest font-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                  <ShieldAlert size={12} />
+                  <span>SECURE CHANNEL</span>
+                </div>
+              </header>
+
+              {/* Messages Stream */}
+              <div className="flex-1 p-6 overflow-y-auto space-y-4 flex flex-col">
+                {messages?.map((msg) => {
+                  const isSelf = msg.senderId === user._id;
+                  return (
+                    <div
+                      key={msg._id}
+                      className={`flex flex-col max-w-[75%] ${
+                        isSelf ? 'align-self-end self-end items-end' : 'align-self-start self-start items-start'
+                      }`}
+                    >
+                      <div
+                        className={`p-4 border-2 border-black rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] font-mono text-xs ${
+                          isSelf ? 'bg-[#FFD833] text-black font-bold' : 'bg-white text-black'
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                      <span className="text-[8px] text-gray-500 font-mono mt-1 px-1">
+                        {isSelf ? 'FACILITATOR RESPONSE' : 'STUDENT INQUIRY'} // {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Input Bar */}
+              <form onSubmit={handleSendMessage} className="border-t-4 border-black flex flex-shrink-0 bg-white">
+                <input
+                  type="text"
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  placeholder="ENTER SECURE RESOLUTION TRANSMISSION..."
+                  className="flex-1 bg-white p-4 font-mono text-xs uppercase tracking-widest placeholder-gray-400 focus:outline-none focus:bg-amber-50"
+                />
+                <button
+                  type="submit"
+                  className="bg-black text-white hover:bg-white hover:text-black border-l-4 border-black px-6 py-4 font-mono text-xs uppercase tracking-widest font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  <span>TRANSMIT</span>
+                  <Send size={12} />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col justify-center items-center text-center p-8">
+              <MessageSquare size={48} className="text-black mb-3 animate-pulse" />
+              <span className="font-mono text-xs uppercase tracking-widest text-black font-black">
+                SELECT STUDENT WORKSPACE
+              </span>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-gray-400 mt-2">
+                ACTIVE QUEUE CORRELATOR STABLE
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 }

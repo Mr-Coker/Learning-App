@@ -183,8 +183,8 @@ export default function App() {
             {userRole === 'student' && (
               <>
                 {currentView === 'home' && <HomeView userEmail={userEmail} />}
-                {currentView === 'chat' && <ChatView />}
-                {currentView === 'communication' && <ChatView />}
+                {currentView === 'chat' && <ChatView userEmail={userEmail} />}
+                {currentView === 'communication' && <ChatView userEmail={userEmail} />}
                 {currentView === 'assignments' && <AssignmentsView />}
                 {currentView === 'notes' && <NotesView />}
                 {currentView === 'library' && <LibraryView />}

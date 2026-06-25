@@ -5,6 +5,7 @@ export const sendMessage = mutation({
   args: {
     senderId: v.id("users"),
     receiverId: v.id("users"),
+    subjectId: v.optional(v.id("subjects")),
     content: v.string(),
     type: v.union(v.literal("teacher_student"), v.literal("admin_teacher")),
   },
@@ -34,6 +35,7 @@ export const sendMessage = mutation({
     const messageId = await ctx.db.insert("messages", {
       senderId: args.senderId,
       receiverId: args.receiverId,
+      subjectId: args.subjectId,
       content: args.content.trim(),
       type: args.type,
       createdAt: Date.now(),
@@ -61,5 +63,79 @@ export const getMessages = query({
     return [...sent, ...received]
       .filter((m) => m.receiverId === args.user1Id || m.receiverId === args.user2Id)
       .sort((a, b) => a.createdAt - b.createdAt);
+  },
+});
+
+export const getAllSubjects = query({
+  args: {},
+  handler: async (ctx) => {
+    const subjects = await ctx.db.query("subjects").collect();
+    if (subjects.length === 0) {
+      // Fallback/pre-populated subjects if database has none
+      return [
+        { _id: "subj1" as any, name: "Computational Mathematics", code: "MATH01", teacherId: "t1" as any },
+        { _id: "subj2" as any, name: "Quantum Mechanics", code: "PHYS02", teacherId: "t2" as any },
+        { _id: "subj3" as any, name: "Advanced Cybernetics", code: "CYBER03", teacherId: "t1" as any },
+      ];
+    }
+    return subjects;
+  },
+});
+
+export const getSubjectMessages = query({
+  args: {
+    subjectId: v.id("subjects"),
+    studentId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_subjectId", (q) => q.eq("subjectId", args.subjectId))
+      .collect();
+
+    return messages
+      .filter((m) => m.senderId === args.studentId || m.receiverId === args.studentId)
+      .sort((a, b) => a.createdAt - b.createdAt);
+  },
+});
+
+export const getSubjectThreads = query({
+  args: {
+    subjectId: v.id("subjects"),
+  },
+  handler: async (ctx, args) => {
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_subjectId", (q) => q.eq("subjectId", args.subjectId))
+      .collect();
+
+    const studentIds = new Set<string>();
+    for (const m of messages) {
+      const sender = await ctx.db.get("users", m.senderId);
+      const receiver = await ctx.db.get("users", m.receiverId);
+      if (sender && (sender.role === "student" || sender.role === "LEARNER")) {
+        studentIds.add(m.senderId);
+      }
+      if (receiver && (receiver.role === "student" || receiver.role === "LEARNER")) {
+        studentIds.add(m.receiverId);
+      }
+    }
+
+    const students = [];
+    for (const id of studentIds) {
+      const student = await ctx.db.get("users", id as any);
+      if (student) {
+        const studentMsgs = messages.filter(m => m.senderId === student._id || m.receiverId === student._id);
+        const lastMsg = studentMsgs[studentMsgs.length - 1];
+        students.push({
+          _id: student._id,
+          name: student.name,
+          email: student.email,
+          lastMessage: lastMsg ? lastMsg.content : "",
+          lastMessageTime: lastMsg ? lastMsg.createdAt : 0,
+        });
+      }
+    }
+    return students.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
   },
 });

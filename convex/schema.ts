@@ -44,12 +44,14 @@ export default defineSchema({
   messages: defineTable({
     senderId: v.id("users"),
     receiverId: v.id("users"),
+    subjectId: v.optional(v.id("subjects")),
     content: v.string(),
     type: v.union(v.literal("teacher_student"), v.literal("admin_teacher")),
     createdAt: v.number(),
   })
     .index("by_senderId", ["senderId"])
-    .index("by_receiverId", ["receiverId"]),
+    .index("by_receiverId", ["receiverId"])
+    .index("by_subjectId", ["subjectId"]),
 
   financialMetrics: defineTable({
     amount: v.number(),
