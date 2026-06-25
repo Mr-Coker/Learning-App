@@ -171,3 +171,40 @@ export const getNoteDetails = query({
     return await ctx.db.get(args.noteId);
   },
 });
+
+export const generateUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const saveNoteMetadata = mutation({
+  args: {
+    title: v.string(),
+    classLevel: v.string(),
+    subjectId: v.id("subjects"),
+    storageId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const summaryBadge = `PDF NOTE // ${args.classLevel.toUpperCase()}`;
+    const noteId = await ctx.db.insert("notes", {
+      title: args.title,
+      classLevel: args.classLevel,
+      subjectId: args.subjectId,
+      summaryBadge,
+      fileStorageId: args.storageId,
+      createdAt: Date.now(),
+    });
+    return noteId;
+  },
+});
+
+export const getNoteFileUrl = query({
+  args: {
+    storageId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.storageId);
+  },
+});

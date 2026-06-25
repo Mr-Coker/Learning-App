@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useQuery, useAction } from 'convex/react';
+import { useQuery, useAction, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
 import { Upload, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
@@ -7,6 +7,8 @@ import { Upload, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
 export function NoteIngester() {
   const subjects = useQuery(api.admin.listSubjects);
   const ingestNoteText = useAction(api.notesIngestion.ingestNoteText);
+  const generateUploadUrl = useMutation(api.notesIngestion.generateUploadUrl);
+  const saveNoteMetadata = useMutation(api.notesIngestion.saveNoteMetadata);
 
   // Form states
   const [title, setTitle] = useState('');
@@ -75,34 +77,33 @@ export function NoteIngester() {
     setStatus('processing');
 
     try {
-      // Read file contents as text (or fall back to mock layout if file reading is blocked)
-      let fileText = '';
-      try {
-        fileText = await selectedFile.text();
-      } catch (readErr) {
-        fileText = `
-        # Introduction to Note Topic
-        This note covers key concepts, definitions, and rules.
-        
-        # Core Principles
-        - Principle 1: Understanding structural foundations.
-        - Principle 2: Analyzing active data pathways.
-        
-        Challenge: Ensure that all variables are declared and initialized before calling methods.
-        
-        - Principle 3: Enforcing boundary validations.
-        `;
+      // Step 1: Generate Upload URL
+      const uploadUrl = await generateUploadUrl();
+
+      // Step 2: Upload File
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": selectedFile.type },
+        body: selectedFile,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("HTTP upload request failed");
       }
 
-      if (!fileText || fileText.trim().length === 0) {
-        fileText = `Mock Ingestion Payload for file ${selectedFile.name}. No raw content could be extracted.`;
+      // Step 3: Parse response JSON to get storageId
+      const { storageId } = await uploadResponse.json();
+
+      if (!storageId) {
+        throw new Error("Convex did not return a valid storageId");
       }
 
-      const noteId = await ingestNoteText({
+      // Step 4: Save metadata record
+      const noteId = await saveNoteMetadata({
         title: title.trim(),
         classLevel,
         subjectId: selectedSubjectId as Id<"subjects">,
-        rawText: fileText,
+        storageId,
       });
 
       setIngestedNoteId(noteId);

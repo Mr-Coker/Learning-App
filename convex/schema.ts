@@ -7,10 +7,10 @@ export default defineSchema({
     email: v.string(),
     passwordHash: v.string(),
     role: v.union(
-      v.literal("student"), 
-      v.literal("teacher"), 
-      v.literal("admin"), 
-      v.literal("LEARNER"), 
+      v.literal("student"),
+      v.literal("teacher"),
+      v.literal("admin"),
+      v.literal("LEARNER"),
       v.literal("TRANSMITTER")
     ),
     classId: v.optional(v.string()),
@@ -77,13 +77,17 @@ export default defineSchema({
     classLevel: v.string(),
     subjectId: v.id("subjects"),
     summaryBadge: v.string(),
-    contentBlocks: v.array(
-      v.object({
-        type: v.union(v.literal("text"), v.literal("challenge_callout"), v.literal("bullet_list")),
-        heading: v.optional(v.string()),
-        body: v.string(),
-      })
+    contentBlocks: v.optional(
+      v.array(
+        v.object({
+          type: v.union(v.literal("text"), v.literal("challenge_callout"), v.literal("bullet_list")),
+          heading: v.optional(v.string()),
+          body: v.string(),
+        })
+      )
     ),
+    chapterNumber: v.optional(v.number()),
+    fileStorageId: v.optional(v.string()),
     createdAt: v.number(),
   }).index("by_subjectId", ["subjectId"]),
 });
