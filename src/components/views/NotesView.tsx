@@ -43,7 +43,30 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
     );
   }
 
-  const dbNoteToc = activeDbNote?.contentBlocks
+  const isBinaryOrRawPayload = (text: string): boolean => {
+    if (!text) return false;
+    if (text.startsWith('%PDF') || text.includes('\\x00') || text.startsWith('data:')) {
+      return true;
+    }
+    let nonPrintableCount = 0;
+    const checkLength = Math.min(text.length, 500);
+    for (let i = 0; i < checkLength; i++) {
+      const charCode = text.charCodeAt(i);
+      if ((charCode < 32 && charCode !== 9 && charCode !== 10 && charCode !== 13) || charCode > 126) {
+        nonPrintableCount++;
+      }
+    }
+    if (nonPrintableCount > checkLength * 0.15) {
+      return true;
+    }
+    return false;
+  };
+
+  const filteredBlocks = activeDbNote?.contentBlocks?.filter(
+    (block: any) => !isBinaryOrRawPayload(block.body)
+  ) || [];
+
+  const dbNoteToc = filteredBlocks
     ?.map((block: any, idx: number) => {
       if (block.heading) {
         return { id: `block-${idx}`, label: block.heading };
@@ -179,7 +202,7 @@ export function NotesView({ activeNoteId, setActiveNoteId }: NotesViewProps) {
               </div>
 
               <div className="space-y-8 max-w-3xl">
-                {activeDbNote.contentBlocks.map((block: any, idx: number) => {
+                {filteredBlocks.map((block: any, idx: number) => {
                   switch (block.type) {
                     case 'challenge_callout':
                       return (
