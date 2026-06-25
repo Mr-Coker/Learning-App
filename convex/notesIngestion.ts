@@ -15,6 +15,8 @@ export const saveIngestedNote = mutation({
         body: v.string(),
       })
     ),
+    subTopicIndex: v.optional(v.number()),
+    subTopicTitle: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const noteId = await ctx.db.insert("notes", {
@@ -23,6 +25,8 @@ export const saveIngestedNote = mutation({
       subjectId: args.subjectId,
       summaryBadge: args.summaryBadge,
       contentBlocks: args.contentBlocks,
+      subTopicIndex: args.subTopicIndex,
+      subTopicTitle: args.subTopicTitle,
       createdAt: Date.now(),
     });
     return noteId;
@@ -125,19 +129,45 @@ export const ingestNoteText = action({
       });
     }
 
+    // Partition contentBlocks into chunks (max 15 blocks, or split on new headings)
+    const chunks: typeof contentBlocks[] = [];
+    let currentChunk: typeof contentBlocks = [];
+    for (const block of contentBlocks) {
+      if (currentChunk.length >= 15 || (block.heading && currentChunk.length > 0)) {
+        chunks.push(currentChunk);
+        currentChunk = [];
+      }
+      currentChunk.push(block);
+    }
+    if (currentChunk.length > 0) {
+      chunks.push(currentChunk);
+    }
+
     // Create a dynamic summary badge
     const summaryBadge = `REVISION NOTE // ${args.classLevel.toUpperCase()}`;
 
-    // Call the internal mutation to write the note to database
-    const noteId = await ctx.runMutation(api.notesIngestion.saveIngestedNote, {
-      title: args.title,
-      classLevel: args.classLevel,
-      subjectId: args.subjectId,
-      summaryBadge,
-      contentBlocks,
-    });
+    // Write each chunk as a separate note document in sequence
+    let firstNoteId: string | null = null;
+    for (let idx = 0; idx < chunks.length; idx++) {
+      const chunk = chunks[idx];
+      const firstHeadingBlock = chunk.find(b => b.heading);
+      const subTopicTitle = firstHeadingBlock ? firstHeadingBlock.heading : `${args.title} - Section ${idx + 1}`;
+      
+      const insertedId = await ctx.runMutation(api.notesIngestion.saveIngestedNote, {
+        title: args.title,
+        classLevel: args.classLevel,
+        subjectId: args.subjectId,
+        summaryBadge,
+        contentBlocks: chunk,
+        subTopicIndex: idx,
+        subTopicTitle,
+      });
+      if (idx === 0) {
+        firstNoteId = insertedId;
+      }
+    }
 
-    return noteId;
+    return firstNoteId!;
   },
 });
 

@@ -86,6 +86,8 @@ export default defineSchema({
     ),
     chapterNumber: v.optional(v.number()),
     fileStorageId: v.optional(v.string()),
+    subTopicIndex: v.optional(v.number()),
+    subTopicTitle: v.optional(v.string()),
     createdAt: v.number(),
   }).index("by_subjectId", ["subjectId"]),
 });

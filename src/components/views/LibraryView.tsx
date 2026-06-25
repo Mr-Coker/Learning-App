@@ -224,52 +224,85 @@ export function LibraryView({ onNoteSelect }: LibraryViewProps) {
           </div>
 
           {/* Notes Cards Grid */}
-          {notes && notes.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {notes.map((note) => (
-                <div
-                  key={note._id}
-                  onClick={() => {
-                    if (onNoteSelect) {
-                      onNoteSelect(note._id);
-                    } else {
-                      setSelectedNote(note);
-                      setScreen('note_detail');
-                    }
-                  }}
-                  className="border-4 border-black bg-white rounded-none p-5 flex items-start gap-4 transition-all duration-100 cursor-pointer hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
-                >
-                  <div
-                    className="w-10 h-10 border-2 border-black flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-black"
-                    style={{ backgroundColor: getSubjectColor(selectedSubject.code) }}
-                  >
-                    <FileText size={18} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-mono text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 border border-black bg-black text-white">
-                        NOTE
-                      </span>
-                      <span className="font-mono text-[8px] text-gray-500 uppercase tracking-wider font-bold">
-                        {note.classLevel}
-                      </span>
+          {/* Notes Cards Grid */}
+          {(() => {
+            const groupedNotes: { [title: string]: any[] } = {};
+            if (notes) {
+              notes.forEach((note) => {
+                if (!groupedNotes[note.title]) {
+                  groupedNotes[note.title] = [];
+                }
+                groupedNotes[note.title].push(note);
+              });
+              Object.keys(groupedNotes).forEach((title) => {
+                groupedNotes[title].sort((a, b) => (a.subTopicIndex ?? 0) - (b.subTopicIndex ?? 0));
+              });
+            }
+
+            const hasNotes = Object.keys(groupedNotes).length > 0;
+
+            if (hasNotes) {
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Object.entries(groupedNotes).map(([mainTitle, subNotes]) => (
+                    <div 
+                      key={mainTitle} 
+                      className="border-4 border-black bg-[#F3F4F6] p-5 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col gap-4"
+                    >
+                      <div className="flex items-center justify-between border-b-2 border-black pb-2">
+                        <h4 className="font-serif text-base md:text-lg font-black uppercase tracking-tight text-black truncate max-w-[80%]">
+                          {mainTitle}
+                        </h4>
+                        <span className="font-mono text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 border border-black bg-black text-[#FFD833] flex-shrink-0">
+                          {subNotes.length} UNITS
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-3">
+                        {subNotes.map((note) => (
+                          <div
+                            key={note._id}
+                            onClick={() => {
+                              if (onNoteSelect) {
+                                onNoteSelect(note._id);
+                              } else {
+                                setSelectedNote(note);
+                                setScreen('note_detail');
+                              }
+                            }}
+                            className="border-2 border-black bg-white rounded-none p-3.5 flex items-center justify-between transition-all duration-100 cursor-pointer hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div
+                                className="w-8 h-8 border-2 border-black flex items-center justify-center flex-shrink-0 text-black font-mono text-xs font-bold shadow-[1px_1px_0_0_rgba(0,0,0,1)]"
+                                style={{ backgroundColor: getSubjectColor(selectedSubject.code) }}
+                              >
+                                {(note.subTopicIndex ?? 0) + 1}
+                              </div>
+                              <div className="min-w-0">
+                                <span className="font-serif text-xs font-bold uppercase text-black block truncate leading-tight">
+                                  {note.subTopicTitle || note.title}
+                                </span>
+                                <span className="font-mono text-[8px] text-gray-500 uppercase tracking-wider font-bold block mt-0.5">
+                                  {note.classLevel} &middot; {note.contentBlocks?.length || 0} BLOCKS
+                                </span>
+                              </div>
+                            </div>
+                            <ChevronRight size={14} className="text-black flex-shrink-0 ml-2" />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <h4 className="font-serif text-base md:text-lg font-black uppercase tracking-tight text-black truncate">
-                      {note.title}
-                    </h4>
-                    <span className="font-mono text-[8px] font-bold tracking-widest text-emerald-600 block mt-2">
-                      [ PAYLOAD_READY ]
-                    </span>
-                  </div>
-                  <ChevronRight size={16} className="text-black flex-shrink-0 mt-3" />
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="border-4 border-black bg-black text-white p-8 font-mono text-[10px] font-bold uppercase tracking-widest text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] leading-relaxed">
-              [ SYSTEM_ALERT: NO ADM_TRANSMISSIONS LOGGED FOR THIS SUBJECT YET ]
-            </div>
-          )}
+              );
+            }
+
+            return (
+              <div className="border-4 border-black bg-black text-white p-8 font-mono text-[10px] font-bold uppercase tracking-widest text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] leading-relaxed">
+                [ SYSTEM_ALERT: NO ADM_TRANSMISSIONS LOGGED FOR THIS SUBJECT YET ]
+              </div>
+            );
+          })()}
         </div>
       ) : (
         /* SCREEN: GRADE LIST with Accordion Dropdowns */
