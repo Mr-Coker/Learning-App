@@ -16,6 +16,10 @@ export default defineSchema({
     classId: v.optional(v.string()),
     xp: v.number(),
     createdAt: v.number(),
+    classLevel: v.optional(v.string()),
+    focusSubjects: v.optional(v.array(v.string())),
+    specialtyDesignation: v.optional(v.string()),
+    teachingSubjects: v.optional(v.array(v.string())),
   }).index("by_email", ["email"]),
 
   subjects: defineTable({

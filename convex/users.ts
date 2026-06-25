@@ -7,6 +7,10 @@ export const registerUser = mutation({
     email: v.string(),
     password: v.string(),
     role: v.string(),
+    classLevel: v.optional(v.string()),
+    focusSubjects: v.optional(v.array(v.string())),
+    specialtyDesignation: v.optional(v.string()),
+    teachingSubjects: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const emailLower = args.email.trim().toLowerCase();
@@ -35,6 +39,10 @@ export const registerUser = mutation({
       role: resolvedRole,
       xp: 0,
       createdAt: Date.now(),
+      classLevel: args.classLevel,
+      focusSubjects: args.focusSubjects,
+      specialtyDesignation: args.specialtyDesignation,
+      teachingSubjects: args.teachingSubjects,
     });
     return userId;
   },
