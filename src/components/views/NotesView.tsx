@@ -20,14 +20,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>('IDLE'); // IDLE, SAVING, SAVED
 
-  const activeDbNote = useQuery(
+  const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
-  );
-
-  const fileUrl = useQuery(
-    api.notesIngestion.getNoteFileUrl,
-    activeDbNote?.fileStorageId ? { storageId: activeDbNote.fileStorageId } : 'skip'
   );
 
   const handleSave = () => {
@@ -67,7 +62,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     return false;
   };
 
-  const filteredBlocks = activeDbNote?.contentBlocks?.filter(
+  const filteredBlocks = noteData?.contentBlocks?.filter(
     (block: any) => !isBinaryOrRawPayload(block.body)
   ) || [];
 
@@ -95,13 +90,13 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           {/* Topic Details Info */}
           <div className="space-y-4">
             <h3 className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold">Current Transmission //</h3>
-            {activeDbNote ? (
+            {noteData ? (
               <div className="p-3 border-2 border-black bg-[#A7F3D0] shadow-[2px_2px_0_0_rgba(0,0,0,1)] flex flex-col gap-1">
                 <span className="font-mono text-[8px] font-bold text-emerald-800 uppercase tracking-widest">
                   PAYLOAD
                 </span>
                 <span className="font-serif text-xs font-black uppercase text-black leading-tight break-words">
-                  {activeDbNote.title}
+                  {noteData.title}
                 </span>
               </div>
             ) : (
@@ -138,7 +133,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         {/* Status Indicators */}
         <div className="mt-8 pt-4 border-t border-black/10 font-mono text-[8px] text-gray-400 uppercase tracking-widest space-y-1">
           <div>NODE // NOTES_VIEW</div>
-          <div>STATUS // {activeDbNote ? 'COMPILED' : 'SYNCING'}</div>
+          <div>STATUS // {noteData ? 'COMPILED' : 'SYNCING'}</div>
         </div>
       </aside>
 
@@ -198,93 +193,83 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           >
             ← RETURN_TO_LIBRARY
           </button>
-          {activeDbNote && (
+          {noteData && (
             <div className="p-3 border-2 border-black bg-[#A7F3D0] font-mono text-[9px] font-bold uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-              VIEWING: {activeDbNote.title}
+              VIEWING: {noteData.title}
             </div>
           )}
         </div>
 
         {/* Content Canvas */}
         <div className="mt-4 md:mt-0 space-y-16" style={{ fontSize: `${textSize}px` }}>
-          {activeDbNote ? (
-            activeDbNote.fileStorageId ? (
-              <section className="space-y-6 w-full h-full min-h-[600px] flex flex-col" id="db-note">
-                <div className="space-y-2">
-                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block animate-pulse">
-                    {activeDbNote.summaryBadge}
-                  </span>
-                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">
-                    {activeDbNote.title}
-                  </h1>
-                  <p className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2">
-                    TARGET CLASS: {activeDbNote.classLevel}
-                  </p>
-                </div>
+          {noteData ? (
+            <section className="space-y-8" id="db-note">
+              <div className="space-y-2">
+                <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block animate-pulse">
+                  {noteData.summaryBadge}
+                </span>
+                <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                  {noteData.title}
+                </h1>
+                <p className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2 text-left">
+                  TARGET CLASS: {noteData.classLevel}
+                </p>
+              </div>
 
-                <div className="flex-1 w-full border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] bg-white h-[600px] overflow-hidden">
-                  {fileUrl ? (
-                    <iframe src={fileUrl} className="w-full flex-1 h-[70vh] border-4 border-black rounded-none bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)]" title={activeDbNote.title} />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center p-8 font-mono text-xs font-bold uppercase tracking-widest bg-gray-50">
-                      [ RETRIEVING SECURE FILE TARGET... ]
-                    </div>
-                  )}
-                </div>
-              </section>
-            ) : (
-              <section className="space-y-8" id="db-note">
-                <div className="space-y-2">
-                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block animate-pulse">
-                    {activeDbNote.summaryBadge}
-                  </span>
-                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">
-                    {activeDbNote.title}
-                  </h1>
-                  <p className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2">
-                    TARGET CLASS: {activeDbNote.classLevel}
-                  </p>
-                </div>
-
-                <div className="space-y-8 max-w-3xl">
-                  {activeDbNote.contentBlocks && filteredBlocks.map((block: any, idx: number) => {
-                    switch (block.type) {
-                      case 'challenge_callout':
-                        return (
-                          <div key={idx} id={`block-${idx}`}>
-                            {block.heading && (
-                              <h4 className="font-serif text-lg font-black uppercase tracking-tight text-black mb-2">
-                                {block.heading}
-                              </h4>
-                            )}
-                            <div className="bg-[#FFD833] border-4 border-black rounded-none p-4 my-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] font-bold">
-                              {block.body}
-                            </div>
+              <div className="space-y-8 max-w-3xl">
+                {noteData.contentBlocks && filteredBlocks.map((block: any, idx: number) => {
+                  switch (block.type) {
+                    case 'challenge_callout':
+                      return (
+                        <div key={idx} id={`block-${idx}`}>
+                          {block.heading && (
+                            <h4 className="font-serif text-lg font-black uppercase tracking-tight text-black mb-2 text-left">
+                              {block.heading}
+                            </h4>
+                          )}
+                          <div className="bg-[#FFD833] border-4 border-black rounded-none p-5 my-6 text-black font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                            {block.body}
                           </div>
-                        );
-                      case 'text':
-                      default:
-                        return (
-                          <div key={idx} id={`block-${idx}`}>
-                            {block.heading && (
-                              <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black mb-2">
-                                {block.heading}
-                              </h3>
-                            )}
-                            <p className="text-base md:text-lg text-black leading-relaxed mb-4">
+                        </div>
+                      );
+                    case 'bullet_point':
+                      return (
+                        <div key={idx} id={`block-${idx}`} className="text-left mb-4 pl-6 relative">
+                          {block.heading && (
+                            <h4 className="font-serif text-lg font-black uppercase tracking-tight text-black mb-2">
+                              {block.heading}
+                            </h4>
+                          )}
+                          <div className="flex items-start gap-2">
+                            <span className="inline-block w-2 h-2 bg-black mt-2.5 rounded-none flex-shrink-0" />
+                            <p className="text-base md:text-lg text-black leading-relaxed font-normal">
                               {block.body}
                             </p>
                           </div>
-                        );
-                    }
-                  })}
-                </div>
-              </section>
-            )
+                        </div>
+                      );
+                    case 'text':
+                    default:
+                      return (
+                        <div key={idx} id={`block-${idx}`}>
+                          {block.heading && (
+                            <h3 className="font-serif text-xl font-black uppercase tracking-tight text-black mb-2 text-left">
+                              {block.heading}
+                            </h3>
+                          )}
+                          <p className="text-base md:text-lg text-black leading-relaxed font-normal mb-4 text-left">
+                            {block.body}
+                          </p>
+                        </div>
+                      );
+                  }
+                })}
+              </div>
+            </section>
           ) : (
             <div className="flex items-center justify-center p-8">
               <div className="border-4 border-black bg-black text-[#FFD833] p-8 font-mono text-xs font-bold uppercase tracking-widest text-center shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
-                [ DOWNLOADING COGNITIVE DATASTREAM... ]
+                [ LOADING_AND_DECRYPTING_CURRICULUM_DATA... ]
               </div>
             </div>
           )}

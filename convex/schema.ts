@@ -77,14 +77,12 @@ export default defineSchema({
     classLevel: v.string(),
     subjectId: v.id("subjects"),
     summaryBadge: v.string(),
-    contentBlocks: v.optional(
-      v.array(
-        v.object({
-          type: v.union(v.literal("text"), v.literal("challenge_callout"), v.literal("bullet_list")),
-          heading: v.optional(v.string()),
-          body: v.string(),
-        })
-      )
+    contentBlocks: v.array(
+      v.object({
+        type: v.union(v.literal("text"), v.literal("challenge_callout"), v.literal("bullet_point")),
+        heading: v.optional(v.string()),
+        body: v.string(),
+      })
     ),
     chapterNumber: v.optional(v.number()),
     fileStorageId: v.optional(v.string()),

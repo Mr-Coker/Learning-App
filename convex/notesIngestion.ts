@@ -10,7 +10,7 @@ export const saveIngestedNote = mutation({
     summaryBadge: v.string(),
     contentBlocks: v.array(
       v.object({
-        type: v.union(v.literal("text"), v.literal("challenge_callout"), v.literal("bullet_list")),
+        type: v.union(v.literal("text"), v.literal("challenge_callout"), v.literal("bullet_point")),
         heading: v.optional(v.string()),
         body: v.string(),
       })
@@ -43,7 +43,7 @@ export const ingestNoteText = action({
     // Simple yet robust parsing algorithm that translates markdown/text into structured blocks
     const lines = args.rawText.split("\n");
     const contentBlocks: Array<{
-      type: "text" | "challenge_callout" | "bullet_list";
+      type: "text" | "challenge_callout" | "bullet_point";
       heading?: string;
       body: string;
     }> = [];
@@ -67,7 +67,7 @@ export const ingestNoteText = action({
     const flushBullets = () => {
       if (currentBulletPoints.length > 0) {
         contentBlocks.push({
-          type: "bullet_list",
+          type: "bullet_point",
           heading: currentHeading || undefined,
           body: currentBulletPoints.join("\n").trim(),
         });
@@ -194,6 +194,7 @@ export const saveNoteMetadata = mutation({
       subjectId: args.subjectId,
       summaryBadge,
       fileStorageId: args.storageId,
+      contentBlocks: [],
       createdAt: Date.now(),
     });
     return noteId;
