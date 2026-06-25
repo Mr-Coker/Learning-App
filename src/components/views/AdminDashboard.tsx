@@ -5,6 +5,7 @@ import { Shield, Users, CreditCard, Send, Activity, MessageSquare } from 'lucide
 import { Id } from '../../../convex/_generated/dataModel';
 import { ViewState } from '../../types';
 import { NoteIngester } from './NoteIngester';
+import { SubjectManager } from './SubjectManager';
 
 interface AdminDashboardProps {
   userEmail: string;
@@ -265,6 +266,12 @@ export function AdminDashboard({ userEmail, onLogout, currentView }: AdminDashbo
       {currentView === 'notes' && (
         <div className="flex justify-center items-center py-6">
           <NoteIngester />
+        </div>
+      )}
+
+      {currentView === 'admin_subjects' && (
+        <div className="flex justify-center items-center py-6">
+          <SubjectManager />
         </div>
       )}
     </div>

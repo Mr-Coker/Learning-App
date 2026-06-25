@@ -21,7 +21,8 @@ const viewLabels: Record<ViewState, string> = {
   library: "SYS // DATA_HUB",
   teacher: "SYS // TEACHER_CONSOLE",
   admin: "SYS // ADMIN_CONSOLE",
-  communication: "SYS // COMMS_LINK"
+  communication: "SYS // COMMS_LINK",
+  admin_subjects: "SYS // SUBJECTS_CONSOLE"
 };
 
 const roleTabs: Record<AppRole, Array<{ view: ViewState; label: string }>> = {
@@ -40,7 +41,8 @@ const roleTabs: Record<AppRole, Array<{ view: ViewState; label: string }>> = {
     { view: 'home', label: 'System Overview' },
     { view: 'assignments', label: 'Class Roster' },
     { view: 'library', label: 'Financial Terminal' },
-    { view: 'notes', label: 'Note Ingester' }
+    { view: 'notes', label: 'Note Ingester' },
+    { view: 'admin_subjects', label: 'Subjects Console' }
   ]
 };
 

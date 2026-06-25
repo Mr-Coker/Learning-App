@@ -1,4 +1,4 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 export const getSystemUsers = query({
@@ -104,5 +104,54 @@ export const getTeachers = query({
       ];
     }
     return teachers;
+  },
+});
+
+export const createSubject = mutation({
+  args: {
+    name: v.string(),
+    code: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const teachers = await ctx.db.query("users").collect();
+    const firstTeacher = teachers.find(u => u.role === "teacher" || u.role === "TRANSMITTER");
+    
+    let teacherId;
+    if (firstTeacher) {
+      teacherId = firstTeacher._id;
+    } else {
+      teacherId = await ctx.db.insert("users", {
+        name: "Default System Facilitator",
+        email: "system-facilitator@edusphere.net",
+        passwordHash: "system",
+        role: "teacher",
+        xp: 0,
+        createdAt: Date.now(),
+      });
+    }
+
+    const subjectId = await ctx.db.insert("subjects", {
+      name: args.name.trim(),
+      code: args.code.trim().toUpperCase(),
+      teacherId,
+    });
+    return subjectId;
+  },
+});
+
+export const listSubjects = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("subjects").collect();
+  },
+});
+
+export const deleteSubject = mutation({
+  args: {
+    id: v.id("subjects"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+    return true;
   },
 });

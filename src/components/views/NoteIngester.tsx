@@ -5,7 +5,7 @@ import { Id } from '../../../convex/_generated/dataModel';
 import { Upload, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 export function NoteIngester() {
-  const subjects = useQuery(api.chat.getAllSubjects);
+  const subjects = useQuery(api.admin.listSubjects);
   const ingestNoteText = useAction(api.notesIngestion.ingestNoteText);
 
   // Form states
