@@ -46,7 +46,7 @@ const roleTabs: Record<AppRole, Array<{ view: ViewState; label: string }>> = {
 
 export function TopNav({ currentView, setCurrentView, role, onLogout }: TopNavProps) {
   const [time, setTime] = useState('');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -59,44 +59,65 @@ export function TopNav({ currentView, setCurrentView, role, onLogout }: TopNavPr
   }, []);
 
   const tabs = roleTabs[role] || [];
+  const currentLabel = viewLabels[currentView] || currentView.toUpperCase();
 
   return (
     <div className="w-full bg-surface border-b-4 border-black z-50 sticky top-0 flex flex-col">
-      {/* Tier 1 Header */}
-      <div className="flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface">
-        {/* Brand / Logo */}
+      {/* Navbar visible row */}
+      <div className="flex justify-between items-center w-full px-4 md:px-10 h-20 bg-surface relative">
+        
+        {/* 1. Branding Wrapper */}
         <button 
-          onClick={() => setCurrentView('home')}
-         className="flex items-center gap-2 px-2 py-1"
+          onClick={() => {
+            setCurrentView('home');
+            setIsDropdownOpen(false);
+          }}
+          className="flex items-center gap-2 px-2 py-1 cursor-pointer bg-transparent border-0"
         >
           <img src="/favicon.svg" alt="EduSphere logo" className="h-10 w-10 object-contain" />
-          <span className="font-serif text-xl sm:text-3xl font-black uppercase tracking-tighter select-none">
+          <span className="font-serif text-xl sm:text-3xl font-black uppercase tracking-tighter select-none text-black">
             EduSphere
           </span>
         </button>
 
-        {/* Desktop Tabs (md:flex) */}
-        <div className="hidden md:flex items-center gap-2 lg:gap-4">
-          {tabs.map((tab) => {
-            const isActive = currentView === tab.view;
-            return (
-              <button
-                key={tab.view}
-                onClick={() => setCurrentView(tab.view)}
-                className={`font-mono text-xs uppercase tracking-widest px-3 py-2 border-2 rounded-none whitespace-nowrap ${
-                  isActive 
-                    ? 'bg-[#FFD833] text-black border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] font-bold' 
-                    : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:bg-[#FFD833]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+        {/* 2. Active Dropdown Trigger */}
+        <div className="relative">
+          <button 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="border-2 border-black bg-[#FFD833] text-black px-4 py-2 font-mono text-xs md:text-sm uppercase tracking-widest font-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer flex items-center gap-2 select-none"
+          >
+            <span>[ {currentLabel} ]</span>
+            <span>▾</span>
+          </button>
+          
+          {/* Dropdown Overlay Panel */}
+          {isDropdownOpen && (
+            <div className="rounded-none border-2 border-black bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] z-50 absolute top-full left-1/2 -translate-x-1/2 mt-2 min-w-[240px] flex flex-col">
+              {tabs.map((tab) => {
+                const isActive = currentView === tab.view;
+                return (
+                  <button
+                    key={tab.view}
+                    onClick={() => {
+                      setCurrentView(tab.view);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`font-mono text-xs uppercase tracking-widest p-4 border-b-2 border-black last:border-b-0 text-left cursor-pointer ${
+                      isActive 
+                        ? 'bg-black text-white font-bold' 
+                        : 'bg-white text-black hover:bg-[#FFD833] font-medium'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Desktop Actions (md:flex) */}
-        <div className="hidden md:flex items-center gap-2 md:gap-4">
+        {/* 3. Action Badges (Anchored cleanly on right margin) */}
+        <div className="flex items-center gap-2 md:gap-4">
           <div className="hidden lg:flex items-center gap-2 border-2 border-black bg-surface px-3 py-1 font-mono text-[10px] uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
             <span className="w-2 h-2 bg-emerald-500 animate-pulse inline-block border border-black"></span>
             <span className="text-black font-bold">ONLINE</span>
@@ -106,22 +127,22 @@ export function TopNav({ currentView, setCurrentView, role, onLogout }: TopNavPr
           <button 
             aria-label="Notifications"
             title="Notifications"
-            className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center"
+            className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center cursor-pointer"
           >
-            <Bell size={20} />
+            <Bell size={20} className="text-black" />
           </button>
           <button 
             aria-label="Settings"
             title="Settings"
-            className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center"
+            className="text-on-surface-variant hover:text-on-surface border-2 border-transparent hover:border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center cursor-pointer"
           >
-            <Settings size={20} />
+            <Settings size={20} className="text-black" />
           </button>
           <button
             onClick={onLogout}
             aria-label="Logout"
             title="Logout"
-            className="text-white bg-[#FF3B30] border-2 border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center"
+            className="text-white bg-[#FF3B30] border-2 border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center cursor-pointer"
           >
             <LogOut size={20} />
           </button>
@@ -134,87 +155,6 @@ export function TopNav({ currentView, setCurrentView, role, onLogout }: TopNavPr
           </div>
         </div>
 
-        {/* Mobile Toggle Button (< md) */}
-        <div className="flex md:hidden items-center">
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="border-2 border-black bg-[#FFD833] text-black px-3 py-1.5 font-mono text-xs uppercase tracking-widest font-black rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-          >
-            {isMenuOpen ? '[ CLOSE_MENU ]' : '[ NAV_MENU ]'}
-          </button>
-        </div>
-      </div>
-
-      {/* Tier 2 Mobile Dropdown Panel */}
-      <div 
-        className={`md:hidden overflow-hidden transition-[max-height] duration-200 ease-in-out bg-surface border-t-2 border-black ${
-          isMenuOpen ? 'max-h-[500px]' : 'max-h-0'
-        }`}
-      >
-        <div className="p-4 flex flex-col gap-4">
-          {/* Navigation Links in 2x2 grid or list depending on size */}
-          <div className="grid grid-cols-2 gap-2 border-b-2 border-black pb-4">
-            {tabs.map((tab) => {
-              const isActive = currentView === tab.view;
-              return (
-                <button
-                  key={tab.view}
-                  onClick={() => {
-                    setCurrentView(tab.view);
-                    setIsMenuOpen(false);
-                  }}
-                  className={`font-mono text-[10px] sm:text-xs uppercase tracking-widest px-2 py-3 border-2 rounded-none text-center whitespace-nowrap ${
-                    isActive 
-                      ? 'bg-[#FFD833] text-black border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] font-bold' 
-                      : 'border-black text-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:bg-[#FFD833]'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* User actions / settings row */}
-          <div className="flex justify-between items-center pt-2">
-            <div className="flex items-center gap-2 border-2 border-black bg-surface px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-              <span className="w-2 h-2 bg-emerald-500 animate-pulse inline-block border border-black"></span>
-              <span className="text-black font-bold">{time}</span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button 
-                aria-label="Notifications"
-                className="text-black border-2 border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center"
-              >
-                <Bell size={18} />
-              </button>
-              <button 
-                aria-label="Settings"
-                className="text-black border-2 border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center"
-              >
-                <Settings size={18} />
-              </button>
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  onLogout();
-                }}
-                aria-label="Logout"
-                className="text-white bg-[#FF3B30] border-2 border-black hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-2 rounded-none flex items-center justify-center"
-              >
-                <LogOut size={18} />
-              </button>
-              <div className="w-9 h-9 rounded-none bg-secondary overflow-hidden border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                <img
-                  className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZXUFLYBtv-tRHA6wW9oAHItHJiXq969tC_Kprve0Zx21kmHyt9pFdnvFGF5amrkdTpZfuCQSlWDJLULcoqk7sj2z_jLpxd4HarpkqZFmgTXYD_wH1_3RiBlMAiGsoi__PSWJwHK6UTWuogR5T0U0vNcdYO30LkTH0FHThwt4-yTWCVmpHXbcRFZO4clE0aDwsNJluimh7APlKIoE8AaE9S8YypODas3DE1lBRBWcRUujVfHSf7ENYoBkxYX92gBBBg0Su5s5tq84"
-                  alt="User avatar"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
