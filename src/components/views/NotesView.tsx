@@ -223,7 +223,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
               <section className="space-y-8 text-left" id="algorithms-note">
                 <div className="space-y-2">
                   <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
-                    MODULE_02 // COMPUTER SCIENCE
+                    MODULE_01 // COMPUTER SCIENCE
                   </span>
                   <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">
                     Introduction to Algorithms
