@@ -837,6 +837,54 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "Temperature: A measure of the degree of hotness or coldness of a body. Measured in degrees Celsius (°C), Kelvin (K), or Fahrenheit (°F) using a thermometer."
       }
     ]
+  },
+  {
+    id: "farming-systems-basics",
+    title: "Farming Systems in Agriculture",
+    classLevel: "Basic 9",
+    subjectCode: "SCI-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "A farming system comprises all the agricultural practices and methods used by a farmer to raise crops and animals, dictated by land availability, funds, fertility, and skills."
+      },
+      {
+        type: "challenge_callout",
+        body: "MIXED FARMING VS MIXED CROPPING:\n• Mixed Farming: Growing crops and raising livestock (ruminants, poultry, pigs) on the same plot simultaneously. Animal manure fertilizes crops, and crop residue feeds animals.\n• Mixed Cropping: Growing two or more crop types (cereals, legumes, tubers) on the same plot at the same time without any definite row arrangement."
+      },
+      {
+        type: "text",
+        body: "Inter-Cropping & Crop Rotation:"
+      },
+      {
+        type: "bullet_point",
+        body: "Inter-Cropping: Planting early-maturing crops alongside late-maturing crops in a distinct row structure (e.g. maize with cassava, or young cocoa seedlings under plantain shade)."
+      },
+      {
+        type: "bullet_point",
+        body: "Crop Rotation: Growing different crop classes in a planned, cyclic order over successive years to prevent nutrient exhaustion and break pest lifecycles."
+      },
+      {
+        type: "challenge_callout",
+        body: "ROLE OF LEGUMES IN ROTATION:\n• Leguminous crops (cowpeas, peanuts, soybeans) host nitrogen-fixing bacteria in their root nodules.\n• These bacteria absorb atmospheric nitrogen, converting it into soil nitrates that naturally fertilize subsequent crops."
+      },
+      {
+        type: "text",
+        body: "Ecosystem Sustainability & Interdependence:"
+      },
+      {
+        type: "bullet_point",
+        body: "Land Support: Provides structural anchorage, water, and essential macronutrients to crops."
+      },
+      {
+        type: "bullet_point",
+        body: "Crop Support: Roots bind loose soil particles to control erosion. Dead residues serve as mulch to suppress weeds and retain soil moisture."
+      },
+      {
+        type: "bullet_point",
+        body: "Animal Support: Livestock droppings (urine and faeces) represent highly concentrated organic manures that restore depleted soil fertility."
+      }
+    ]
   }
 ];
 

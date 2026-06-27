@@ -166,6 +166,21 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     calorimeterFeedback: string;
   } | null>(null);
 
+  // Farming Systems Simulator State
+  const [fsYear1Crop, setFsYear1Crop] = useState<string>('legume'); // legume, cereal, root, vegetable
+  const [fsYear2Crop, setFsYear2Crop] = useState<string>('cereal');
+  const [fsYear3Crop, setFsYear3Crop] = useState<string>('vegetable');
+  const [fsYear4Crop, setFsYear4Crop] = useState<string>('root');
+  const [fsAnimalCare, setFsAnimalCare] = useState<string>('intensive'); // intensive, extensive
+  const [fsStatus, setFsStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [fsReport, setFsReport] = useState<{
+    soilHealthScore: number;
+    rotationCheck: string;
+    manureValue: string;
+    extensiveWarning: string;
+    deficiencies: string[];
+  } | null>(null);
+
   const getCellsInRange = (rangeStr: string): string[] => {
     const parts = rangeStr.split(':');
     if (parts.length !== 2) return [rangeStr];
@@ -862,6 +877,76 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     }, 1200);
   };
 
+  const runFsEvaluation = () => {
+    setFsStatus('COMPUTING');
+    setTimeout(() => {
+      let soilHealthScore = 100;
+      let rotationCheck = "Planned rotation cycle follows all agricultural rules.";
+      let manureValue = "Manure value: Animal droppings represent organic nutrients, boosting soil nitrogen and fertility.";
+      let extensiveWarning = "";
+      let deficiencies: string[] = [];
+
+      const cropSeq = [fsYear1Crop, fsYear2Crop, fsYear3Crop, fsYear4Crop];
+      
+      // Rule 1: Must include leguminous crops
+      if (!cropSeq.includes('legume')) {
+        soilHealthScore -= 30;
+        deficiencies.push("Legume Deficiency: Rotation lacks nitrogen-fixing legumes (like cowpea/groundnut) to naturally restore soil nitrates.");
+      }
+
+      // Rule 2: Alternate deep-rooted and shallow-rooted crops
+      let deepShallowCheck = true;
+      for (let i = 0; i < 3; i++) {
+        const currentDeep = cropSeq[i] === 'root';
+        const nextDeep = cropSeq[i + 1] === 'root';
+        if (currentDeep === nextDeep) {
+          deepShallowCheck = false;
+        }
+      }
+      if (!deepShallowCheck) {
+        soilHealthScore -= 20;
+        deficiencies.push("Root Depth Rule Violated: Plan has consecutive deep-rooted or shallow-rooted crops. Shallow-rooted crops should follow deep-rooted crops (e.g. maize following yam) to distribute nutrient extraction layers.");
+      }
+
+      // Rule 3: Crops of the same family or species must not follow one another
+      let sameTypeCheck = true;
+      for (let i = 0; i < 3; i++) {
+        if (cropSeq[i] === cropSeq[i + 1]) {
+          sameTypeCheck = false;
+        }
+      }
+      if (!sameTypeCheck) {
+        soilHealthScore -= 25;
+        deficiencies.push("Monoculture Trap: Identical crop classes follow one another in consecutive years. This depletes specific macronutrients rapidly and encourages pest buildup.");
+      }
+
+      // Mixed farming care warnings
+      if (fsAnimalCare === 'extensive') {
+        extensiveWarning = "WARNING: Free-roaming livestock (extensive system) trampled soil structures and consumed emerging crop seedlings, reducing harvest by -15%.";
+        soilHealthScore = Math.max(0, soilHealthScore - 15);
+      } else {
+        extensiveWarning = "Intensive care selected. Animals kept in secure pens/cages. Complete security against crop trampling.";
+      }
+
+      if (soilHealthScore >= 80) {
+        rotationCheck = "EXCELLENT PLAN: Crop rotation cycle prevents nutrient exhaustion, breaks pest lifecycles, and maintains high organic yield.";
+      } else if (soilHealthScore >= 50) {
+        rotationCheck = "SUBOPTIMAL YIELD: Farm experiences minor nutrient imbalances or elevated pest populations. Review crop family sequences.";
+      } else {
+        rotationCheck = "SOIL EXHAUSTION: High risk of crop failure. The rotation plan violates core agricultural laws.";
+      }
+
+      setFsReport({
+        soilHealthScore: Math.max(0, soilHealthScore),
+        rotationCheck,
+        manureValue,
+        extensiveWarning,
+        deficiencies
+      });
+      setFsStatus('SUCCESS');
+    }, 1200);
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -1047,6 +1132,16 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "ec-challenges", label: "IV. Source Challenges" },
         { id: "ec-heat-temp", label: "V. Heat vs. Temperature" },
         { id: "ec-interactive", label: "VI. Grid Simulator" }
+      ]
+    : noteData?.staticLookupKey === 'farming-systems-basics'
+    ? [
+        { id: "fs-intro", label: "I. Farming Systems" },
+        { id: "fs-mixed-farming", label: "II. Mixed Farming" },
+        { id: "fs-mixed-cropping", label: "III. Mixed Cropping" },
+        { id: "fs-intercropping", label: "IV. Inter-Cropping" },
+        { id: "fs-rotation", label: "V. Crop Rotation" },
+        { id: "fs-sustainability", label: "VI. Sustainability & Interdependence" },
+        { id: "fs-interactive", label: "VII. Rotation Sandbox" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -4451,6 +4546,362 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             </div>
                           </div>
                         </div>
+
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'farming-systems-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE FARMING SYSTEMS NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="fs-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_12 // FARMING SYSTEMS & ENVIRONMENTAL SUSTAINABILITY
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Farming Systems
+                  </h1>
+                </div>
+
+                {/* Section 1: Intro */}
+                <div className="space-y-4" id="fs-intro">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. Introduction to Farming Systems
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    A farming system refers to all the different methods used by a breeder or grower to yield agricultural outputs. Adopted methods depend on land availability, soil fertility, farmer skills, and funds.
+                  </p>
+                </div>
+
+                {/* Section 2: Mixed Farming */}
+                <div className="space-y-4 pt-6" id="fs-mixed-farming">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Mixed Farming
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    A system that involves the simultaneous cultivation of crops and the rearing of farm animals on the same piece of land.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border border-black p-5 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">ADVANTAGES</h4>
+                      <ul className="list-disc pl-4 space-y-2 text-xs text-gray-700 font-sans text-left font-semibold">
+                        <li><strong>Feed from Crop Residues:</strong> Waste plant materials supply nutrients for animals.</li>
+                        <li><strong>Organic Fertilizer:</strong> Animal dung/droppings enrich and fertilize the soil.</li>
+                        <li><strong>Reduced Production Costs:</strong> Free availability of feed and manure cuts input expenses.</li>
+                        <li><strong>Farm Power / Labour:</strong> Animals like cattle can plough land and cart produce.</li>
+                        <li><strong>Continuous Income:</strong> Multiple sources of income throughout the year.</li>
+                      </ul>
+                    </div>
+                    <div className="border border-black p-5 bg-[#FECACA] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">DISADVANTAGES</h4>
+                      <ul className="list-disc pl-4 space-y-2 text-xs text-black/80 font-sans text-left font-semibold">
+                        <li><strong>Crop Destruction:</strong> Animals may feed on and destroy crops while moving around.</li>
+                        <li><strong>Divided Attention:</strong> The farmer must split focus between crops and animals.</li>
+                        <li><strong>Labour Intensive:</strong> Requires a lot of work, often needing hired farmhands.</li>
+                        <li><strong>High Skill Requirement:</strong> Requires extensive knowledge to prevent total failure.</li>
+                        <li><strong>Year-Round Work:</strong> Activities take place continuously, offering no downtime.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Mixed Cropping */}
+                <div className="space-y-4 pt-6" id="fs-mixed-cropping">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Mixed Cropping
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Growing two or more crops randomly on the same plot at the same time, without any definite row arrangement or spacing.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border border-black p-5 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">ADVANTAGES</h4>
+                      <ul className="list-disc pl-4 space-y-2 text-xs text-gray-700 font-sans text-left font-semibold">
+                        <li><strong>Adequate Nutrient Use:</strong> Different root depths absorb nutrients at varying levels.</li>
+                        <li><strong>Continuous Harvest:</strong> Different crops mature and are harvested at different times.</li>
+                        <li><strong>Pest/Disease Reduction:</strong> Difficult for pests and diseases to spread quickly across mixed species.</li>
+                        <li><strong>Improved Fertility:</strong> Inclusion of legumes helps fix nitrogen into the soil.</li>
+                        <li><strong>Security Against Failure:</strong> If one crop fails due to pests, others survive.</li>
+                      </ul>
+                    </div>
+                    <div className="border border-black p-5 bg-[#FECACA] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">DISADVANTAGES</h4>
+                      <ul className="list-disc pl-4 space-y-2 text-xs text-black/80 font-sans text-left font-semibold">
+                        <li><strong>No Mechanization:</strong> It is impossible to use machines/equipment due to random planting.</li>
+                        <li><strong>Expensive Inputs:</strong> Different crops may require different, specialized fertilizers.</li>
+                        <li><strong>Time-Consuming:</strong> Monitoring multiple types of crops demands significant time.</li>
+                        <li><strong>Harvesting Difficulties:</strong> Mixed maturity times make harvesting complicated.</li>
+                        <li><strong>Resource Competition:</strong> Crops compete heavily for nutrients, water, light, and space.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Inter-Cropping */}
+                <div className="space-y-4 pt-6" id="fs-intercropping">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    4. Inter-Cropping
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Cultivating two or more crops in clear, systematic rows, planting early-maturing varieties before late-maturing crops.
+                  </p>
+                  <div className="border border-black p-4 bg-[#C4B5FD] text-left font-sans text-xs font-bold leading-relaxed mb-4">
+                    Example: Planting maize seeds, followed after germination by cassava sticks. Also, growing fast-maturing plantains next to young cocoa seedlings to provide vital temporary shade.
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border border-black p-5 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">ADVANTAGES</h4>
+                      <ul className="list-disc pl-4 space-y-2 text-xs text-gray-700 font-sans text-left font-semibold">
+                        <li><strong>Increased Productivity:</strong> More than one food crop is harvested from a single unit area of land.</li>
+                        <li><strong>Easy Fertilizer Application:</strong> The well-defined nature of the farm allows for targeted application.</li>
+                        <li><strong>Easy Pest & Disease Control:</strong> Managed spacing makes pest control straightforward.</li>
+                        <li><strong>Easy Harvesting:</strong> Different crops can be harvested easily from the same field.</li>
+                      </ul>
+                    </div>
+                    <div className="border border-black p-5 bg-[#FECACA] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">DISADVANTAGES</h4>
+                      <ul className="list-disc pl-4 space-y-2 text-xs text-black/80 font-sans text-left font-semibold">
+                        <li><strong>Nutrient Competition:</strong> Crops compete for the same soil nutrients at the same place.</li>
+                        <li><strong>High Input Demand:</strong> Requires more water and fertilizer to ensure all crops develop well.</li>
+                        <li><strong>Mechanization Limits:</strong> Specialized machines cannot easily harvest two different crops at once.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 5: Crop Rotation */}
+                <div className="space-y-4 pt-6" id="fs-rotation">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    5. Planned Crop Rotation
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Growing different classes of crops on the same plot in a planned sequence over successive seasons.
+                  </p>
+
+                  <div className="border border-black p-5 bg-[#F3F4F6] space-y-3 text-left font-mono text-xs">
+                    <span className="font-bold text-black block border-b border-black/10 pb-1">ROTATION DESIGN PRINCIPLES:</span>
+                    <ol className="list-decimal pl-5 space-y-1 font-sans text-gray-700 font-bold">
+                      <li>Always include a leguminous nitrogen-fixing crop (cowpea/groundnut) to enrich soil nitrates.</li>
+                      <li>Alternate shallow-rooted crops with deep-rooted crops (e.g. follow yam with maize).</li>
+                      <li>Never plant crops of the same family consecutively (prevents specific nutrient depletion).</li>
+                      <li>Never plant crops sharing identical pest vulnerabilities back-to-back.</li>
+                    </ol>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left pt-2">
+                    <div className="border border-black p-5 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">ADVANTAGES</h4>
+                      <ul className="list-disc pl-4 space-y-2 text-xs text-gray-700 font-sans text-left font-semibold">
+                        <li><strong>Pest and Pathogen Control:</strong> Breaks the lifecycle of pests since the same host crop isn't replanted.</li>
+                        <li><strong>Efficient Nutrient Use:</strong> Prevents soil nutrients from being overused by a single crop type.</li>
+                        <li><strong>Increased Yield:</strong> Harvesting different crops at different times maximizes total land yield.</li>
+                        <li><strong>Soil Improvements:</strong> Enhances fertility and actively helps to control soil erosion.</li>
+                      </ul>
+                    </div>
+                    <div className="border border-black p-5 bg-[#FECACA] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">DISADVANTAGES</h4>
+                      <ul className="list-disc pl-4 space-y-2 text-xs text-black/80 font-sans text-left font-semibold">
+                        <li><strong>Large Land Requirement:</strong> Requires a substantial plot of land to cycle through 4 distinct crops.</li>
+                        <li><strong>High Knowledge Requirement:</strong> Inadequate knowledge of crop behaviors can cause total farm failure.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 6: Sustainability & Interdependence */}
+                <div className="space-y-4 pt-6" id="fs-sustainability">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    6. System Sustainability & Component Interdependence
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    All components of a farming system—land, crops, and animals—play critical roles in supporting and sustaining one another:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left text-xs">
+                    <div className="border border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <strong className="font-mono text-black uppercase block border-b border-black/10 pb-1">Land Supports Crops & Animals</strong>
+                      <ul className="list-disc pl-4 space-y-1 text-gray-600 font-sans">
+                        <li>Provides vital physical anchorage for plant roots to grow upright.</li>
+                        <li>Stores essential nutrients and water required for plant cellular respiration.</li>
+                        <li>Yields vegetation for forage feeds and hosts insects that serve as poultry protein.</li>
+                      </ul>
+                    </div>
+                    <div className="border border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <strong className="font-mono text-black uppercase block border-b border-black/10 pb-1">Animals Support Land & Crops</strong>
+                      <ul className="list-disc pl-4 space-y-1 text-gray-600 font-sans">
+                        <li>Droppings (faeces and urine) act as rich organic manures, restoring depleted soil fertility.</li>
+                        <li>Beasts of burden (like cattle) provide farm power to plough soil and cart crops post-harvest.</li>
+                      </ul>
+                    </div>
+                    <div className="border border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <strong className="font-mono text-black uppercase block border-b border-black/10 pb-1">Crops Support Land & Animals</strong>
+                      <ul className="list-disc pl-4 space-y-1 text-gray-600 font-sans">
+                        <li>Roots bind loose soil particles together, preventing heavy water/wind erosion.</li>
+                        <li>Tall canopy crops provide shade protection for delicate seedlings and roaming animals.</li>
+                        <li>Crop residues left on soil surface act as mulch to retain moisture, suppress weeds, and enrich soil.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 7: Interactive Rotation Sandbox */}
+                <div className="space-y-6 pt-6 text-left" id="fs-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <ShoppingBag size={22} />
+                        7. Farm Ecosystem & Crop Rotation Planner
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Design a 4-year crop sequence and select livestock care systems to test sustainability and soil health outcomes
+                      </p>
+                    </div>
+
+                    {/* Simulation Parameters Deck */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+                      {/* Rotation Cycle */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">A. 4-YEAR ROTATION PLANNER</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Year 1 Crop:</label>
+                          <select 
+                            value={fsYear1Crop} 
+                            onChange={(e) => { setFsYear1Crop(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="legume">Legume (Nitrogen-Fixing Cowpea)</option>
+                            <option value="cereal">Cereal (Heavy Feeder Maize)</option>
+                            <option value="root">Root Crop (Deep Rooted Cassava)</option>
+                            <option value="vegetable">Leafy Vegetable (Shallow Cabbage)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Year 2 Crop:</label>
+                          <select 
+                            value={fsYear2Crop} 
+                            onChange={(e) => { setFsYear2Crop(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="legume">Legume (Nitrogen-Fixing Cowpea)</option>
+                            <option value="cereal">Cereal (Heavy Feeder Maize)</option>
+                            <option value="root">Root Crop (Deep Rooted Cassava)</option>
+                            <option value="vegetable">Leafy Vegetable (Shallow Cabbage)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Year 3 Crop:</label>
+                          <select 
+                            value={fsYear3Crop} 
+                            onChange={(e) => { setFsYear3Crop(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="legume">Legume (Nitrogen-Fixing Cowpea)</option>
+                            <option value="cereal">Cereal (Heavy Feeder Maize)</option>
+                            <option value="root">Root Crop (Deep Rooted Cassava)</option>
+                            <option value="vegetable">Leafy Vegetable (Shallow Cabbage)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Year 4 Crop:</label>
+                          <select 
+                            value={fsYear4Crop} 
+                            onChange={(e) => { setFsYear4Crop(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="legume">Legume (Nitrogen-Fixing Cowpea)</option>
+                            <option value="cereal">Cereal (Heavy Feeder Maize)</option>
+                            <option value="root">Root Crop (Deep Rooted Cassava)</option>
+                            <option value="vegetable">Leafy Vegetable (Shallow Cabbage)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Mixed Farming interdependence */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">B. MIXED LIVESTOCK CARE</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Livestock System:</label>
+                          <select 
+                            value={fsAnimalCare} 
+                            onChange={(e) => { setFsAnimalCare(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="intensive">Intensive Care (Cages / Pens)</option>
+                            <option value="extensive">Extensive System (Free Roaming)</option>
+                          </select>
+                        </div>
+
+                        <div className="border border-black p-3 bg-white space-y-1 font-sans text-xs text-left">
+                          <strong>Interdependence Cycle:</strong>
+                          <p className="text-gray-600">Animals supply organic manure droppings to enrich soil, and crop residues supply nutrients back as animal feed.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Button trigger */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runFsEvaluation}
+                        disabled={fsStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {fsStatus === 'COMPUTING' ? 'EVALUATING ECOLOGICAL YIELD...' : 'VERIFY ROTATION & CARE CYCLE'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Display */}
+                    {fsStatus === 'SUCCESS' && fsReport && (
+                      <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-6 transition-all animate-fadeIn text-left text-xs font-mono">
+                        
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
+                          <h4 className="font-serif text-lg font-black uppercase text-black">SOIL HEALTH & YIELD AUDIT</h4>
+                          <div className="flex items-center gap-4 font-mono text-xs font-bold text-black">
+                            <span>INDEX: {fsReport.soilHealthScore}/100</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 text-left">
+                          <div>
+                            <strong>Rotation Feasibility:</strong>
+                            <p className="font-sans text-xs text-black font-bold bg-white p-3 border-2 border-black mt-1 leading-relaxed text-left">{fsReport.rotationCheck}</p>
+                          </div>
+                          <div>
+                            <strong>Mixed Farming Feedback:</strong>
+                            <span className="block text-gray-700 mt-1">{fsReport.manureValue}</span>
+                            <span className={`block font-bold mt-1 uppercase ${fsReport.extensiveWarning.includes('WARNING') ? 'text-red-600' : 'text-green-600'}`}>
+                              {fsReport.extensiveWarning}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Deficiencies warning */}
+                        {fsReport.deficiencies.length > 0 && (
+                          <div className="border-2 border-black p-4 bg-white space-y-2 text-left">
+                            <span className="font-mono text-[9px] font-bold text-red-600 uppercase block border-b border-black/10 pb-1 text-left">CRITICAL PROBLEMS DETECTED</span>
+                            <ul className="list-disc pl-4 space-y-1 text-xs text-gray-700 font-sans text-left">
+                              {fsReport.deficiencies.map((d, i) => (
+                                <li key={i}>{d}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
 
                       </div>
                     )}
