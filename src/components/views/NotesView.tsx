@@ -119,6 +119,21 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     profiledInterest: string;
   } | null>(null);
 
+  // Artificial Intelligence Simulator State
+  const [aiDataType, setAiDataType] = useState<string>('image'); // image, sensor, scan
+  const [aiHiddenLayers, setAiHiddenLayers] = useState<number>(2); // 1, 2, 3
+  const [aiTrainingEpochs, setAiTrainingEpochs] = useState<number>(500); // 100, 500, 1000
+  const [aiLaserCoherent, setAiLaserCoherent] = useState<boolean>(true);
+  const [aiSplitAngle, setAiSplitAngle] = useState<number>(45); // 30, 45, 60
+  const [aiStatus, setAiStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [aiReport, setAiReport] = useState<{
+    accuracy: number;
+    trainingLoss: number;
+    predictedLabel: string;
+    neuralStatus: string;
+    holoIntegrity: string;
+  } | null>(null);
+
   const getCellsInRange = (rangeStr: string): string[] => {
     const parts = rangeStr.split(':');
     if (parts.length !== 2) return [rangeStr];
@@ -622,6 +637,67 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     }, 1200);
   };
 
+  const runAiEvaluation = () => {
+    setAiStatus('COMPUTING');
+    setTimeout(() => {
+      // Calculate neural network metrics
+      let accuracy = 50;
+      let trainingLoss = 0.8;
+      let predictedLabel = "Unknown";
+      let neuralStatus = "Underfitting";
+
+      // Accuracy formula based on hidden layers and training epochs
+      if (aiHiddenLayers === 2 && aiTrainingEpochs === 500) {
+        accuracy = 88;
+        trainingLoss = 0.18;
+        neuralStatus = "Optimal Convergence";
+      } else if (aiHiddenLayers >= 2 && aiTrainingEpochs === 1000) {
+        accuracy = 97;
+        trainingLoss = 0.04;
+        neuralStatus = "Optimal Convergence";
+      } else if (aiTrainingEpochs === 100) {
+        accuracy = 62;
+        trainingLoss = 0.45;
+        neuralStatus = "Underfitting (Needs more epochs)";
+      } else if (aiHiddenLayers === 1) {
+        accuracy = 70;
+        trainingLoss = 0.35;
+        neuralStatus = "Limited Capability (Add layers)";
+      } else {
+        accuracy = 80;
+        trainingLoss = 0.22;
+        neuralStatus = "Converging";
+      }
+
+      if (aiDataType === 'image') {
+        predictedLabel = accuracy > 75 ? "Classified: Domestic Cat (99% confidence)" : "Classified: Noise / Unsure";
+      } else if (aiDataType === 'sensor') {
+        predictedLabel = accuracy > 75 ? "Classified: Autonomous Navigation Path (Safe)" : "Classified: Sensor Calibration Error";
+      } else {
+        predictedLabel = accuracy > 75 ? "Classified: Coronary Artery Occlusion Detected" : "Classified: Unclear Scan Pattern";
+      }
+
+      // Calculate Holographic integrity
+      let holoIntegrity = "Poor (Laser must be coherent to create light interference patterns)";
+      if (aiLaserCoherent) {
+        if (aiSplitAngle === 45) {
+          holoIntegrity = "Excellent (Split reference/object beams properly aligned at 45°)";
+        } else {
+          holoIntegrity = "Moderate (Laser coherent, but beam split angle causes visual distortion)";
+        }
+      }
+
+      setAiReport({
+        accuracy,
+        trainingLoss,
+        predictedLabel,
+        neuralStatus,
+        holoIntegrity
+      });
+      setAiStatus('SUCCESS');
+    }, 1200);
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -780,6 +856,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "se-engines", label: "IV. Popular Search Engines" },
         { id: "se-matrix", label: "V. Search Comparison" },
         { id: "se-interactive", label: "VI. Query Simulator" }
+      ]
+    : noteData?.staticLookupKey === 'ai-basics'
+    ? [
+        { id: "ai-ann", label: "I. Neural Networks" },
+        { id: "ai-intelligence", label: "II. Comparing Intelligence" },
+        { id: "ai-differences", label: "III. Human vs. AI" },
+        { id: "ai-strong-weak", label: "IV. Strong vs. Weak AI" },
+        { id: "ai-hologram", label: "V. Holograms & MR" },
+        { id: "ai-interactive", label: "VI. Neural Sandbox" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -3231,6 +3316,331 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             {seResult.privacyReport}
                           </pre>
                         </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'ai-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE ARTIFICIAL INTELLIGENCE NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="ai-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_09 // COGNITIVE SYSTEMS & PROJECTIONS
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Artificial Intelligence
+                  </h1>
+                </div>
+
+                {/* Section 1: ANN */}
+                <div className="space-y-4" id="ai-ann">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. Artificial Neural Networks (ANN)
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    An Artificial Neural Network (neural network) is a computational model designed to mimic the way biological nerve cells function in the human brain.
+                  </p>
+
+                  <div className="border border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left space-y-3">
+                    <h4 className="font-serif text-lg font-black uppercase text-black">Network Structural Layers</h4>
+                    <ul className="space-y-2 text-xs font-semibold text-gray-700">
+                      <li><strong>Input Layer:</strong> Receives raw datasets or pixels from external systems for the network to analyze or learn from.</li>
+                      <li><strong>Hidden Layer(s):</strong> One or multiple internal processing layers that multiply inputs by mathematical weights to transform data into outputs.</li>
+                      <li><strong>Output Layer:</strong> Delivers the final prediction vector or classification response.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Section 2: Comparing Types of Intelligence */}
+                <div className="space-y-4 pt-6" id="ai-intelligence">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Comparing Human, Animal, and Machine Intelligence
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    The cognitive sciences differentiate capabilities based on how beings and models process environments:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div className="border-2 border-black p-4 bg-[#38BDF8] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-2">Human</strong>
+                      <p className="font-sans text-xs text-black/90">Scholarly ability to think, reason, solve numerical equations, adapt instantly, and perceive emotional/social cues.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-2">Animal</strong>
+                      <p className="font-sans text-xs text-black/90">Natural skills and instincts that allow living organisms to survive and adapt to specific habitats.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#A7F3D0] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-2">Artificial</strong>
+                      <p className="font-sans text-xs text-black/90">Technology built to mock human cognitive processing by evaluating digital datasets.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Human vs AI */}
+                <div className="space-y-4 pt-6" id="ai-differences">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Key Differences: Human vs. AI
+                  </h2>
+                  
+                  <div className="overflow-x-auto border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                    <table className="w-full text-left font-mono text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-black text-white">
+                          <th className="p-3 border border-black uppercase font-bold">Feature</th>
+                          <th className="p-3 border border-black uppercase font-bold">Human Intelligence</th>
+                          <th className="p-3 border border-black uppercase font-bold">Artificial Intelligence (AI)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white text-black font-semibold">
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Learning</td>
+                          <td className="p-3 border border-black">Learns naturally from past mistakes.</td>
+                          <td className="p-3 border border-black text-red-600">Learns strictly from training data.</td>
+                        </tr>
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Energy</td>
+                          <td className="p-3 border border-black text-green-600">Highly efficient (runs on ~25W).</td>
+                          <td className="p-3 border border-black text-red-600">Less efficient (modern systems run on ~2W).</td>
+                        </tr>
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Speed & Volume</td>
+                          <td className="p-3 border border-black">Limited processing speed.</td>
+                          <td className="p-3 border border-black text-green-600">Processes massive data volumes instantly.</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Emotion</td>
+                          <td className="p-3 border border-black text-green-600">Excellent self-awareness & empathy.</td>
+                          <td className="p-3 border border-black">No emotional understanding or awareness.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Section 4: Strong AI vs Weak AI */}
+                <div className="space-y-4 pt-6" id="ai-strong-weak">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    4. Strong AI vs. Weak AI
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Computer science classifies AI models into two theoretical frameworks:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border border-black p-5 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">STRONG ARTIFICIAL INTELLIGENCE</h4>
+                      <p className="font-sans text-xs text-gray-700 leading-relaxed">
+                        Theoretical form of machine intelligence where a system achieves true consciousness equal to humans. It can think freely, solve diverse problems, and adapt to different environmental changes. <em>(No current real-world examples exist).</em>
+                      </p>
+                    </div>
+                    <div className="border border-black p-5 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">WEAK ARTIFICIAL INTELLIGENCE</h4>
+                      <p className="font-sans text-xs text-black leading-relaxed">
+                        Narrow AI with limited functionalities built to accomplish specific, pre-programmed tasks. They do not possess consciousness or self-awareness. Examples include automated quiz graders, smart assistant tools, and search engines.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 5: Holographic Tech & MR */}
+                <div className="space-y-4 pt-6" id="ai-hologram">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    5. Holographic Technology & Mixed Reality (MR)
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Visual interfaces merge real environments with digital objects to allow interaction:
+                  </p>
+
+                  <div className="space-y-3 font-semibold text-xs text-black leading-relaxed">
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Hologram:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">A three-dimensional (3D) image created using laser light interference patterns. Unlike 2D layouts, holograms show depth, allowing viewers to see different angles.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Mixed Reality (MR):</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">A blend of real and virtual settings where physical and digital objects interact in real time using headsets (e.g. HoloLens, Magic Leap) or smartphones.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-[#C4B5FD] text-left">
+                      <strong>Applications of Holography:</strong>
+                      <p className="font-sans text-xs text-black/80 mt-1">Medical organ mapping for surgeries, anti-counterfeit labels on banknotes, and holographic data storage (3D density storage).</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Neural Sandbox */}
+                <div className="space-y-6 pt-6 text-left" id="ai-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <BrainCircuit size={22} />
+                        6. Neural Network & Hologram Projection Sandbox
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Configure hidden layers, train on custom data feeds, and split laser beams to test optical holographic projections
+                      </p>
+                    </div>
+
+                    {/* Simulation Parameters Deck */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+                      {/* Neural Net Config */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">A. NEURAL NETWORK CONFIGURATION</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Input Data Feed:</label>
+                          <select 
+                            value={aiDataType} 
+                            onChange={(e) => { setAiDataType(e.target.value); setAiStatus('IDLE'); setAiReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="image">Image Stream (Domestic Cat)</option>
+                            <option value="sensor">Sensor Vectors (Autonomous Navigation)</option>
+                            <option value="scan">Medical MRI (Coronary Artery Scan)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Hidden Layers:</label>
+                          <select 
+                            value={aiHiddenLayers} 
+                            onChange={(e) => { setAiHiddenLayers(parseInt(e.target.value)); setAiStatus('IDLE'); setAiReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="1">1 Layer (12 units)</option>
+                            <option value="2">2 Layers (128 units)</option>
+                            <option value="3">3 Layers (1024 units)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Training Epochs:</label>
+                          <select 
+                            value={aiTrainingEpochs} 
+                            onChange={(e) => { setAiTrainingEpochs(parseInt(e.target.value)); setAiStatus('IDLE'); setAiReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="100">100 Epochs (Fast training)</option>
+                            <option value="500">500 Epochs (Recommended)</option>
+                            <option value="1000">1000 Epochs (High convergence)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Holographic Setup */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">B. HOLOGRAPHIC BEAM CONFIG</span>
+                        
+                        <div className="flex flex-col gap-2 pt-1 font-bold">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              checked={aiLaserCoherent} 
+                              onChange={(e) => { setAiLaserCoherent(e.target.checked); setAiStatus('IDLE'); setAiReport(null); }}
+                              className="accent-black border-2 border-black rounded-none cursor-pointer"
+                            />
+                            Coherent Laser Light Source
+                          </label>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Beam Splitting Angle:</label>
+                          <select 
+                            value={aiSplitAngle} 
+                            onChange={(e) => { setAiSplitAngle(parseInt(e.target.value)); setAiStatus('IDLE'); setAiReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="30">30 degrees (Sharp angle)</option>
+                            <option value="45">45 degrees (Ideal alignment)</option>
+                            <option value="60">60 degrees (Wide angle)</option>
+                          </select>
+                        </div>
+
+                        <div className="border border-black p-3 bg-white space-y-1 font-sans text-xs text-left">
+                          <strong>Splitting Method:</strong>
+                          <p className="text-gray-600">Splits the coherent laser into a reference beam and object beam to capture interference patterns.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Button trigger */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runAiEvaluation}
+                        disabled={aiStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {aiStatus === 'COMPUTING' ? 'PROCESSING NEURAL CONVERGENCE...' : 'TRAIN & PROJECT'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Display */}
+                    {aiStatus === 'SUCCESS' && aiReport && (
+                      <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-6 transition-all animate-fadeIn text-left text-xs font-mono">
+                        
+                        {/* Part A: Neural Report */}
+                        <div className="space-y-4">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
+                            <h4 className="font-serif text-lg font-black uppercase text-black">A. NEURAL NETWORK TRAINING REPORT</h4>
+                            <div className="flex items-center gap-4 font-mono text-xs font-bold text-black">
+                              <span>ACCURACY: {aiReport.accuracy}%</span>
+                              <span>LOSS: {aiReport.trainingLoss}</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2 font-mono text-xs text-left">
+                            <div>
+                              <strong>Model Status:</strong>
+                              <span className="block text-blue-600 font-bold uppercase mt-0.5">{aiReport.neuralStatus}</span>
+                            </div>
+                            <div className="border-2 border-black p-3 bg-white font-sans font-bold text-left">
+                              {aiReport.predictedLabel}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Part B: Hologram Visual Representation */}
+                        <div className="space-y-4 pt-4 border-t-2 border-black/10">
+                          <h4 className="font-serif text-lg font-black uppercase text-black">B. HOLOGRAPHIC 3D PROJECTION PREVIEW</h4>
+                          
+                          <div className="flex justify-center py-6 bg-black border-2 border-black relative overflow-hidden h-48">
+                            {aiLaserCoherent ? (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                {/* Visual Hologram Representation */}
+                                <div 
+                                  className={`border-2 border-dashed border-cyan-400 rounded-full flex items-center justify-center transition-all animate-pulse duration-1000
+                                    ${aiSplitAngle === 45 ? 'w-24 h-24 bg-cyan-500/10 text-cyan-400' : 'w-32 h-16 bg-cyan-500/5 text-cyan-500/60'}
+                                  `}
+                                >
+                                  <span className="font-mono text-[9px] uppercase tracking-widest font-bold">
+                                    {aiDataType === 'image' ? '🐱 3D_CAT' : aiDataType === 'sensor' ? '🤖 3D_ROBOT' : '❤️ 3D_HEART'}
+                                  </span>
+                                </div>
+                                <span className="absolute bottom-2 font-mono text-[8px] text-cyan-400/80">COHERENT LIGHT INTERFERENCE DETECTED</span>
+                              </div>
+                            ) : (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 text-red-500 font-mono text-xs font-bold">
+                                <span>[ PROJECTION FAILED ]</span>
+                                <span className="text-[9px] text-red-500/60 mt-1 uppercase">Incoherent light source does not produce interferometry</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-2 font-mono text-xs text-left">
+                            <div>
+                              <strong>Hologram Status:</strong>
+                              <span className="block text-gray-700 font-bold uppercase mt-0.5">{aiReport.holoIntegrity}</span>
+                            </div>
+                          </div>
+                        </div>
+
                       </div>
                     )}
                   </div>

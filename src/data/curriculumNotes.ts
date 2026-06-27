@@ -673,6 +673,62 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "Regional Dominance: Yandex dominates in Russia and Russophone regions. Baidu dominates in China with over 600 million users."
       }
     ]
+  },
+  {
+    id: "ai-basics",
+    title: "Introduction to Artificial Intelligence (AI)",
+    classLevel: "Basic 9",
+    subjectCode: "COMP-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Artificial Intelligence (AI) mimics human behavior and cognitive processing. By utilizing artificial neural networks modeled after the human brain, computers learn to classify data, make decisions, and interact in mixed reality space."
+      },
+      {
+        type: "challenge_callout",
+        body: "ARTIFICIAL NEURAL NETWORKS (ANN):\n• Definition: Computational model designed to mimic the biological nerve cells (neurons) of the human brain.\n• Layer Hierarchy:\n  - Input Layer: Receives raw data from external systems.\n  - Hidden Layer(s): Transforms inputs using mathematical weights.\n  - Output Layer: Delivers the final classification or predicted response."
+      },
+      {
+        type: "text",
+        body: "Comparing Types of Intelligence:"
+      },
+      {
+        type: "bullet_point",
+        body: "Human Intelligence: Scholar capability to think, learn from mistakes, adapt naturally, and sense complex social/emotional cues. Runs on about 25 watts of energy."
+      },
+      {
+        type: "bullet_point",
+        body: "Animal Intelligence: Adaptive skills and survival instincts suited to thrive in specific natural habitats."
+      },
+      {
+        type: "bullet_point",
+        body: "Artificial Intelligence: Digital technology created to mock human reasoning. Less efficient; relies strictly on preset programmer data, but processes massive volumes of data at speed."
+      },
+      {
+        type: "challenge_callout",
+        body: "STRONG AI VS WEAK AI:\n• Strong AI (AGI): A theoretical form of intelligence where a machine develops true consciousness, independent decision-making, and fluid adaptability. (No current real-world examples exist).\n• Weak AI (Narrow AI): Programs built to perform specific, pre-determined tasks without self-awareness (e.g. Google search, automated quiz tutors, smart assistants)."
+      },
+      {
+        type: "text",
+        body: "Holography & Mixed Reality (MR):"
+      },
+      {
+        type: "bullet_point",
+        body: "Holograms: Three-dimensional (3D) images displaying depth, created by recording laser light interference patterns onto a material."
+      },
+      {
+        type: "bullet_point",
+        body: "Creation Process: A coherent laser light source is split into a reference beam and an object beam which reflect and intersect."
+      },
+      {
+        type: "bullet_point",
+        body: "Mixed Reality (MR): Headset devices (like Microsoft HoloLens) that merge real and virtual worlds, allowing virtual 3D elements to be anchored onto physical tables in real time."
+      },
+      {
+        type: "challenge_callout",
+        body: "APPLICATIONS OF HOLOGRAPHY:\n• Medical: Immersive 3D modeling of internal organs for surgery preparation.\n• Art & Entertainment: Live concert performances with virtual entertainers.\n• Security: Anti-counterfeit markings on credit cards and official paper currency.\n• Data Storage: Recording binary data in 3D space to maximize storage densities."
+      }
+    ]
   }
 ];
 
