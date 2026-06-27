@@ -117,5 +117,81 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "Linear Search Visual Walkthrough:\nGiven array: arr[] = {10, 50, 30, 70, 80, 20, 90, 40} and target Key = 30\n- Step 1: Compare Key (30) with arr[0] (10) -> Not equal. Move to next element.\n- Step 2: Compare Key (30) with arr[1] (50) -> Not equal. Move to next element.\n- Step 3: Compare Key (30) with arr[2] (30) -> Match found! Algorithm yields success and returns index 2."
       }
     ]
+  },
+  {
+    id: "robotics-basics",
+    title: "Introduction to Robotics",
+    classLevel: "Basic 9",
+    subjectCode: "COMP-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Robotics is an interdisciplinary branch of computer science and engineering focused on creating automated machines that can assist and substitute for humans in diverse environments."
+      },
+      {
+        type: "challenge_callout",
+        body: "DEFINITIONS:\n• Robot: An automated machine designed to execute specific tasks with speed, precision, and little to no human intervention.\n• Robotics: The technical field that deals directly with the design, engineering, and operation of robots."
+      },
+      {
+        type: "text",
+        body: "Robots are deployed across countless industries in modern society to optimize productivity and reduce human exposure to hazards:"
+      },
+      {
+        type: "bullet_point",
+        body: "Manufacturing: Used to automate repetitive tasks on assembly lines, such as welding and painting, to increase productivity and quality."
+      },
+      {
+        type: "bullet_point",
+        body: "Transportation: Implemented in self-driving cars, drones, and autonomous vehicles to reduce traffic congestion and improve overall safety."
+      },
+      {
+        type: "bullet_point",
+        body: "Healthcare: Assists medical professionals with surgical procedures, patient rehabilitation, monitoring vital signs, and administering medication."
+      },
+      {
+        type: "bullet_point",
+        body: "Agriculture: Deployed to handle crop planting, harvesting, growth monitoring, and lowering labor expenses."
+      },
+      {
+        type: "bullet_point",
+        body: "Construction: Automates physically demanding, labor-intensive tasks like bricklaying and concrete pouring."
+      },
+      {
+        type: "bullet_point",
+        body: "Space Exploration: Used to safely explore hostile environments such as other planets, moons, and asteroids."
+      },
+      {
+        type: "bullet_point",
+        body: "Service Industry: Utilized in banks, hotels, and malls to guide customers, provide information, and answer general queries."
+      },
+      {
+        type: "bullet_point",
+        body: "Military and Defense: Deployed for high-risk operations including surveillance, reconnaissance, and bomb disposal."
+      },
+      {
+        type: "text",
+        body: "While robotics presents massive opportunities, their implementation also brings distinct hurdles and risks, especially in education:"
+      },
+      {
+        type: "bullet_point",
+        body: "Training Demands: Tutors require proper training to use robots as teaching aids, and untrained learners may struggle to interact with the technology effectively."
+      },
+      {
+        type: "bullet_point",
+        body: "Ongoing Costs & Maintenance: Industrial setups face continuing maintenance, operational, and cybersecurity protection expenses. Similarly, high maintenance costs limit the widespread deployment of educational robots."
+      },
+      {
+        type: "bullet_point",
+        body: "Technology Reliability: As mechanical devices, robots are prone to failures at any time, making their long-term integrity a constant challenge."
+      },
+      {
+        type: "challenge_callout",
+        body: "THE UNCANNY VALLEY: Educational robots built with human-like appearances can evoke fear or discomfort in students, which can actively impede the learning process."
+      },
+      {
+        type: "bullet_point",
+        body: "Safety Risks: Physical hazards, such as robots built with sharp edges, can cause severe harm or lacerations to young children, discouraging them from using the technology."
+      }
+    ]
   }
 ];

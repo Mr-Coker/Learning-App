@@ -28,6 +28,14 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const [saveStatus, setSaveStatus] = useState<string>('IDLE'); // IDLE, SAVING, SAVED
   const [searchAccordionActive, setSearchAccordionActive] = useState<boolean>(false);
 
+  // Robotics View Interactive State
+  const [selectedApp, setSelectedApp] = useState<string>('Manufacturing');
+  const [simMission, setSimMission] = useState<string>('space');
+  const [simAppearance, setSimAppearance] = useState<string>('rugged');
+  const [simSafety, setSimSafety] = useState<boolean>(true);
+  const [simStatus, setSimStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS' | 'FAILURE'>('IDLE');
+  const [simFeedback, setSimFeedback] = useState<string>('');
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -39,6 +47,53 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
       setSaveStatus('SAVED');
       setTimeout(() => setSaveStatus('IDLE'), 2000);
     }, 1000);
+  };
+
+  const runMission = () => {
+    setSimStatus('COMPUTING');
+    setSimFeedback('');
+    
+    setTimeout(() => {
+      if (simMission === 'space') {
+        if (simAppearance !== 'rugged') {
+          setSimStatus('FAILURE');
+          setSimFeedback('MISSION FAILURE: Asteroid mining requires heavy armor. Your non-rugged robot suffered mechanical failure due to high thermal/radiation stress and hostile dust. (Reference: Technology Reliability)');
+        } else {
+          setSimStatus('SUCCESS');
+          setSimFeedback('MISSION SUCCESS! Your rugged planetary explorer safely traversed asteroids, collected samples, and sustained zero structural damage.');
+        }
+      } else if (simMission === 'healthcare') {
+        if (!simSafety) {
+          setSimStatus('FAILURE');
+          setSimFeedback('CRITICAL ERROR: The medical robot lacked soft-touch skin and collision guards. It posed immediate safety risks (laceration hazards) to the patient. (Reference: Safety Risks)');
+        } else if (simAppearance === 'rugged') {
+          setSimStatus('FAILURE');
+          setSimFeedback('PATIENT REJECTION: The cold, heavy industrial rugged design terrified patients in rehabilitation, raising stress levels. (Reference: Training Demands & Patient Trust)');
+        } else {
+          setSimStatus('SUCCESS');
+          setSimFeedback('MISSION SUCCESS! The utility assistant robot administered medication, monitored vital signs, and assisted in surgery with complete safety.');
+        }
+      } else if (simMission === 'assembly') {
+        if (simAppearance === 'human') {
+          setSimStatus('FAILURE');
+          setSimFeedback('PRODUCTION TIMEOUT: Humanoid designs are too complex for assembly lines. The robot suffered servo wear and high maintenance costs, halting the line. (Reference: Ongoing Costs & Maintenance)');
+        } else {
+          setSimStatus('SUCCESS');
+          setSimFeedback('MISSION SUCCESS! The industrial robotic arms welded and painted car chassis on the assembly line with extreme speed and precision.');
+        }
+      } else if (simMission === 'service') {
+        if (simAppearance === 'human') {
+          setSimStatus('FAILURE');
+          setSimFeedback('VISITOR DISCOMFORT: The humanoid receptionist triggered the Uncanny Valley effect, causing fear and hesitation among children and mall visitors. (Reference: The Uncanny Valley Effect)');
+        } else if (!simSafety) {
+          setSimStatus('FAILURE');
+          setSimFeedback('HAZARD DETECTED: The robot had sharp structural corners. A child bumped into it and suffered a minor laceration. (Reference: Safety Risks)');
+        } else {
+          setSimStatus('SUCCESS');
+          setSimFeedback('MISSION SUCCESS! The friendly screen-based kiosk robot guided visitors, provided directions, and answered queries efficiently.');
+        }
+      }
+    }, 1200);
   };
 
   if (!activeNoteId) {
@@ -78,6 +133,13 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "constructs", label: "III. Programming Constructs" },
         { id: "computational-concepts", label: "IV. Abstraction & Decomposition" },
         { id: "examples", label: "V. Practical Algorithms" }
+      ]
+    : noteData?.staticLookupKey === 'robotics-basics'
+    ? [
+        { id: "robotics-definitions", label: "I. Robot & Robotics" },
+        { id: "robotics-applications", label: "II. Applications" },
+        { id: "robotics-challenges", label: "III. Challenges & Risks" },
+        { id: "robotics-interactive", label: "IV. Mission Simulator" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -443,6 +505,262 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     )}
                   </div>
 
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'robotics-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE ROBOTICS NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="robotics-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_02 // COMPUTING SCIENCE
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Introduction to Robotics
+                  </h1>
+                </div>
+
+                {/* Section 1: Definitions */}
+                <div className="space-y-4" id="robotics-definitions">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. Definitions & Fundamentals
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Robotics is an interdisciplinary branch of computer science and engineering focused on creating automated machines that can assist and substitute for humans in diverse environments.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="border-4 border-black p-6 bg-[#38BDF8] shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
+                      <span className="font-mono text-[10px] font-black text-black block mb-2">TERM // ROBOT</span>
+                      <p className="font-sans text-sm text-black leading-relaxed">
+                        An automated machine designed to execute specific tasks with speed, precision, and little to no human intervention.
+                      </p>
+                    </div>
+                    <div className="border-4 border-black p-6 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
+                      <span className="font-mono text-[10px] font-black text-black block mb-2">FIELD // ROBOTICS</span>
+                      <p className="font-sans text-sm text-black leading-relaxed">
+                        The technical field that deals directly with the design, engineering, construction, and operation of robots.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Applications and Uses in Society */}
+                <div className="space-y-4 pt-6" id="robotics-applications">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Applications in Modern Society
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Robotic systems significantly impact modern industries by automating operations, reducing operating overheads, and increasing safety. Select a sector below to inspect its operational model:
+                  </p>
+
+                  {/* Interactive Tab bar */}
+                  <div className="flex flex-wrap gap-2 border-b-4 border-black pb-4">
+                    {[
+                      { name: 'Manufacturing', color: '#FFD833' },
+                      { name: 'Transportation', color: '#38BDF8' },
+                      { name: 'Healthcare', color: '#A7F3D0' },
+                      { name: 'Agriculture', color: '#C4B5FD' },
+                      { name: 'Construction', color: '#FCA5A5' },
+                      { name: 'Space Exploration', color: '#FDA4AF' },
+                      { name: 'Service Industry', color: '#93C5FD' },
+                      { name: 'Military & Defense', color: '#FDBA74' }
+                    ].map((tab) => (
+                      <button
+                        key={tab.name}
+                        onClick={() => setSelectedApp(tab.name)}
+                        className={`px-3 py-1.5 font-mono text-[10px] font-bold uppercase border-2 border-black rounded-none cursor-pointer transition-all duration-700
+                          ${selectedApp === tab.name 
+                            ? 'bg-black text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                            : 'bg-white text-black hover:bg-gray-100'
+                          }
+                        `}
+                      >
+                        {tab.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Tab Content Display */}
+                  <div className="border-4 border-black p-6 bg-[#F3F4F6] shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none min-h-[160px] flex flex-col justify-between text-left">
+                    <div>
+                      <h4 className="font-serif text-xl font-black uppercase text-black mb-2">{selectedApp}</h4>
+                      <p className="font-sans text-sm text-gray-800 leading-relaxed">
+                        {selectedApp === 'Manufacturing' && "Used to automate repetitive tasks on assembly lines, such as welding and painting, to increase productivity and quality."}
+                        {selectedApp === 'Transportation' && "Implemented in self-driving cars, drones, and autonomous vehicles to reduce traffic congestion and improve overall safety."}
+                        {selectedApp === 'Healthcare' && "Assists medical professionals with surgical procedures, patient rehabilitation, monitoring vital signs, and administering medication."}
+                        {selectedApp === 'Agriculture' && "Deployed to handle crop planting, harvesting, growth monitoring, and lowering labor expenses."}
+                        {selectedApp === 'Construction' && "Automates physically demanding, labor-intensive tasks like bricklaying and concrete pouring."}
+                        {selectedApp === 'Space Exploration' && "Used to safely explore hostile environments such as other planets, moons, and asteroids."}
+                        {selectedApp === 'Service Industry' && "Utilized in banks, hotels, and malls to guide customers, provide information, and answer general queries."}
+                        {selectedApp === 'Military & Defense' && "Deployed for high-risk operations including surveillance, reconnaissance, and bomb disposal."}
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-black/10 flex gap-4 font-mono text-[9px] text-gray-500 uppercase">
+                      <div>TARGET CLASS // JHS_BASIC_9</div>
+                      <div>UTILITY TYPE // AUTOMATION</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Prospects and Challenges */}
+                <div className="space-y-4 pt-6" id="robotics-challenges">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Key Prospects & Practical Challenges
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Deploying robotics systems (especially in schools and service environments) introduces critical challenges that designers must anticipate:
+                  </p>
+
+                  <div className="space-y-4 text-left">
+                    <div className="border-2 border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                      <span className="font-mono text-[10px] font-black text-black">TRAINING DEMANDS //</span>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Tutors require proper training to use robots as teaching aids, and untrained learners may struggle to interact with the technology effectively.</p>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                      <span className="font-mono text-[10px] font-black text-black">ONGOING COSTS & MAINTENANCE //</span>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Industrial setups face continuing maintenance, operational, and cybersecurity protection expenses. High maintenance costs limit the widespread deployment of educational robots.</p>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                      <span className="font-mono text-[10px] font-black text-black">TECHNOLOGY RELIABILITY //</span>
+                      <p className="font-sans text-xs text-gray-600 mt-1">As mechanical devices, robots are prone to failures at any time, making their long-term integrity a constant challenge.</p>
+                    </div>
+
+                    {/* Accent box: Uncanny Valley */}
+                    <div className="border-4 border-black p-6 bg-[#A7F3D0] shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                      <h4 className="font-serif text-lg font-black text-black uppercase mb-1">The "Uncanny Valley" Effect</h4>
+                      <p className="font-sans text-xs text-black leading-relaxed">
+                        Educational robots built with human-like appearances can evoke fear or discomfort in students, which can actively impede the learning process.
+                      </p>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-[#FCA5A5] shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                      <span className="font-mono text-[10px] font-black text-black">SAFETY RISKS //</span>
+                      <p className="font-sans text-xs text-black mt-1">Physical hazards, such as robots built with sharp edges, can cause severe harm or lacerations to young children, discouraging them from using the technology.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Interactive Mission Simulator */}
+                <div className="space-y-6 pt-6 text-left" id="robotics-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <BrainCircuit size={22} />
+                        4. Interactive Mission Simulator
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Design a Robot and Test it in Different Environments
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        {/* Select Mission */}
+                        <div className="flex flex-col space-y-1">
+                          <label className="font-mono text-[10px] font-bold uppercase text-black">1. Choose Mission //</label>
+                          <select
+                            value={simMission}
+                            onChange={(e) => setSimMission(e.target.value)}
+                            className="bg-white border-2 border-black p-2 font-mono text-xs font-bold uppercase focus:outline-none"
+                          >
+                            <option value="space">Deep Space Asteroid Mining</option>
+                            <option value="healthcare">Precision Healthcare Surgery Assistant</option>
+                            <option value="assembly">Car Chassis Assembly Line Welding</option>
+                            <option value="service">Shopping Mall Information Guide</option>
+                          </select>
+                        </div>
+
+                        {/* Select Appearance */}
+                        <div className="flex flex-col space-y-1">
+                          <label className="font-mono text-[10px] font-bold uppercase text-black">2. Robot Appearance //</label>
+                          <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+                            {[
+                              { id: 'rugged', label: 'Rugged' },
+                              { id: 'utility', label: 'Utility' },
+                              { id: 'human', label: 'Humanoid' }
+                            ].map(opt => (
+                              <button
+                                type="button"
+                                key={opt.id}
+                                onClick={() => setSimAppearance(opt.id)}
+                                className={`flex-1 py-2 px-1 text-center font-mono text-[9px] border-2 border-black uppercase font-bold cursor-pointer
+                                  ${simAppearance === opt.id ? 'bg-[#FFD833] text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'bg-white text-black hover:bg-gray-100'}
+                                `}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Safety Guards */}
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            id="safetyGuards"
+                            checked={simSafety}
+                            onChange={(e) => setSimSafety(e.target.checked)}
+                            className="w-4 h-4 accent-black cursor-pointer"
+                          />
+                          <label htmlFor="safetyGuards" className="font-mono text-[10px] font-bold uppercase text-black cursor-pointer">
+                            Install Soft Skin & Rounded Collision Guards
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Display Settings Summary */}
+                      <div className="border-2 border-black bg-[#F3F4F6] p-4 flex flex-col justify-between">
+                        <div className="font-mono text-[10px] space-y-2 text-black">
+                          <div className="font-bold border-b border-black/10 pb-1">CURRENT DESIGN PROFILE:</div>
+                          <div>MISSION: <span className="font-bold text-sky-600 uppercase">{simMission}</span></div>
+                          <div>ARMOR/SHELL: <span className="font-bold text-amber-600 uppercase">{simAppearance}</span></div>
+                          <div>SAFETY GUARDS: <span className={`font-bold ${simSafety ? 'text-emerald-600' : 'text-rose-600'}`}>{simSafety ? "INSTALLED" : "NONE"}</span></div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={runMission}
+                          disabled={simStatus === 'COMPUTING'}
+                          className="w-full bg-black text-white hover:bg-[#FFD833] hover:text-black border-2 border-black font-mono text-xs font-bold uppercase py-2 cursor-pointer transition-colors mt-4 disabled:opacity-50"
+                        >
+                          {simStatus === 'COMPUTING' ? 'SIMULATING TRANSIT...' : 'RUN MISSION SIMULATION'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Simulator Result Readout */}
+                    {simStatus !== 'IDLE' && (
+                      <div className="mt-4 border-4 border-black p-5">
+                        {simStatus === 'COMPUTING' ? (
+                          <div className="flex items-center gap-3 font-mono text-xs font-black uppercase text-black">
+                            <span className="w-4 h-4 border-2 border-black border-t-transparent animate-spin rounded-full block" />
+                            <span>COMPUTING SYSTEM MATCH & RELIABILITY READOUTS...</span>
+                          </div>
+                        ) : simStatus === 'SUCCESS' ? (
+                          <div className="space-y-2">
+                            <div className="bg-[#A7F3D0] border-2 border-black px-2 py-1 inline-block font-mono text-[9px] font-bold text-black uppercase">
+                              MISSION SUCCESS
+                            </div>
+                            <p className="font-sans text-sm text-black leading-relaxed font-bold">{simFeedback}</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="bg-[#FCA5A5] border-2 border-black px-2 py-1 inline-block font-mono text-[9px] font-bold text-black uppercase">
+                              MISSION FAILURE
+                            </div>
+                            <p className="font-sans text-sm text-black leading-relaxed font-bold">{simFeedback}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </section>
             ) : (

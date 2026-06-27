@@ -1,0 +1,36 @@
+1. Definitions
+ Robot: An automated machine designed to execute specific tasks with speed, precision, and little to no human
+intervention.
+ Robotics: The technical field that deals directly with the design, engineering, and operation of robots.
+2. Applications and Uses of Robots in Society
+Robotics technology significantly impacts various industries by automating tasks, reducing labor costs, and boosting
+efficiency. Notable applications include:
+ Manufacturing: Used to automate repetitive tasks on assembly lines, such as welding and painting, to increase
+productivity and quality.
+ Transportation: Implemented in self-driving cars, drones, and autonomous vehicles to reduce traffic congestion
+and improve overall safety.
+ Healthcare: Assists medical professionals with surgical procedures, patient rehabilitation, monitoring vital signs,
+and administering medication.
+ Agriculture: Deployed to handle crop planting, harvesting, growth monitoring, and lowering labor expenses.
+ Construction: Automates physically demanding, labor-intensive tasks like bricklaying and concrete pouring.
+ Space Exploration: Used to safely explore hostile environments such as other planets, moons, and asteroids.
+ Service Industry: Utilized in banks, hotels, and malls to guide customers, provide information, and answer general
+queries.
+ Military and Defense: Deployed for high-risk operations including surveillance, reconnaissance, and bomb
+disposal.
+3. Prospects and Challenges of Using Robots
+While robots provide great opportunities, deploying them (especially in educational environments) brings distinct
+challenges:
+ Training Demands: Tutors require proper training to use robots as teaching aids, and untrained learners may
+struggle to interact with the technology effectively.
+ Ongoing Costs & Maintenance: Industrial setups face continuing maintenance, operational, and cybersecurity
+protection expenses. Similarly, high maintenance costs limit the widespread deployment of educational robots.
+ Technology Reliability: As mechanical devices, robots are prone to failures at any time, making their long-term
+integrity a constant challenge.
+ The "Uncanny Valley" Effect: Educational robots built with human-like appearances can evoke fear in students,
+which can actively impede the learning process.
+ Safety Risks: Physical hazards, such as robots built with sharp edges, can cause severe harm or lacerations to
+young children, discouraging them from using the technology.
+
+-- 1 of 1 --
+
