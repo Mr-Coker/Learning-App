@@ -31,6 +31,11 @@ export function NoteIngester() {
   const [editStatus, setEditStatus] = useState<'IDLE' | 'SAVING' | 'SYNCED'>('IDLE');
   const [editError, setEditError] = useState('');
 
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('ALL');
+  const [selectedClass, setSelectedClass] = useState('ALL');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -260,15 +265,80 @@ export function NoteIngester() {
 
       {/* Ingested Notes List and Editor Section */}
       <div className="space-y-6 border-t-4 border-black pt-8">
-        <div className="text-left">
-          <h3 className="font-serif text-xl md:text-2xl font-black uppercase text-black">
-            INGESTED CURRICULUM NODES
-          </h3>
-          <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500 mt-1">
-            Real-Time Active Database Streams
-          </p>
+        <div className="text-left flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h3 className="font-serif text-xl md:text-2xl font-black uppercase text-black">
+              INGESTED CURRICULUM NODES
+            </h3>
+            <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500 mt-1">
+              Real-Time Active Database Streams
+            </p>
+          </div>
         </div>
 
+        {/* Brutalist Control Deck UI */}
+        <div className="border-4 border-black bg-[#F0F0F0] p-4 space-y-4 text-left shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+          <div className="flex flex-col space-y-1.5">
+            <label className="font-mono text-[10px] font-bold uppercase text-black">SEARCH CURRICULUM NODES //</label>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="FILTER BY TITLE OR LOOKUP KEY..."
+              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono uppercase text-xs focus:outline-none placeholder-gray-500 font-bold focus:bg-[#FFF3C4]"
+            />
+          </div>
+
+          {/* Class level filter chips */}
+          <div className="space-y-2">
+            <span className="font-mono text-[9px] font-bold text-gray-500 uppercase block">FILTER BY LEVEL //</span>
+            <div className="flex flex-wrap gap-2">
+              {['ALL', 'Basic 7', 'Basic 8', 'Basic 9'].map((lvl) => (
+                <button
+                  key={lvl}
+                  type="button"
+                  onClick={() => setSelectedClass(lvl)}
+                  className={`px-3 py-1.5 font-mono text-[10px] cursor-pointer rounded-none font-bold border-2 border-black transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0_0_rgba(0,0,0,1)]
+                    ${selectedClass === lvl 
+                      ? 'bg-[#FFDE00] text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                      : 'bg-white text-black'
+                    }
+                  `}
+                >
+                  {lvl}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Subject filter chips */}
+          <div className="space-y-2">
+            <span className="font-mono text-[9px] font-bold text-gray-500 uppercase block">FILTER BY SUBJECT NODE //</span>
+            <div className="flex flex-wrap gap-2">
+              {['ALL', ...(subjects ? subjects.map(s => s._id) : [])].map((subId) => {
+                const subObj = subjects?.find(s => s._id === subId);
+                const displayName = subId === 'ALL' ? 'ALL SUBJECTS' : subObj ? `${subObj.code} (${subObj.name.toUpperCase()})` : 'UNKNOWN';
+                return (
+                  <button
+                    key={subId}
+                    type="button"
+                    onClick={() => setSelectedSubject(subId)}
+                    className={`px-3 py-1.5 font-mono text-[10px] cursor-pointer rounded-none font-bold border-2 border-black transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0_0_rgba(0,0,0,1)]
+                      ${selectedSubject === subId 
+                        ? 'bg-[#38BDF8] text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                        : 'bg-white text-black'
+                      }
+                    `}
+                  >
+                    {displayName}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Filtered Notes List Rendering */}
         <div className="space-y-4">
           {notesList === undefined ? (
             <div className="font-mono text-xs font-bold uppercase text-gray-400 p-4 border-2 border-dashed border-black/30">
@@ -278,8 +348,25 @@ export function NoteIngester() {
             <div className="font-mono text-xs font-bold uppercase text-gray-400 p-4 border-2 border-dashed border-black/30">
               NO ACTIVE LESSON METADATA DETECTED
             </div>
-          ) : (
-            notesList.map((note) => {
+          ) : (() => {
+            const filteredNotes = notesList.filter(note => {
+              const matchesClass = selectedClass === 'ALL' || note.classLevel === selectedClass;
+              const matchesSubject = selectedSubject === 'ALL' || note.subjectId === selectedSubject;
+              const matchesSearch = searchQuery.trim() === '' || 
+                note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                note.staticLookupKey.toLowerCase().includes(searchQuery.toLowerCase());
+              return matchesClass && matchesSubject && matchesSearch;
+            });
+
+            if (filteredNotes.length === 0) {
+              return (
+                <div className="font-mono text-xs font-bold uppercase text-red-500 p-8 border-2 border-dashed border-black text-center bg-red-50">
+                  NO MATCHING NOTES SYNCED
+                </div>
+              );
+            }
+
+            return filteredNotes.map((note) => {
               const isNoteEditing = editingNoteId === note._id;
               const mappedSubject = subjects?.find(s => s._id === note.subjectId);
 
@@ -401,8 +488,8 @@ export function NoteIngester() {
                   )}
                 </div>
               );
-            })
-          )}
+            });
+          })()}
         </div>
       </div>
     </div>
