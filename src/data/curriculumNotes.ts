@@ -621,6 +621,58 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "EXCEL FORMULA ERRORS:\n• #NAME?: Misspelled function (e.g. =su(A2,B2) instead of SUM).\n• #DIV/0!: Attempt to divide by zero or empty cells (fix with =IFERROR(A2/B2, 0)).\n• #REF!: Referenced cell deleted or missing.\n• #NULL!: Missing syntax separators (e.g. spaces instead of commas/colons).\n• #VALUE!: Wrong data types/non-numeric values in mathematical operations.\n• #######: Column is too narrow to display numbers (expand column boundary)."
       }
     ]
+  },
+  {
+    id: "search-engines-basics",
+    title: "Search Engines and Effective Searching",
+    classLevel: "Basic 9",
+    subjectCode: "COMP-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Search engines scan, index, and organize web content so users can find specific data quickly. Knowing how to construct effective search strings optimizes information retrieval."
+      },
+      {
+        type: "challenge_callout",
+        body: "EFFECTIVE SEARCH TECHNIQUES:\n• Keyword Search: Entering natural language terms to search all parts of an indexed source.\n• Phrase Search: Using quotation marks (e.g., \"corporate social responsibility\") to find the exact words in that precise order.\n• Limiters: Restricting results by date, language, file type, or full text."
+      },
+      {
+        type: "text",
+        body: "Boolean Search Operators:"
+      },
+      {
+        type: "bullet_point",
+        body: "AND: Narrows search; both terms must appear in the results (e.g., gender AND Shakespeare)."
+      },
+      {
+        type: "bullet_point",
+        body: "OR: Broadens search; retrieves records containing synonyms or either term (e.g., car OR automobile)."
+      },
+      {
+        type: "bullet_point",
+        body: "NOT: Excludes words or phrases from search results (e.g., \"video games\" NOT teenagers)."
+      },
+      {
+        type: "bullet_point",
+        body: "Combining Operators: Multiple operators can build complex logic strings (e.g., \"animal cloning\" OR \"animal duplication\" AND jellyfish NOT sheep)."
+      },
+      {
+        type: "challenge_callout",
+        body: "POPULAR SEARCH ENGINES:\n• Google: Larry Page & Sergei Brin (1996). Largest search engine; highly personalized, tracks user activity, uses AI-driven algorithms.\n• Bing: Owned by Microsoft. Features extensive personalization, search tracking, and a rewards program.\n• Yahoo: Internet portal integrated with news and services; searches powered by Bing.\n• DuckDuckGo & Brave Search: Privacy-focused search engines. DuckDuckGo stores no user history. Brave Search uses its own proprietary index to block hidden trackers."
+      },
+      {
+        type: "text",
+        body: "Global Regional Dominance & ExpertRank:"
+      },
+      {
+        type: "bullet_point",
+        body: "Ask.com: Orders results using the 'ExpertRank' algorithm, which groups topics by expertise communities rather than raw popularity."
+      },
+      {
+        type: "bullet_point",
+        body: "Regional Dominance: Yandex dominates in Russia and Russophone regions. Baidu dominates in China with over 600 million users."
+      }
+    ]
   }
 ];
 

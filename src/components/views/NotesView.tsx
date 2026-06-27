@@ -107,6 +107,18 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     explanation: string;
   } | null>(null);
 
+  // Search Engines Simulator State
+  const [seQueryInput, setSeQueryInput] = useState<string>('gender AND Shakespeare');
+  const [seEngineSelect, setSeEngineSelect] = useState<string>('google'); // google, duckduckgo
+  const [seStatus, setSeStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [seResult, setSeResult] = useState<{
+    matches: { title: string; desc: string; url: string }[];
+    relevanceScore: number;
+    trackersBlocked: number;
+    privacyReport: string;
+    profiledInterest: string;
+  } | null>(null);
+
   const getCellsInRange = (rangeStr: string): string[] => {
     const parts = rangeStr.split(':');
     if (parts.length !== 2) return [rangeStr];
@@ -535,6 +547,81 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     }, 1200);
   };
 
+  const runSeEvaluation = () => {
+    setSeStatus('COMPUTING');
+    setTimeout(() => {
+      const query = seQueryInput.trim();
+      const queryLower = query.toLowerCase();
+      
+      let matches: { title: string; desc: string; url: string }[] = [];
+      let relevanceScore = 100;
+      let trackersBlocked = 0;
+      let privacyReport = "";
+      let profiledInterest = "None";
+
+      // Mock database of items to match
+      const corpus = [
+        { title: "Shakespeare's Sonnets & Gender Roles", desc: "A comprehensive study on literary analysis of gender representation in Hamlet and MacBeth.", tags: ["gender", "shakespeare"], url: "https://literature-studies.edu/shakespeare" },
+        { title: "Modern Electric Cars & Auto Innovation", desc: "The definitive guide to new electric sedan battery systems, autopilot efficiency, and road safety.", tags: ["car", "automobile", "tesla"], url: "https://autonews.com/electric-cars" },
+        { title: "Video Games: Industry Growth", desc: "Analyzing global gaming console sales, PC hardware developments, and competitive esport leagues.", tags: ["video games", "gaming"], url: "https://gamedev-report.org/industry" },
+        { title: "Teenagers and Screen Time Studies", desc: "A psychological study investigating teenager habits, gaming time limits, and school grades.", tags: ["video games", "teenagers"], url: "https://familypsychology.org/teenagers-screen" },
+        { title: "Marine Animal Cloning Experimentation", desc: "Research paper detailing the molecular duplication of jellyfish species in marine labs.", tags: ["animal cloning", "animal duplication", "jellyfish"], url: "https://marine-science.gov/cloning-jellyfish" },
+        { title: "Sheep Cloning Progress Report", desc: "A retrospective review of somatic cell nuclear transfer techniques in domestic sheep cloning.", tags: ["animal cloning", "sheep"], url: "https://bioscience-reviews.com/sheep-dolly" }
+      ];
+
+      // Simple Boolean Parser
+      corpus.forEach(item => {
+        let isMatch = false;
+        
+        if (queryLower.includes('gender and shakespeare')) {
+          if (item.tags.includes('gender') && item.tags.includes('shakespeare')) {
+            isMatch = true;
+          }
+        } else if (queryLower.includes('car or automobile')) {
+          if (item.tags.includes('car') || item.tags.includes('automobile')) {
+            isMatch = true;
+          }
+        } else if (queryLower.includes('"video games" not teenagers') || queryLower.includes('video games not teenagers')) {
+          if (item.tags.includes('video games') && !item.tags.includes('teenagers')) {
+            isMatch = true;
+          }
+        } else if (queryLower.includes('jellyfish not sheep')) {
+          if (item.tags.includes('jellyfish') && !item.tags.includes('sheep')) {
+            isMatch = true;
+          }
+        } else {
+          isMatch = item.tags.some(tag => queryLower.includes(tag)) || item.title.toLowerCase().includes(queryLower);
+        }
+
+        if (isMatch) {
+          matches.push({ title: item.title, desc: item.desc, url: item.url });
+        }
+      });
+
+      // Apply Search Engine characteristics
+      if (seEngineSelect === 'google') {
+        trackersBlocked = 0;
+        profiledInterest = query.length > 3 ? query : "General Browsing";
+        privacyReport = "WARNING: Search query recorded in 'My Activity' dashboard. Search history has been logged and synchronized with your Google profile for ad personalization and advertising networks.";
+        relevanceScore = matches.length > 0 ? 98 : 30;
+      } else {
+        trackersBlocked = 8;
+        profiledInterest = "None (Anonymous session)";
+        privacyReport = "✓ SECURE: Search history was not recorded, no profiling tags were created, and 8 behavioral ad trackers were completely blocked on this search canvas.";
+        relevanceScore = matches.length > 0 ? 92 : 25;
+      }
+
+      setSeResult({
+        matches,
+        relevanceScore,
+        trackersBlocked,
+        privacyReport,
+        profiledInterest
+      });
+      setSeStatus('SUCCESS');
+    }, 1200);
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -684,6 +771,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "ssf-percentages", label: "IV. Percentage Methods" },
         { id: "ssf-financial", label: "V. Loan Interest Rates" },
         { id: "ssf-interactive", label: "VI. Formulas Simulator" }
+      ]
+    : noteData?.staticLookupKey === 'search-engines-basics'
+    ? [
+        { id: "se-techniques", label: "I. Search Techniques" },
+        { id: "se-boolean", label: "II. Boolean Searching" },
+        { id: "se-enhancements", label: "III. Search Enhancements" },
+        { id: "se-engines", label: "IV. Popular Search Engines" },
+        { id: "se-matrix", label: "V. Search Comparison" },
+        { id: "se-interactive", label: "VI. Query Simulator" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -2837,6 +2933,303 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             {ssfResult.isError ? 'ERROR ENCOUNTERED' : 'CALCULATION SUCCESS'}
                           </div>
                           <p className="font-sans text-sm text-black leading-relaxed font-bold">{ssfResult.explanation}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'search-engines-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE SEARCH ENGINES NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="search-engines-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_08 // WEB SEARCH & RETRIEVAL
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Search Engines & Boolean Logic
+                  </h1>
+                </div>
+
+                {/* Section 1: Effective Search Techniques */}
+                <div className="space-y-4" id="se-techniques">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. Keyword Searching & Strategies
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    When querying database systems or web sites, using deliberate searching tactics speeds up locating high-value information and discards unrelated noise.
+                  </p>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    <strong>Keyword Searching:</strong> The most basic strategy. Users enter relevant words or phrases using natural language. The database engine parses all coordinates (such as document metadata, titles, or body contents) to return matches.
+                  </p>
+                </div>
+
+                {/* Section 2: Boolean Searching */}
+                <div className="space-y-4 pt-6" id="se-boolean">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Boolean Search Operators
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Boolean search is a logic-based strategy that utilizes operators (which must be <strong>CAPITALIZED</strong>) to refine search queries:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div className="border-4 border-black p-5 bg-[#38BDF8] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-2">AND</strong>
+                      <p className="font-sans text-xs text-black/90">Narrows search results. Both terms connected by AND must appear in the source. (e.g. <code>gender AND Shakespeare</code>).</p>
+                    </div>
+                    <div className="border-4 border-black p-5 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-2">OR</strong>
+                      <p className="font-sans text-xs text-black/90">Broadens search results. Finds synonyms or related topics where either word is present. (e.g. <code>car OR automobile</code>).</p>
+                    </div>
+                    <div className="border-4 border-black p-5 bg-[#A7F3D0] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-2">NOT</strong>
+                      <p className="font-sans text-xs text-black/90">Excludes specified words or concepts from the search outputs. (e.g. <code>"video games" NOT teenagers</code>).</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Other Search Enhancements */}
+                <div className="space-y-4 pt-6" id="se-enhancements">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Other Search Enhancements
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Modern engines support advanced tools to lock down relevance and trace resources:
+                  </p>
+
+                  <div className="space-y-3 font-semibold text-xs text-black leading-relaxed">
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Phrase Searching (Quotation Marks):</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Surrounding terms in quotes (e.g., <code>"corporate social responsibility"</code>) forces the engine to locate matches with the exact word order.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Limiters / Filters:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">UI filters that restrict output results based on specific fields (e.g. Publication date, document type, language, or Full Text available).</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Works Cited Lists / Reference Tracking:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Iterating through the bibliographies of verified papers to discover connected source material.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Understanding and Comparing Search Engines */}
+                <div className="space-y-4 pt-6" id="se-engines">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    4. Popular Search Engines
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    A search engine indexes the Web using automated spiders. Here are the core profiles of major search engines:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Google & Bing</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Largest engines globally. Collect extensively logged profile data to personalize query responses and target advertisements.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">DuckDuckGo & Brave Search</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Privacy-first. Do not store search history or profile users. Brave Search builds its own independent indexing crawler.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Ask.com</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Uses the 'ExpertRank' algorithm to order response sites by topic-specific community expertise rather than raw popularity.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Regional Giants</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Yandex leads in Russia/Cyrillic areas. Baidu dominates in China with more than 600 million users.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 5: Comparison Matrix */}
+                <div className="space-y-4 pt-6" id="se-matrix">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    5. Comparison Matrix at a Glance
+                  </h2>
+                  
+                  <div className="overflow-x-auto border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                    <table className="w-full text-left font-mono text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-black text-white">
+                          <th className="p-3 border border-black uppercase font-bold">Feature</th>
+                          <th className="p-3 border border-black uppercase font-bold">Google / Bing</th>
+                          <th className="p-3 border border-black uppercase font-bold">Yahoo</th>
+                          <th className="p-3 border border-black uppercase font-bold">DuckDuckGo</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white text-black font-semibold">
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Results</td>
+                          <td className="p-3 border border-black">Most accurate, AI-driven, personalized.</td>
+                          <td className="p-3 border border-black">Powered by Bing; portal layout.</td>
+                          <td className="p-3 border border-black">Relevant but less personalized.</td>
+                        </tr>
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Privacy</td>
+                          <td className="p-3 border border-black text-red-600">Collects extensive query data.</td>
+                          <td className="p-3 border border-black">Tracks info for services.</td>
+                          <td className="p-3 border border-black text-green-600">Zero history logs or tracking.</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Style</td>
+                          <td className="p-3 border border-black">Clean, minimal interface.</td>
+                          <td className="p-3 border border-black">Media-rich web portal.</td>
+                          <td className="p-3 border border-black">Simple, clean layout.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Search Queries Simulator */}
+                <div className="space-y-6 pt-6 text-left" id="se-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <BrainCircuit size={22} />
+                        6. Boolean Query & Indexing Simulator
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Choose your search engine profile and write/run Boolean logic strings to match document index parameters
+                      </p>
+                    </div>
+
+                    {/* Simulation Parameters Deck */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+                      {/* Engine Profiles */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">ENGINE PROFILE CONFIGURATION</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Search Engine:</label>
+                          <select 
+                            value={seEngineSelect} 
+                            onChange={(e) => { setSeEngineSelect(e.target.value); setSeStatus('IDLE'); setSeResult(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="google">Google / Bing (Personalized & Ad Profiled)</option>
+                            <option value="duckduckgo">DuckDuckGo / Brave (Privacy-First & Blocked Trackers)</option>
+                          </select>
+                        </div>
+
+                        <div className="border border-black p-3 bg-white space-y-1 font-sans text-xs text-left">
+                          <strong>Engine Details:</strong>
+                          <p className="text-gray-600">
+                            {seEngineSelect === 'google' 
+                              ? 'Google tracks query strings and links them to personal metrics to build interest tags.'
+                              : 'DuckDuckGo enforces a localized session with zero tracking cookies and blocks hidden tracking agents.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Query Editor */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">BOOLEAN QUERY COMPOSER</span>
+                        
+                        <div className="space-y-2">
+                          <label className="font-bold block">Quick Presets:</label>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { label: 'AND Narrows', query: 'gender AND Shakespeare' },
+                              { label: 'OR Broadens', query: 'car OR automobile' },
+                              { label: 'NOT Excludes', query: '"video games" NOT teenagers' },
+                              { label: 'Complex Combination', query: '"animal cloning" AND jellyfish NOT sheep' }
+                            ].map((item) => (
+                              <button
+                                key={item.label}
+                                onClick={() => { setSeQueryInput(item.query); setSeStatus('IDLE'); setSeResult(null); }}
+                                className="px-2 py-0.5 border border-black bg-white font-bold uppercase text-[9px] hover:bg-black hover:text-white transition-colors cursor-pointer"
+                              >
+                                {item.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Search Box:</label>
+                          <input 
+                            type="text"
+                            value={seQueryInput}
+                            onChange={(e) => { setSeQueryInput(e.target.value); setSeStatus('IDLE'); setSeResult(null); }}
+                            placeholder="Enter keywords or Boolean logic (AND, OR, NOT)"
+                            className="w-full bg-white border border-black p-1 text-black font-bold focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Button trigger */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runSeEvaluation}
+                        disabled={seStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {seStatus === 'COMPUTING' ? 'COMPILING INDEX VECTOR...' : 'EXECUTE SEARCH'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Display */}
+                    {seStatus === 'SUCCESS' && seResult && (
+                      <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-4 transition-all animate-fadeIn text-left">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
+                          <h4 className="font-serif text-xl font-black uppercase text-black">SEARCH RESULTS</h4>
+                          <div className="flex items-center gap-4 font-mono text-xs font-bold text-black">
+                            <span>RELEVANCE: {seResult.relevanceScore}%</span>
+                            <span>TRACKERS BLOCKED: {seResult.trackersBlocked}</span>
+                          </div>
+                        </div>
+
+                        {/* Matching Documents List */}
+                        <div className="space-y-3">
+                          <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block">INDEXED DOCUMENTS FOUND ({seResult.matches.length}):</span>
+                          {seResult.matches.length > 0 ? (
+                            <div className="space-y-2">
+                              {seResult.matches.map((match, idx) => (
+                                <div key={idx} className="border-2 border-black p-3 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                                  <a href={match.url} target="_blank" rel="noopener noreferrer" className="font-serif text-sm font-bold text-blue-600 hover:underline block">
+                                    {match.title}
+                                  </a>
+                                  <span className="font-mono text-[8px] text-gray-400 block">{match.url}</span>
+                                  <p className="font-sans text-xs text-gray-600 mt-1">{match.desc}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="border border-black p-4 bg-white text-center italic text-xs text-gray-500">
+                              No matching document indexes found. Ensure Boolean operators (AND, OR, NOT) are CAPITALIZED and terms exist in the metadata corpus.
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Privacy Report */}
+                        <div className="border-2 border-black p-4 bg-white space-y-3 text-left">
+                          <span className="font-mono text-[9px] font-bold text-black uppercase block border-b border-black/10 pb-1">PRIVACY & SESSION INTEGRITY AUDIT</span>
+                          <div className="grid grid-cols-2 gap-4 text-xs font-mono">
+                            <div>
+                              <strong>Profiled Interest:</strong>
+                              <span className="block text-blue-600 font-bold uppercase mt-0.5">{seResult.profiledInterest}</span>
+                            </div>
+                            <div>
+                              <strong>Session History:</strong>
+                              <span className="block text-gray-700 font-bold uppercase mt-0.5">
+                                {seEngineSelect === 'google' ? 'Logged to Cloud' : 'Cleared on Close'}
+                              </span>
+                            </div>
+                          </div>
+                          <pre className="font-mono text-xs text-black leading-relaxed whitespace-pre-wrap font-bold bg-[#F3F4F6] p-3 border border-black/10">
+                            {seResult.privacyReport}
+                          </pre>
                         </div>
                       </div>
                     )}
