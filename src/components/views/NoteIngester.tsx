@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
-import { CheckCircle2, AlertTriangle, Database } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Database, Edit2, Check, X } from 'lucide-react';
 
 export function NoteIngester() {
   const subjects = useQuery(api.admin.listSubjects);
+  const notesList = useQuery(api.notesIngestion.listAllNotes);
+  
   const registerNoteMetadata = useMutation(api.notesIngestion.registerNoteMetadata);
+  const updateNote = useMutation(api.notesIngestion.updateNote);
 
-  // Form states
+  // Form states (Registration)
   const [title, setTitle] = useState('');
   const [classLevel, setClassLevel] = useState('Basic 9');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
@@ -18,6 +21,15 @@ export function NoteIngester() {
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [ingestedNoteId, setIngestedNoteId] = useState<string | null>(null);
+
+  // Editing states
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editClassLevel, setEditClassLevel] = useState('Basic 9');
+  const [editSubjectId, setEditSubjectId] = useState('');
+  const [editStaticLookupKey, setEditStaticLookupKey] = useState('');
+  const [editStatus, setEditStatus] = useState<'IDLE' | 'SAVING' | 'SYNCED'>('IDLE');
+  const [editError, setEditError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,13 +68,59 @@ export function NoteIngester() {
     }
   };
 
+  const handleStartEdit = (note: any) => {
+    setEditingNoteId(note._id);
+    setEditTitle(note.title);
+    setEditClassLevel(note.classLevel);
+    setEditSubjectId(note.subjectId);
+    setEditStaticLookupKey(note.staticLookupKey);
+    setEditStatus('IDLE');
+    setEditError('');
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingNoteId) return;
+
+    if (!editTitle.trim()) {
+      setEditError('ERROR: TITLE REQUIRED');
+      return;
+    }
+    if (!editSubjectId) {
+      setEditError('ERROR: SUBJECT REQUIRED');
+      return;
+    }
+    if (!editStaticLookupKey.trim()) {
+      setEditError('ERROR: LOOKUP KEY REQUIRED');
+      return;
+    }
+
+    setEditStatus('SAVING');
+    try {
+      await updateNote({
+        id: editingNoteId as Id<"notes">,
+        title: editTitle.trim(),
+        classLevel: editClassLevel,
+        subjectId: editSubjectId as Id<"subjects">,
+        staticLookupKey: editStaticLookupKey.trim(),
+      });
+      setEditStatus('SYNCED');
+      setTimeout(() => {
+        setEditingNoteId(null);
+      }, 600);
+    } catch (err: any) {
+      setEditStatus('IDLE');
+      setEditError(err.message || 'UPDATE FAILURE');
+    }
+  };
+
   return (
-    <div className="w-full max-w-2xl bg-white border-4 border-black p-6 md:p-8 shadow-[8px_8px_0_0_rgba(0,0,0,1)] relative select-none">
+    <div className="w-full max-w-3xl bg-white border-4 border-black p-6 md:p-8 shadow-[8px_8px_0_0_rgba(0,0,0,1)] relative select-none space-y-10">
       <div className="absolute -top-4 -left-4 bg-[#FF3B30] border-2 border-black px-2 py-1 font-mono text-[9px] font-bold text-white uppercase tracking-wider">
         METADATA_REGISTRY
       </div>
 
-      <div className="border-b-4 border-black pb-4 mb-6">
+      <div className="border-b-4 border-black pb-4">
         <h2 className="font-serif text-2xl md:text-3xl font-black uppercase tracking-tight text-black">
           LESSON METADATA REGISTRY
         </h2>
@@ -199,6 +257,155 @@ export function NoteIngester() {
           </button>
         </form>
       )}
+
+      {/* Ingested Notes List and Editor Section */}
+      <div className="space-y-6 border-t-4 border-black pt-8">
+        <div className="text-left">
+          <h3 className="font-serif text-xl md:text-2xl font-black uppercase text-black">
+            INGESTED CURRICULUM NODES
+          </h3>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500 mt-1">
+            Real-Time Active Database Streams
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {notesList === undefined ? (
+            <div className="font-mono text-xs font-bold uppercase text-gray-400 p-4 border-2 border-dashed border-black/30">
+              STREAMING ACTIVE NOTES...
+            </div>
+          ) : notesList.length === 0 ? (
+            <div className="font-mono text-xs font-bold uppercase text-gray-400 p-4 border-2 border-dashed border-black/30">
+              NO ACTIVE LESSON METADATA DETECTED
+            </div>
+          ) : (
+            notesList.map((note) => {
+              const isNoteEditing = editingNoteId === note._id;
+              const mappedSubject = subjects?.find(s => s._id === note.subjectId);
+
+              return (
+                <div 
+                  key={note._id}
+                  className="border-4 border-black bg-white p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col gap-4 text-left transition-all"
+                >
+                  {isNoteEditing ? (
+                    /* Inline Editing Mode Form */
+                    <form onSubmit={handleSaveEdit} className="space-y-4 w-full">
+                      <div className="flex flex-col space-y-1">
+                        <label className="font-mono text-[9px] font-bold text-gray-500 uppercase">TITLE //</label>
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          className="rounded-none border-2 border-black bg-white p-2.5 font-mono text-xs font-bold uppercase focus:outline-none focus:bg-[#FFF3C4]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex flex-col space-y-1">
+                          <label className="font-mono text-[9px] font-bold text-gray-500 uppercase">CURRICULUM LEVEL //</label>
+                          <select
+                            value={editClassLevel}
+                            onChange={(e) => setEditClassLevel(e.target.value)}
+                            className="rounded-none border-2 border-black bg-white p-2.5 font-mono text-xs font-bold uppercase focus:outline-none focus:bg-[#FFF3C4]"
+                          >
+                            <option value="Basic 7">Basic 7</option>
+                            <option value="Basic 8">Basic 8</option>
+                            <option value="Basic 9">Basic 9</option>
+                          </select>
+                        </div>
+
+                        <div className="flex flex-col space-y-1">
+                          <label className="font-mono text-[9px] font-bold text-gray-500 uppercase">MAP TO SUBJECT //</label>
+                          <select
+                            value={editSubjectId}
+                            onChange={(e) => setEditSubjectId(e.target.value)}
+                            className="rounded-none border-2 border-black bg-white p-2.5 font-mono text-xs font-bold uppercase focus:outline-none focus:bg-[#FFF3C4]"
+                          >
+                            <option value="">SELECT SUBJECT</option>
+                            {subjects?.map((sub) => (
+                              <option key={sub._id} value={sub._id}>
+                                {sub.code} - {sub.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col space-y-1">
+                        <label className="font-mono text-[9px] font-bold text-gray-500 uppercase">LOCAL DATA KEY MATCH //</label>
+                        <input
+                          type="text"
+                          value={editStaticLookupKey}
+                          onChange={(e) => setEditStaticLookupKey(e.target.value)}
+                          className="rounded-none border-2 border-black bg-white p-2.5 font-mono text-xs font-bold uppercase focus:outline-none focus:bg-[#FFF3C4]"
+                        />
+                      </div>
+
+                      {editError && (
+                        <div className="bg-[#FF3B30] text-black border-2 border-black p-2 font-mono text-[9px] font-bold uppercase tracking-wide">
+                          {editError}
+                        </div>
+                      )}
+
+                      <div className="flex gap-2 justify-end pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setEditingNoteId(null)}
+                          className="px-3 py-1.5 border-2 border-black bg-white text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:bg-gray-100 cursor-pointer"
+                        >
+                          <X size={12} />
+                          <span>CANCEL</span>
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={editStatus === 'SAVING'}
+                          className="px-3 py-1.5 border-2 border-black bg-[#00FF88] text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] cursor-pointer disabled:opacity-50"
+                        >
+                          <Check size={12} />
+                          <span>{editStatus === 'SAVING' ? 'SAVING...' : editStatus === 'SYNCED' ? 'SYNCED' : 'SAVE SYNC'}</span>
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    /* Static Display Mode */
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[8px] font-bold bg-[#FFD833] border border-black px-1.5 py-0.5 text-black">
+                            {note.classLevel}
+                          </span>
+                          <span className="font-mono text-[8px] font-bold bg-[#C4B5FD] border border-black px-1.5 py-0.5 text-black uppercase">
+                            KEY: {note.staticLookupKey}
+                          </span>
+                        </div>
+                        <h4 className="font-serif text-lg font-black text-black uppercase leading-tight mt-1">
+                          {note.title}
+                        </h4>
+                        <p className="font-mono text-[8px] text-gray-400">
+                          SUBJECT: {mappedSubject ? `${mappedSubject.code} (${mappedSubject.name.toUpperCase()})` : 'UNKNOWN NODE'}
+                        </p>
+                      </div>
+
+                      <div className="flex-shrink-0 self-end md:self-center">
+                        <button
+                          type="button"
+                          onClick={() => handleStartEdit(note)}
+                          className="px-3 py-1.5 border-2 border-black bg-[#38BDF8] text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] cursor-pointer"
+                        >
+                          <Edit2 size={12} />
+                          <span>EDIT NOTE</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+

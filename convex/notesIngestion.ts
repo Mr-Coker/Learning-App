@@ -49,3 +49,25 @@ export const registerNoteMetadata = mutation({
     return noteId;
   },
 });
+
+export const listAllNotes = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("notes").collect();
+  },
+});
+
+export const updateNote = mutation({
+  args: {
+    id: v.id("notes"),
+    title: v.string(),
+    classLevel: v.string(),
+    subjectId: v.id("subjects"),
+    staticLookupKey: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    await ctx.db.patch(id, updates);
+    return id;
+  },
+});
