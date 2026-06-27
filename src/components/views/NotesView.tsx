@@ -9,7 +9,8 @@ import {
   Layers,
   Search,
   ListOrdered,
-  BrainCircuit
+  BrainCircuit,
+  ShoppingBag
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -132,6 +133,21 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     predictedLabel: string;
     neuralStatus: string;
     holoIntegrity: string;
+  } | null>(null);
+
+  // Animal Production Simulator State
+  const [apLivestockType, setApLivestockType] = useState<string>('layers'); // broilers, layers, ruminants, pigs
+  const [apCarbsRatio, setApCarbsRatio] = useState<number>(40); // % carbs
+  const [apProteinRatio, setApProteinRatio] = useState<number>(30); // % protein
+  const [apRoughageRatio, setApRoughageRatio] = useState<number>(20); // % roughage
+  const [apSupplementRatio, setApSupplementRatio] = useState<number>(10); // % supplements
+  const [apWaterOption, setApWaterOption] = useState<string>('sufficient'); // sufficient, inadequate, dehydrated
+  const [apStatus, setApStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [apReport, setApReport] = useState<{
+    nutritionalValue: number;
+    healthOutcome: string;
+    dehydrationRisk: string;
+    deficiencies: string[];
   } | null>(null);
 
   const getCellsInRange = (rangeStr: string): string[] => {
@@ -698,6 +714,73 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     }, 1200);
   };
 
+  const runApEvaluation = () => {
+    setApStatus('COMPUTING');
+    setTimeout(() => {
+      let nutritionalValue = 100;
+      let healthOutcome = "Excellent Growth & Yield";
+      let dehydrationRisk = "None";
+      let deficiencies: string[] = [];
+
+      const totalRatio = apCarbsRatio + apProteinRatio + apRoughageRatio + apSupplementRatio;
+      
+      // Verification of feed totals
+      if (totalRatio !== 100) {
+        nutritionalValue -= Math.abs(100 - totalRatio);
+        deficiencies.push(`Feed composition ratio does not equal 100% (Current total: ${totalRatio}%). Ensure feed values align properly.`);
+      }
+
+      // Check livestock type rules
+      if (apLivestockType === 'layers') {
+        if (apSupplementRatio < 15) {
+          nutritionalValue -= 20;
+          deficiencies.push("Calcium / Mineral deficiency: Laying hens require higher supplement rations (min 15%) for robust eggshell synthesis.");
+        }
+        if (apProteinRatio < 20) {
+          nutritionalValue -= 15;
+          deficiencies.push("Protein deficiency: Laying hens need at least 20% protein to support steady egg production.");
+        }
+      } else if (apLivestockType === 'ruminants') {
+        if (apRoughageRatio < 40) {
+          nutritionalValue -= 30;
+          deficiencies.push("Fiber deficiency: Ruminants (goats, sheep, cattle) require a high fiber diet (min 40% roughage/pasture/hay) for proper stomach fermentation.");
+        }
+      } else if (apLivestockType === 'broilers') {
+        if (apProteinRatio < 25) {
+          nutritionalValue -= 20;
+          deficiencies.push("Protein deficiency: Growing broiler chickens require elevated protein levels (min 25%) to build meat tissue rapidly.");
+        }
+      }
+
+      // Water condition checks
+      if (apWaterOption === 'dehydrated') {
+        nutritionalValue = Math.max(0, nutritionalValue - 50);
+        dehydrationRisk = "CRITICAL DEHYDRATION";
+        healthOutcome = "Severe dehydration. Metabolism and waste excretion systems have stalled. High mortality risk.";
+      } else if (apWaterOption === 'inadequate') {
+        nutritionalValue = Math.max(10, nutritionalValue - 20);
+        dehydrationRisk = "MODERATE RISK";
+        healthOutcome = "Livestock looks weak, thin, and displays drop in egg/milk yield due to inadequate fluid levels.";
+      } else {
+        dehydrationRisk = "None (Safe)";
+      }
+
+      if (nutritionalValue >= 85 && apWaterOption === 'sufficient') {
+        healthOutcome = "Ideal feeding & hydration balance. Farm animals are healthy, growing, and achieving maximum yield/profit.";
+      } else if (nutritionalValue >= 60 && apWaterOption === 'sufficient') {
+        healthOutcome = "Suboptimal performance. Review feed composition to address minor nutritional gaps.";
+      }
+
+      setApReport({
+        nutritionalValue: Math.max(0, nutritionalValue),
+        healthOutcome,
+        dehydrationRisk,
+        deficiencies
+      });
+      setApStatus('SUCCESS');
+    }, 1200);
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -865,6 +948,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "ai-strong-weak", label: "IV. Strong vs. Weak AI" },
         { id: "ai-hologram", label: "V. Holograms & MR" },
         { id: "ai-interactive", label: "VI. Neural Sandbox" }
+      ]
+    : noteData?.staticLookupKey === 'animal-production-basics'
+    ? [
+        { id: "ap-definition", label: "I. Feed Definitions" },
+        { id: "ap-feed-class", label: "II. Feed Classification" },
+        { id: "ap-nutrients", label: "III. Nutrient Components" },
+        { id: "ap-usefulness", label: "IV. Importance of Water" },
+        { id: "ap-proportions", label: "V. Ration Proportions" },
+        { id: "ap-interactive", label: "VI. Feed Calculator" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -3640,6 +3732,333 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             </div>
                           </div>
                         </div>
+
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'animal-production-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE ANIMAL PRODUCTION NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="ap-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_10 // LIVESTOCK PRODUCTION & NUTRIENT RATIONS
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Animal Nutrition & Feeding
+                  </h1>
+                </div>
+
+                {/* Section 1: Feed Definitions */}
+                <div className="space-y-4" id="ap-definition">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. Introduction to Animal Feeding and Commercial Animals
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Commercial livestock rearing requires farmers to understand feed schedules and correct ration formulations to achieve optimal economic returns.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div className="border border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-1">Commercial Animals</strong>
+                      <p className="font-sans text-xs text-gray-600">Animals reared for business profit, including cattle, swine, fish, goats, fowl, and turkeys.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-1">Animal Feed</strong>
+                      <p className="font-sans text-xs text-gray-600">Food mixes prepared by breeders to supply energy, support immune defense, and build body size.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-xs font-black uppercase text-black block mb-1">Daily Ration</strong>
+                      <p className="font-sans text-xs text-gray-600">The total weight of food allocated to an animal over a 24-hour window to satisfy nutrition needs.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Feed Classification */}
+                <div className="space-y-4 pt-6" id="ap-feed-class">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Classification of Animal Feed
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Animal feed is grouped into four distinct categories based on fiber density, digestibility, and starchy content:
+                  </p>
+
+                  <div className="space-y-3 font-semibold text-xs text-black leading-relaxed">
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Basal Feed (Energy Feed):</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Starchy grains and tubers high in carbohydrates but low in proteins. Fed to both ruminants and monogastrics (e.g. corn, millet, wheat, cassava).</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Concentrates:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Highly digestible mixes rich in proteins, vitamins, and minerals but low in fiber. Usually fed to pigs and chickens (e.g. fish meal, soybean cake, oyster shells).</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Roughages:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Bulky feedstuffs rich in cellulose and fiber, difficult for monogastrics to digest. Primarily fed to ruminants (e.g. fresh green grass pasture, silage, hay, straws).</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Supplements:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Concentrated additives supplied to complete mineral/vitamin shortages (e.g. salt licks, bone meal, cottonseed cakes).</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Nutrient Components */}
+                <div className="space-y-4 pt-6" id="ap-nutrients">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Major Nutrients in Animal Feeds
+                  </h2>
+                  
+                  <div className="overflow-x-auto border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                    <table className="w-full text-left font-mono text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-black text-white">
+                          <th className="p-3 border border-black uppercase font-bold">Nutrient</th>
+                          <th className="p-3 border border-black uppercase font-bold">Main Functions</th>
+                          <th className="p-3 border border-black uppercase font-bold">Common Sources</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white text-black font-semibold">
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Carbohydrates</td>
+                          <td className="p-3 border border-black">Provides energy; fat conversion.</td>
+                          <td className="p-3 border border-black">Cereals, tubers, wheat bran.</td>
+                        </tr>
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Proteins</td>
+                          <td className="p-3 border border-black text-green-600">Growth, tissue repair, meat/egg synthesis.</td>
+                          <td className="p-3 border border-black">Fish meal, copra, palm kernel cake.</td>
+                        </tr>
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Fats & Oils</td>
+                          <td className="p-3 border border-black">Supplies 2x energy of carbs; retains heat.</td>
+                          <td className="p-3 border border-black">Groundnut cake, palm oil.</td>
+                        </tr>
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Minerals</td>
+                          <td className="p-3 border border-black">Skeletal formation, body fluid pH balance.</td>
+                          <td className="p-3 border border-black">Salt licks, oyster shell meal.</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Vitamins</td>
+                          <td className="p-3 border border-black text-green-600">Promotes metabolic enzymes & immune health.</td>
+                          <td className="p-3 border border-black">Vegetables, grasses, yellow corn.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Section 4: Importance of Feed and Water */}
+                <div className="space-y-4 pt-6" id="ap-usefulness">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    4. Usefulness of Feed & Water
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Water is an essential body constituent representing over half of an animal's mass. Proper watering:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border border-black p-5 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">IMPORTANCE OF BALANCED FEED</h4>
+                      <ul className="list-disc pl-4 space-y-1 text-xs text-gray-700 font-sans text-left">
+                        <li>Fosters muscle expansion and tissue building.</li>
+                        <li>Equips bodily systems to synthesize disease-fighting antibodies.</li>
+                        <li>Boosts egg weight, wool density, and meat volumes to secure farmer profits.</li>
+                      </ul>
+                    </div>
+                    <div className="border border-black p-5 bg-[#38BDF8] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">IMPORTANCE OF WATER RATIONS</h4>
+                      <ul className="list-disc pl-4 space-y-1 text-xs text-black/80 font-sans text-left">
+                        <li>Solubilizes nutrients for simple assimilation in blood streams.</li>
+                        <li>Redistributes inner heat through skin evaporation to regulate temperature.</li>
+                        <li>Transports toxic metabolic wastes through urine and sweat excretion.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 5: Ration Proportions */}
+                <div className="space-y-4 pt-6" id="ap-proportions">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    5. Proportional Feed Requirements
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Ration content must change dynamically according to livestock breed, age, and purpose:
+                  </p>
+
+                  <div className="border border-black p-4 bg-[#FFD833] text-left font-sans text-xs leading-relaxed font-bold">
+                    Pregnant / Lactating Animals need extra calcium and protein for progeny development. Laying hens need significantly more minerals (oyster shell licks) than broiler chickens to generate robust eggshells and avoid shell fractures.
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Feed Calculator */}
+                <div className="space-y-6 pt-6 text-left" id="ap-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <ShoppingBag size={22} />
+                        6. Livestock Ration Builder & Hydration Sandbox
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Adjust macronutrient percentages and select a water supply options to formulate a balanced 24-hour feed ration
+                      </p>
+                    </div>
+
+                    {/* Simulation Parameters Deck */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+                      {/* Ration Config */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">A. DIET FORMULATION RATIO</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Target Livestock:</label>
+                          <select 
+                            value={apLivestockType} 
+                            onChange={(e) => { setApLivestockType(e.target.value); setApStatus('IDLE'); setApReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="layers">Laying Hens (Egg Production)</option>
+                            <option value="broilers">Broiler Chickens (Meat Yield)</option>
+                            <option value="ruminants">Goats / Sheep (Ruminant Digestion)</option>
+                            <option value="pigs">Growing Pigs (Monogastric omnivore)</option>
+                          </select>
+                        </div>
+
+                        {/* Carb slider */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between font-bold">
+                            <span>Basal / Carbohydrates (Maize):</span>
+                            <span>{apCarbsRatio}%</span>
+                          </div>
+                          <input 
+                            type="range" min="0" max="100" 
+                            value={apCarbsRatio} 
+                            onChange={(e) => { setApCarbsRatio(parseInt(e.target.value)); setApStatus('IDLE'); setApReport(null); }}
+                            className="w-full accent-black cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Protein slider */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between font-bold">
+                            <span>Concentrates / Proteins (Fish Meal):</span>
+                            <span>{apProteinRatio}%</span>
+                          </div>
+                          <input 
+                            type="range" min="0" max="100" 
+                            value={apProteinRatio} 
+                            onChange={(e) => { setApProteinRatio(parseInt(e.target.value)); setApStatus('IDLE'); setApReport(null); }}
+                            className="w-full accent-black cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Roughages slider */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between font-bold">
+                            <span>Roughage / Fibers (Hay/Pasture):</span>
+                            <span>{apRoughageRatio}%</span>
+                          </div>
+                          <input 
+                            type="range" min="0" max="100" 
+                            value={apRoughageRatio} 
+                            onChange={(e) => { setApRoughageRatio(parseInt(e.target.value)); setApStatus('IDLE'); setApReport(null); }}
+                            className="w-full accent-black cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Supplements slider */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between font-bold">
+                            <span>Supplements (Oyster Shells):</span>
+                            <span>{apSupplementRatio}%</span>
+                          </div>
+                          <input 
+                            type="range" min="0" max="100" 
+                            value={apSupplementRatio} 
+                            onChange={(e) => { setApSupplementRatio(parseInt(e.target.value)); setApStatus('IDLE'); setApReport(null); }}
+                            className="w-full accent-black cursor-pointer"
+                          />
+                        </div>
+
+                        <div className="text-center font-bold text-gray-700 bg-white p-2 border border-black/10">
+                          Total Ration Mix: {apCarbsRatio + apProteinRatio + apRoughageRatio + apSupplementRatio}%
+                        </div>
+                      </div>
+
+                      {/* Water Setup */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">B. HYDRATION SUPPLY</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Water Options:</label>
+                          <select 
+                            value={apWaterOption} 
+                            onChange={(e) => { setApWaterOption(e.target.value); setApStatus('IDLE'); setApReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="sufficient">Sufficient (Clean River/Pipe water)</option>
+                            <option value="inadequate">Inadequate (Stale stream water)</option>
+                            <option value="dehydrated">Dehydrated (Dry troughs)</option>
+                          </select>
+                        </div>
+
+                        <div className="border border-black p-3 bg-white space-y-1 font-sans text-xs text-left">
+                          <strong>Digestive Solvent Function:</strong>
+                          <p className="text-gray-600">Water regulates metabolic systems, facilitates waste excretion, and promotes nutrient absorption in blood streams.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Button trigger */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runApEvaluation}
+                        disabled={apStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {apStatus === 'COMPUTING' ? 'COMPUTING RATION ANALYSIS...' : 'VERIFY FEED & WATER RATION'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Display */}
+                    {apStatus === 'SUCCESS' && apReport && (
+                      <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-6 transition-all animate-fadeIn text-left text-xs font-mono">
+                        
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
+                          <h4 className="font-serif text-lg font-black uppercase text-black">NUTRITIONAL YIELD AUDIT</h4>
+                          <div className="flex items-center gap-4 font-mono text-xs font-bold text-black">
+                            <span>INDEX: {apReport.nutritionalValue}/100</span>
+                            <span>HYDRATION: <span className={apReport.dehydrationRisk.includes('CRITICAL') ? 'text-red-600' : 'text-green-600'}>{apReport.dehydrationRisk}</span></span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 font-mono text-xs text-left">
+                          <div>
+                            <strong>Physical Health Outcome:</strong>
+                            <p className="font-sans text-xs text-black font-bold bg-white p-3 border-2 border-black mt-1 leading-relaxed text-left">{apReport.healthOutcome}</p>
+                          </div>
+                        </div>
+
+                        {/* Deficiencies warning */}
+                        {apReport.deficiencies.length > 0 && (
+                          <div className="border-2 border-black p-4 bg-white space-y-2 text-left">
+                            <span className="font-mono text-[9px] font-bold text-red-600 uppercase block border-b border-black/10 pb-1 text-left">DEFICIENCIES DETECTED</span>
+                            <ul className="list-disc pl-4 space-y-1 text-xs text-gray-700 font-sans text-left">
+                              {apReport.deficiencies.map((d, i) => (
+                                <li key={i}>{d}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
 
                       </div>
                     )}

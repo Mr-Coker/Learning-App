@@ -729,6 +729,62 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "APPLICATIONS OF HOLOGRAPHY:\n• Medical: Immersive 3D modeling of internal organs for surgery preparation.\n• Art & Entertainment: Live concert performances with virtual entertainers.\n• Security: Anti-counterfeit markings on credit cards and official paper currency.\n• Data Storage: Recording binary data in 3D space to maximize storage densities."
       }
     ]
+  },
+  {
+    id: "animal-production-basics",
+    title: "Animal Production: Feeding and Nutrition",
+    classLevel: "Basic 9",
+    subjectCode: "SCI-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Commercial animal production relies heavily on proper feeding regimens, balanced rations, and continuous hydration. Proper feed classification ensures livestock receive targeted nutrients for growth and maximum yield."
+      },
+      {
+        type: "challenge_callout",
+        body: "CORE DEFINITIONS:\n• Commercial Animals: Livestock reared for economic benefits (e.g. cattle, poultry, pigs, rabbits, sheep).\n• Animal Feed: Food given to animals for energy, tissue growth, reproduction, and disease defense.\n• Ration: Total quantity of feed administered to an animal within a 24-hour period."
+      },
+      {
+        type: "text",
+        body: "Classification of Animal Feed:"
+      },
+      {
+        type: "bullet_point",
+        body: "Basal Feed (Energy Feed): Starchy feeds high in carbohydrates (guinea corn, maize, wheat, cassava) given to monogastrics and ruminants."
+      },
+      {
+        type: "bullet_point",
+        body: "Concentrates: Highly digestible feeds rich in proteins and minerals but low in fiber (fish meal, bone meal, soy meal)."
+      },
+      {
+        type: "bullet_point",
+        body: "Roughages: High-fiber bulky feeds (green pasture, hay, silage, wheat bran) primarily fed to ruminants."
+      },
+      {
+        type: "bullet_point",
+        body: "Supplements: Nutrient-dense additives (salt licks, oyster shell meal) used to supply minerals and vitamins lacking in the primary diet."
+      },
+      {
+        type: "challenge_callout",
+        body: "MAJOR NUTRIENTS & FUNCTIONS:\n• Carbohydrates & Fats: Primary sources of energy. Fats provide twice the energy of carbs and maintain body temperature.\n• Proteins: Essential for muscle growth, tissue repair, meat/milk/egg synthesis, and reproductive cell formation.\n• Minerals & Vitamins: Regulate pH/osmotic pressure, build bone, and support immune functions.\n• Water: Vital solvent for temperature regulation, waste excretion, and biochemical metabolism."
+      },
+      {
+        type: "text",
+        body: "Ration Requirements & Water Inadequacy:"
+      },
+      {
+        type: "bullet_point",
+        body: "Proportional Needs: Pregnant, lactating, or heavy labor animals require elevated calcium, proteins, and minerals."
+      },
+      {
+        type: "bullet_point",
+        body: "Poultry Variations: Laying hens need significantly higher calcium and fats compared to broilers to support strong eggshells."
+      },
+      {
+        type: "bullet_point",
+        body: "Water Inadequacy: Dehydration results in metabolic failure, muscle emaciation, drop in milk/egg yields, and eventual mortality."
+      }
+    ]
   }
 ];
 
