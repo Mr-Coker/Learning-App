@@ -193,5 +193,165 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "Safety Risks: Physical hazards, such as robots built with sharp edges, can cause severe harm or lacerations to young children, discouraging them from using the technology."
       }
     ]
+  },
+  {
+    id: "intro-spreadsheets",
+    title: "Introduction to Spreadsheets",
+    classLevel: "",
+    subjectCode: "",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Core Definitions"
+      },
+      {
+        type: "text",
+        body: "A spreadsheet is a digital file made of rows and columns that help sort, organize, and arrange data efficiently, as well as calculate numerical data."
+      },
+      {
+        type: "challenge_callout",
+        body: "What makes it unique? Its distinct ability to calculate values using mathematical formulas and the data stored inside cells."
+      },
+      {
+        type: "bullet_point",
+        body: "Common Examples: Microsoft Excel, Google Sheets, VisiCalc, iWork Numbers, Lotus 1-2-3, LibreOffice, and OpenOffice."
+      },
+      {
+        type: "text",
+        body: "Common Uses"
+      },
+      {
+        type: "bullet_point",
+        body: "Finance: Managing financial data like budgets, bank accounts, taxes, invoices, receipts, billing, and financial forecasting."
+      },
+      {
+        type: "bullet_point",
+        body: "School and Grades: Track students' scores, calculate grades, and identify missing tests or struggling students."
+      },
+      {
+        type: "bullet_point",
+        body: "Sports: Track statistics for individual favorite players or an entire team."
+      },
+      {
+        type: "bullet_point",
+        body: "Forms: Templates to handle business inventory, performance evaluations, quizzes, and tracking time."
+      },
+      {
+        type: "bullet_point",
+        body: "Figures: Build or draw visual representations like graphs, pie charts, and bar charts."
+      },
+      {
+        type: "text",
+        body: "Interface Navigation Tabs"
+      },
+      {
+        type: "text",
+        body: "Understanding the workspace is essential to navigating a spreadsheet. Here are the main navigation tabs in MS-Excel:"
+      },
+      {
+        type: "bullet_point",
+        body: "Home: Font size, style, color, background color, alignment, cell formatting styles, insertion/deletion tools, editing options."
+      },
+      {
+        type: "bullet_point",
+        body: "Insert: Options for adding charts/graphs, sparklines, images, figures, headers, footers, equations/symbols."
+      },
+      {
+        type: "bullet_point",
+        body: "Page Layout: Worksheet themes, page orientation, and margins."
+      },
+      {
+        type: "bullet_point",
+        body: "Formulas: Complex math formulas for faster calculation results."
+      },
+      {
+        type: "bullet_point",
+        body: "Data: Importing external data, filtering columns, validating data."
+      },
+      {
+        type: "bullet_point",
+        body: "Review: Proofread sheets, spell-check, leave comments."
+      },
+      {
+        type: "bullet_point",
+        body: "View: Window arrangement options, zoom controls."
+      },
+      {
+        type: "text",
+        body: "Layout Components"
+      },
+      {
+        type: "bullet_point",
+        body: "Workbook: The entire file itself containing one or more individual worksheets."
+      },
+      {
+        type: "bullet_point",
+        body: "Worksheet (Spreadsheet): A grid of columns and rows where you enter and calculate data."
+      },
+      {
+        type: "bullet_point",
+        body: "Columns: Vertical lines labeled with letters starting from A to Z, continuing to AA, AB up to XFD."
+      },
+      {
+        type: "bullet_point",
+        body: "Rows: Horizontal lines numbered sequentially from 1 up to 1,048,576."
+      },
+      {
+        type: "bullet_point",
+        body: "Name Box: Displays the exact coordinate (cell address) sits to the left of the formula bar."
+      },
+      {
+        type: "bullet_point",
+        body: "Formula Bar: Shows raw contents or formulas allowing direct editing."
+      },
+      {
+        type: "bullet_point",
+        body: "Sheet Tab: Found at the bottom to add, delete, move, or rename sheets."
+      },
+      {
+        type: "bullet_point",
+        body: "Status Bar: Located at the absolute bottom showing active modes and zoom options."
+      },
+      {
+        type: "text",
+        body: "Cell Operations"
+      },
+      {
+        type: "bullet_point",
+        body: "Cell: Tiny rectangles formed where a row and column intersect."
+      },
+      {
+        type: "bullet_point",
+        body: "Cell Address / Reference: Coordinate name (e.g., column C and row 5 intersect at cell C5)."
+      },
+      {
+        type: "bullet_point",
+        body: "Active Cell: Highlighted by a bold border featuring a fill handle in its bottom-right corner."
+      },
+      {
+        type: "bullet_point",
+        body: "Cell Range: A group of adjacent cells separated by a colon (e.g., A1:A5)."
+      },
+      {
+        type: "bullet_point",
+        body: "Valid Data Types: Text, Formatting, Formulas & Functions."
+      },
+      {
+        type: "text",
+        body: "Step-by-Step Worksheet Editing Actions"
+      },
+      {
+        type: "bullet_point",
+        body: "Selecting Items: Single cell (Left-click once); Range (Click and drag cursor)."
+      },
+      {
+        type: "challenge_callout",
+        body: "Deleting Content vs Deleting Cells: Clearing Content leaves cell empty via Clear Contents; Deleting Cells completely removes the physical space causing surrounding cells to shift."
+      },
+      {
+        type: "bullet_point",
+        body: "Copy/Paste vs Cut/Paste: Copy/Paste duplicates data (Ctrl+C to Ctrl+V); Cut/Paste completely relocates information (Ctrl+X to Ctrl+V)."
+      }
+    ]
   }
 ];
