@@ -785,6 +785,58 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "Water Inadequacy: Dehydration results in metabolic failure, muscle emaciation, drop in milk/egg yields, and eventual mortality."
       }
     ]
+  },
+  {
+    id: "energy-conversion-basics",
+    title: "Energy Conversion and Conservation",
+    classLevel: "Basic 9",
+    subjectCode: "SCI-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Energy is defined as the capacity to do work, measured in Joules (J). The Law of Conservation of Energy dictates that energy cannot be created or destroyed, but only converted from one form to another."
+      },
+      {
+        type: "challenge_callout",
+        body: "RENEWABLE VS NON-RENEWABLE:\n• Renewable Sources: Naturally replenished over short periods, inexhaustible, and clean (Solar, Wind, Hydro, Geothermal, Tidal).\n• Non-Renewable Sources: Exhaustible resources taking millions of years to accumulate (Fossil Fuels: Coal/Oil/Gas, Firewood, Uranium/Nuclear)."
+      },
+      {
+        type: "text",
+        body: "Energy Transformation Mechanics:"
+      },
+      {
+        type: "bullet_point",
+        body: "Hydroelectric Power: Water stored behind dams converts potential energy to kinetic energy, spinning turbines (mechanical) and generators (electrical). Example: Akosombo and Bui Dams in Ghana."
+      },
+      {
+        type: "bullet_point",
+        body: "Solar Photons: Light packets (photons) from the sun interact with semiconductor panels to directly induce electrical current."
+      },
+      {
+        type: "bullet_point",
+        body: "Geothermal Heat: Water is pumped deep into hot underground rocks to create steam, driving surface electricity generators."
+      },
+      {
+        type: "bullet_point",
+        body: "Fossil Fuel Combustion: Chemical bonds in coal/gas release thermal energy upon burning to heat water into steam, rotating electricity generator turbines."
+      },
+      {
+        type: "challenge_callout",
+        body: "MANAGEMENT CHALLENGES:\n• Solar: High upfront installation cost, weather dependency, ineffective at night.\n• Wind: Demands large land areas, noise pollution, inconsistent wind speeds.\n• Hydropower: High dam construction cost, severe vulnerability to droughts/low rainfall, flooding risks."
+      },
+      {
+        type: "text",
+        body: "Heat vs. Temperature:"
+      },
+      {
+        type: "bullet_point",
+        body: "Heat: A form of thermal energy actively transferring between regions due to a temperature gradient. Measured in Joules (J) using a calorimeter."
+      },
+      {
+        type: "bullet_point",
+        body: "Temperature: A measure of the degree of hotness or coldness of a body. Measured in degrees Celsius (°C), Kelvin (K), or Fahrenheit (°F) using a thermometer."
+      }
+    ]
   }
 ];
 

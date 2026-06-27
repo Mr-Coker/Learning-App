@@ -150,6 +150,22 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     deficiencies: string[];
   } | null>(null);
 
+  // Energy Conversion Simulator State
+  const [ecSource, setEcSource] = useState<string>('hydro'); // hydro, solar, wind, geo, fossil, nuclear
+  const [ecSourceAvailability, setEcSourceAvailability] = useState<number>(80); // 0 to 100%
+  const [ecGridLoad, setEcGridLoad] = useState<number>(100); // 50, 100, 150 MW
+  const [ecHeatInput, setEcHeatInput] = useState<number>(500); // Joules
+  const [ecStatus, setEcStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [ecReport, setEcReport] = useState<{
+    powerGenerated: number;
+    efficiency: number;
+    co2Emissions: number;
+    flowChart: string;
+    gridStability: string;
+    temperatureRise: number;
+    calorimeterFeedback: string;
+  } | null>(null);
+
   const getCellsInRange = (rangeStr: string): string[] => {
     const parts = rangeStr.split(':');
     if (parts.length !== 2) return [rangeStr];
@@ -781,6 +797,71 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     }, 1200);
   };
 
+  const runEcEvaluation = () => {
+    setEcStatus('COMPUTING');
+    setTimeout(() => {
+      let maxCapacity = 100; // MW
+      let baseEfficiency = 40; // %
+      let co2Emissions = 0; // Metric Tons per day
+      let flowChart = "Potential -> Kinetic -> Mechanical -> Electrical";
+      let gridStability = "Stable";
+
+      if (ecSource === 'hydro') {
+        maxCapacity = 160;
+        baseEfficiency = 85;
+        flowChart = "Potential Energy (Dam) -> Kinetic Energy (Flow) -> Mechanical (Turbine) -> Electrical (Generator)";
+      } else if (ecSource === 'solar') {
+        maxCapacity = 50;
+        baseEfficiency = 20;
+        flowChart = "Solar Photons -> Direct Electric Current (Semiconductor Photovoltaic Cell)";
+      } else if (ecSource === 'wind') {
+        maxCapacity = 80;
+        baseEfficiency = 45;
+        flowChart = "Kinetic Energy (Wind) -> Mechanical (Turbine Rotation) -> Electrical (Dynamo Generator)";
+      } else if (ecSource === 'geo') {
+        maxCapacity = 120;
+        baseEfficiency = 65;
+        flowChart = "Thermal Heat (Hot Core Rocks) -> Kinetic (Steam Pressure) -> Mechanical (Turbine) -> Electrical (Generator)";
+      } else if (ecSource === 'fossil') {
+        maxCapacity = 200;
+        baseEfficiency = 38;
+        co2Emissions = 450;
+        flowChart = "Chemical Energy (Fossil Bonds) -> Thermal Heat (Boiler Combustion) -> Kinetic (Steam) -> Mechanical (Turbine) -> Electrical";
+      } else if (ecSource === 'nuclear') {
+        maxCapacity = 250;
+        baseEfficiency = 42;
+        flowChart = "Nuclear Energy (Atomic Fission) -> Thermal Heat (Core Water) -> Kinetic (Steam) -> Mechanical (Turbine) -> Electrical";
+      }
+
+      // Modify output based on availability
+      const powerGenerated = Math.round(maxCapacity * (ecSourceAvailability / 100));
+      const efficiency = Math.round(baseEfficiency * (0.8 + (ecSourceAvailability / 500)));
+
+      if (powerGenerated < ecGridLoad) {
+        gridStability = "CRITICAL BROWNOUT: Power generated is below the grid load requirements. Load shedding required.";
+      } else if (powerGenerated > ecGridLoad + 50) {
+        gridStability = "SURPLUS POWER: Grid capacity exceeds load. Directing excess energy to storage banks.";
+      } else {
+        gridStability = "GRID HEALTHY: Generation meets load demand perfectly.";
+      }
+
+      // Heat Sandbox: temperature rise depends on heat input (calorimeter)
+      const temperatureRise = Math.round(ecHeatInput / 10);
+      const calorimeterFeedback = `Heat Energy input: ${ecHeatInput} J. This active transfer of thermal energy raised the water thermometer reading by +${temperatureRise}°C. Note: The starting temperature does not change the heat energy transferred!`;
+
+      setEcReport({
+        powerGenerated,
+        efficiency,
+        co2Emissions: Math.round(co2Emissions * (ecSourceAvailability / 100)),
+        flowChart,
+        gridStability,
+        temperatureRise,
+        calorimeterFeedback
+      });
+      setEcStatus('SUCCESS');
+    }, 1200);
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -957,6 +1038,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "ap-usefulness", label: "IV. Importance of Water" },
         { id: "ap-proportions", label: "V. Ration Proportions" },
         { id: "ap-interactive", label: "VI. Feed Calculator" }
+      ]
+    : noteData?.staticLookupKey === 'energy-conversion-basics'
+    ? [
+        { id: "ec-intro", label: "I. Energy Concepts" },
+        { id: "ec-classification", label: "II. Renewable vs. Non-Renewable" },
+        { id: "ec-specific", label: "III. Specific Sources" },
+        { id: "ec-challenges", label: "IV. Source Challenges" },
+        { id: "ec-heat-temp", label: "V. Heat vs. Temperature" },
+        { id: "ec-interactive", label: "VI. Grid Simulator" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -4059,6 +4149,308 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             </ul>
                           </div>
                         )}
+
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'energy-conversion-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE ENERGY CONVERSION & CONSERVATION NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="ec-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_11 // ENERGY CONVERSION & THERMODYNAMIC CONCEPTS
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Energy Conversion & Conservation
+                  </h1>
+                </div>
+
+                {/* Section 1: Energy Concepts */}
+                <div className="space-y-4" id="ec-intro">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. Introduction to Energy and Energy Conversion
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Energy is the capacity to do work, measured in Joules (J). The Law of Conservation of Energy dictates that energy is never created or destroyed, but only transformed from one form to another.
+                  </p>
+
+                  <div className="border border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left space-y-3">
+                    <h4 className="font-serif text-lg font-black uppercase text-black">Why Convert Energy?</h4>
+                    <ul className="space-y-2 text-xs font-semibold text-gray-700">
+                      <li><strong>Versatility:</strong> Allows us to tap into various natural supplies (solar, wind, tides) instead of a single resource.</li>
+                      <li><strong>Utility:</strong> Changes raw energy into highly useful formats (e.g. converting battery chemical potential to electrical currents, then light packets in a flashlight).</li>
+                      <li><strong>Flexibility:</strong> Enables switching between sources based on availability, transport, and efficiency.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Section 2: Renewable vs. Non-Renewable */}
+                <div className="space-y-4 pt-6" id="ec-classification">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Renewable vs. Non-Renewable Energy Sources
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Energy sources fall into two categories based on how rapidly they replenish:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border-2 border-black p-4 bg-[#A7F3D0] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left space-y-2">
+                      <strong className="font-mono text-xs font-black uppercase text-black block border-b border-black pb-1">Renewable Sources (Inexhaustible)</strong>
+                      <p className="font-sans text-xs text-black/90">Replenished naturally over short periods. Clean and environmentally friendly.</p>
+                      <span className="block font-mono text-[10px] font-bold">Examples: Solar, Wind, Tidal, Hydropower, Geothermal, Biogas.</span>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#FECACA] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left space-y-2">
+                      <strong className="font-mono text-xs font-black uppercase text-black block border-b border-black pb-1">Non-Renewable Sources (Exhaustible)</strong>
+                      <p className="font-sans text-xs text-black/90">Take millions of years to form. Exhausted once consumed.</p>
+                      <span className="block font-mono text-[10px] font-bold">Examples: Fossil Fuels (Coal, Petroleum, Gas), Firewood, Nuclear (Uranium).</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Specific Sources */}
+                <div className="space-y-4 pt-6" id="ec-specific">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Specific Sources and Transformations
+                  </h2>
+                  
+                  <div className="space-y-3 font-semibold text-xs text-black leading-relaxed">
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Hydroelectric Power:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Water behind dams (Akosombo/Bui) converts Potential Energy to Kinetic Energy, spinning turbines (Mechanical) and generators (Electrical).</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Solar Arrays:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Silicon solar panels capture light photons and transform them directly into electrical currents.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white text-left">
+                      <strong>Geothermal Heat:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">High-pressure steam created by pumping water down to hot core rocks spins surface electricity generators.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Source Challenges */}
+                <div className="space-y-4 pt-6" id="ec-challenges">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    4. Renewable Energy: Management Challenges
+                  </h2>
+                  
+                  <div className="overflow-x-auto border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                    <table className="w-full text-left font-mono text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-black text-white">
+                          <th className="p-3 border border-black uppercase font-bold">Source</th>
+                          <th className="p-3 border border-black uppercase font-bold">Specific Management Challenges</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white text-black font-semibold">
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Solar</td>
+                          <td className="p-3 border border-black text-red-600">High infrastructure costs; weather dependent (no output at night).</td>
+                        </tr>
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Wind</td>
+                          <td className="p-3 border border-black text-red-600">Requires large land areas; noise pollution; unreliable winds.</td>
+                        </tr>
+                        <tr className="border-b border-black">
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Tidal</td>
+                          <td className="p-3 border border-black text-red-600">High construction costs; can disrupt fishing and boat transport.</td>
+                        </tr>
+                        <tr>
+                          <td className="p-3 border border-black bg-gray-50 font-bold">Hydro</td>
+                          <td className="p-3 border border-black text-red-600">Vulnerable to droughts; risk of flooding if reservoirs overflow.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Section 5: Heat vs Temperature */}
+                <div className="space-y-4 pt-6" id="ec-heat-temp">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    5. Heat vs. Temperature
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Though related, heat and temperature are separate thermodynamic variables:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border border-black p-5 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">HEAT ENERGY (J)</h4>
+                      <p className="font-sans text-xs text-gray-600 leading-relaxed">
+                        A form of thermal energy that actively transfers from a warmer body to a colder body as a result of a temperature difference. Measured with a <strong>calorimeter</strong>.
+                      </p>
+                    </div>
+                    <div className="border border-black p-5 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">TEMPERATURE (°C / K)</h4>
+                      <p className="font-sans text-xs text-black leading-relaxed">
+                        A measure of the degree of hotness or coldness of a body (its internal kinetic energy). Can be measured at any time with a <strong>thermometer</strong>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Grid Simulator */}
+                <div className="space-y-6 pt-6 text-left" id="ec-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <Cpu size={22} />
+                        6. Grid Power Station & Calorimeter Sandbox
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Choose generator technologies, adjust resource availability, and heat water to visualize thermal energy transfer
+                      </p>
+                    </div>
+
+                    {/* Simulation Parameters Deck */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+                      {/* Grid setup */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">A. POWER GENERATION SETUPS</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Power Technology:</label>
+                          <select 
+                            value={ecSource} 
+                            onChange={(e) => { setEcSource(e.target.value); setEcStatus('IDLE'); setEcReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="hydro">Hydroelectric Dam (Akosombo)</option>
+                            <option value="solar">Solar PV Panel Array</option>
+                            <option value="wind">Wind Turbine Farm</option>
+                            <option value="geo">Geothermal Steam Plant</option>
+                            <option value="fossil">Fossil Fuel (Coal/Gas Boiler)</option>
+                            <option value="nuclear">Nuclear Fission Reactor</option>
+                          </select>
+                        </div>
+
+                        {/* Availability slider */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between font-bold">
+                            <span>Resource Availability (Drought / Cloud / Wind):</span>
+                            <span>{ecSourceAvailability}%</span>
+                          </div>
+                          <input 
+                            type="range" min="0" max="100" 
+                            value={ecSourceAvailability} 
+                            onChange={(e) => { setEcSourceAvailability(parseInt(e.target.value)); setEcStatus('IDLE'); setEcReport(null); }}
+                            className="w-full accent-black cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Load requirements */}
+                        <div className="space-y-1">
+                          <label className="font-bold block">Target Grid Load Demand:</label>
+                          <select 
+                            value={ecGridLoad} 
+                            onChange={(e) => { setEcGridLoad(parseInt(e.target.value)); setEcStatus('IDLE'); setEcReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="50">50 Megawatts (Low Demand)</option>
+                            <option value="100">100 Megawatts (Normal Demand)</option>
+                            <option value="150">150 Megawatts (Peak Demand)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Calorimeter Setup */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">B. THERMAL CALORIMETER SANDBOX</span>
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between font-bold">
+                            <span>Heat Energy Added (Joules):</span>
+                            <span>{ecHeatInput} J</span>
+                          </div>
+                          <input 
+                            type="range" min="0" max="1000" step="100"
+                            value={ecHeatInput} 
+                            onChange={(e) => { setEcHeatInput(parseInt(e.target.value)); setEcStatus('IDLE'); setEcReport(null); }}
+                            className="w-full accent-black cursor-pointer"
+                          />
+                        </div>
+
+                        <div className="border border-black p-3 bg-white space-y-1 font-sans text-xs text-left">
+                          <strong>Active Heat Transfer:</strong>
+                          <p className="text-gray-600">Adjust the Joules slider to transfer heat energy. Observe how the thermometer records temperature increases while total energy remains conserved.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Button trigger */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runEcEvaluation}
+                        disabled={ecStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {ecStatus === 'COMPUTING' ? 'SIMULATING POWER EXCHANGE...' : 'RUN GENERATION SIMULATION'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Display */}
+                    {ecStatus === 'SUCCESS' && ecReport && (
+                      <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-6 transition-all animate-fadeIn text-left text-xs font-mono">
+                        
+                        {/* Part A: Power Station report */}
+                        <div className="space-y-4">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
+                            <h4 className="font-serif text-lg font-black uppercase text-black">A. GRID POWER AUDIT REPORT</h4>
+                            <div className="flex items-center gap-4 font-mono text-xs font-bold text-black">
+                              <span>GENERATED: {ecReport.powerGenerated} MW</span>
+                              <span>EFFICIENCY: {ecReport.efficiency}%</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div>
+                              <strong>Energy Transformation Path:</strong>
+                              <span className="block text-blue-600 font-bold uppercase mt-0.5 leading-relaxed">{ecReport.flowChart}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 text-xs font-mono">
+                              <div>
+                                <strong>Grid Stability:</strong>
+                                <span className={`block font-bold mt-0.5 uppercase ${ecReport.gridStability.includes('CRITICAL') ? 'text-red-600' : 'text-green-600'}`}>{ecReport.gridStability}</span>
+                              </div>
+                              <div>
+                                <strong>CO2 Emissions:</strong>
+                                <span className={`block font-bold mt-0.5 uppercase ${ecReport.co2Emissions > 100 ? 'text-red-600' : 'text-green-600'}`}>
+                                  {ecReport.co2Emissions} Tons / Day
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Part B: Calorimeter report */}
+                        <div className="space-y-4 pt-4 border-t-2 border-black/10">
+                          <h4 className="font-serif text-lg font-black uppercase text-black">B. CALORIMETER TEMPERATURE READOUT</h4>
+                          
+                          <div className="flex items-center gap-6 bg-white border-2 border-black p-4">
+                            {/* Thermometer Visual representation */}
+                            <div className="w-6 h-28 bg-gray-200 border-2 border-black rounded-full relative flex items-end p-0.5">
+                              <div 
+                                className="w-full bg-red-600 rounded-full transition-all duration-500"
+                                style={{ height: `${Math.min(100, Math.max(10, ecReport.temperatureRise))}%` }}
+                              />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <strong>Thermometer Indicator:</strong>
+                              <span className="block font-bold text-red-600 text-lg">+{ecReport.temperatureRise}°C</span>
+                              <p className="font-sans text-xs text-gray-700 leading-relaxed">{ecReport.calorimeterFeedback}</p>
+                            </div>
+                          </div>
+                        </div>
 
                       </div>
                     )}
