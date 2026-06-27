@@ -1,0 +1,88 @@
+Introduction to Spreadsheets
+What is a Spreadsheet?
+A spreadsheet is a digital file made of rows and columns that help sort, organize, and arrange data efficiently, as well as calculate
+numerical data.
+ What makes it unique? Its distinct ability to calculate values using mathematical formulas and the data stored inside cells.
+ Common Examples: Microsoft Excel, Google Sheets, VisiCalc, iWork Numbers, Lotus 1-2-3, LibreOffice, and OpenOffice.
+Common Uses of Spreadsheet Applications
+1. Finance: Ideal for managing financial data like budgets, bank accounts, taxes, invoices, receipts, billing, and financial
+forecasting.
+2. School and Grades: Teachers use them to track students' scores, calculate grades, and identify missing tests or students who
+are struggling.
+3. Sports: Used to track statistics for individual favorite players or an entire team.
+4. Forms: Templates can be created to handle business inventory, performance evaluations, quizzes, and tracking time.
+5. Figures: Used to build or draw visual representations like graphs, pie charts, and bar charts.
+Features of the MS-Excel Interface
+Understanding the workspace is essential to navigating a spreadsheet. Here are the key interface terminologies and components:
+The Main Navigation Tabs
+ Home: Contains text options (font size, style, color, background color), text alignment, cell formatting styles, cell
+insertion/deletion tools, and editing options.
+ Insert: Features options for adding charts/graphs, sparklines, images, figures, headers and footers, and equations/symbols.
+ Page Layout: Includes setups for worksheet themes, page orientation, and margins.
+ Formulas: Allows users to build tables with complex math formulas to get faster calculation results.
+ Data: Contains tools for importing external data (e.g., from the web), filtering columns, and validating data.
+ Review: Where a user can proofread a sheet, spell-check, or leave comments.
+ View: Changes how the worksheet is displayed on your screen, including window arrangement options and zoom controls.
+Essential Layout Components
+ Workbook: The entire file itself, which contains one or more individual worksheets.
+ Worksheet (Spreadsheet): A grid of columns and rows where you enter and calculate data.
+ Columns: The vertical lines of cells. They are labeled with letters starting from A to Z, and continue to double letters like AA,
+AB up to XFD.
+ Rows: The horizontal lines of cells. Row headers are numbered sequentially from 1 up to 1,048,576.
+ Name Box: Displays the exact coordinate (cell address) of the cell you currently have selected. It sits to the left of the formula
+bar.
+ Formula Bar: A text bar that shows the raw contents or formulas of the current cell, allowing you to view and edit them
+directly.
+ Sheet Tab: Found at the bottom of the window, these display the active sheet name (e.g., "Sheet 1"). Users can add, delete,
+move, or rename sheets here.
+ Status Bar: Located at the absolute bottom of the Excel window, it displays information about the current mode or active
+special keys, alongside zoom options.
+Understanding Cells & Cell Operations
+Core Cell Concepts
+ Cell: The tiny individual rectangles formed where a row and column intersect.
+ Cell Address / Reference: The coordinate name of a cell, written as its Column Letter followed by its Row Number (e.g.,
+column C and row 5 intersect at cell C5).
+ Active Cell: The specific cell currently highlighted by a bold black border (the cell pointer). Data can only be typed into the
+active cell. It features a tiny square in its bottom-right corner called the fill handle.
+ Cell Range: A group or collection of multiple adjacent cells. It is noted by writing the first cell address and the last cell
+address, separated by a colon (e.g., A1:A5 includes cells A1, A2, A3, A4, and A5).
+Valid Data Types in a Cell
+Any information placed in a cell falls into these general categories:
+ Text: Letters, simple words, numbers, and dates.
+ Formatting: Custom look, fonts, and colors applied to the data.
+ Formulas & Functions: Math commands inserted into cells to actively compute numerical values.
+
+-- 1 of 2 --
+
+Step-by-Step Worksheet Editing Actions
+1. Selecting Items
+ To select a single cell: Left-click it once. A dark border will outline it, and its column letter and row number will highlight.
+ To select a range: Click and drag the mouse cursor across adjacent cells until the whole group is highlighted, then release the
+mouse.
+2. Inserting & Overwriting Content
+1. Click the specific cell to activate it.
+2. Type your letters or numbers.
+3. Press Enter on your keyboard to commit the change. (You can also type directly into the Formula Bar after selecting a cell).
+3. Deleting Content vs. Deleting Cells
+There is an important difference between clearing the information inside a cell versus completely removing the physical cell itself:
+ Clearing Content (Leaving the cell empty):
+o Select the target cell(s)
+o Click the Clear command icon on the Home tab
+o Choose Clear Contents. The cell remains, but the data disappears.
+ Deleting Cells Entirely:
+o Select the target cell(s)
+o Click the Delete command icon from the Home tab Ribbon.
+o The physical cells disappear, causing the surrounding cells below or to the right to shift up or over to fill the newly
+empty structural gap.
+4. Copying and Pasting vs. Cutting and Pasting
+ Copy and Paste (Duplicates the data): 1. Highlight your source cell(s).
+2. Click Copy on the Home tab or press Ctrl + C. (A dashed box outlines the copied section).
+3. Click your new target cell(s).
+4. Click Paste on the Home tab or press Ctrl + V.
+ Cut and Paste (Moves the data): 1. Highlight your source cell(s).
+2. Right-click and choose Cut, click the Cut icon on the Home tab, or press Ctrl + X.
+3. Select your destination cell.
+4. Use the Paste button or press Ctrl + V. This completely removes the information from its original location and relocates it.
+
+-- 2 of 2 --
+

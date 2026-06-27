@@ -193,5 +193,137 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "Safety Risks: Physical hazards, such as robots built with sharp edges, can cause severe harm or lacerations to young children, discouraging them from using the technology."
       }
     ]
+  },
+  {
+    id: "spreadsheet-basics",
+    title: "Introduction to Spreadsheets",
+    classLevel: "Basic 9",
+    subjectCode: "COMP-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "A spreadsheet is a digital file made of rows and columns that help sort, organize, and arrange data efficiently, as well as calculate numerical data."
+      },
+      {
+        type: "challenge_callout",
+        body: "UNIQUE FEATURE: What makes it unique is its distinct ability to calculate values using mathematical formulas and the data stored inside cells."
+      },
+      {
+        type: "text",
+        body: "Common Examples: Microsoft Excel, Google Sheets, VisiCalc, iWork Numbers, Lotus 1-2-3, LibreOffice, and OpenOffice."
+      },
+      {
+        type: "text",
+        body: "Common Uses of Spreadsheet Applications:"
+      },
+      {
+        type: "bullet_point",
+        body: "Finance: Ideal for managing financial data like budgets, bank accounts, taxes, invoices, receipts, billing, and financial forecasting."
+      },
+      {
+        type: "bullet_point",
+        body: "School and Grades: Teachers use them to track students' scores, calculate grades, and identify missing tests or students who are struggling."
+      },
+      {
+        type: "bullet_point",
+        body: "Sports: Used to track statistics for individual favorite players or an entire team."
+      },
+      {
+        type: "bullet_point",
+        body: "Forms: Templates can be created to handle business inventory, performance evaluations, quizzes, and tracking time."
+      },
+      {
+        type: "bullet_point",
+        body: "Figures: Used to build or draw visual representations like graphs, pie charts, and bar charts."
+      },
+      {
+        type: "text",
+        body: "Features of the MS-Excel Interface:\nUnderstanding the workspace is essential to navigating a spreadsheet. Here are the key interface terminologies and components:"
+      },
+      {
+        type: "challenge_callout",
+        body: "MAIN NAVIGATION TABS:\n• Home: Text options, alignment, cell formatting, cell insertion/deletion, editing.\n• Insert: Adding charts/graphs, images, headers/footers, symbols.\n• Page Layout: Worksheet themes, orientation, margins.\n• Formulas: Complex math formulas for calculation results.\n• Data: Importing data, filtering, validation.\n• Review: Proofreading, spell-checking, comments.\n• View: Zoom controls, window arrangement, display options."
+      },
+      {
+        type: "text",
+        body: "Essential Layout Components:"
+      },
+      {
+        type: "bullet_point",
+        body: "Workbook: The entire file itself, which contains one or more individual worksheets."
+      },
+      {
+        type: "bullet_point",
+        body: "Worksheet (Spreadsheet): A grid of columns and rows where you enter and calculate data."
+      },
+      {
+        type: "bullet_point",
+        body: "Columns: The vertical lines of cells, labeled with letters starting from A to Z, up to XFD."
+      },
+      {
+        type: "bullet_point",
+        body: "Rows: The horizontal lines of cells, numbered sequentially from 1 up to 1,048,576."
+      },
+      {
+        type: "bullet_point",
+        body: "Name Box: Displays the exact coordinate (cell address) of the cell you currently have selected (sits to the left of the formula bar)."
+      },
+      {
+        type: "bullet_point",
+        body: "Formula Bar: A text bar that shows the raw contents or formulas of the current cell."
+      },
+      {
+        type: "bullet_point",
+        body: "Sheet Tab: Found at the bottom of the window to add, delete, move, or rename sheets."
+      },
+      {
+        type: "bullet_point",
+        body: "Status Bar: Located at the absolute bottom of the Excel window, it displays current mode or active special keys."
+      },
+      {
+        type: "text",
+        body: "Understanding Cells & Cell Operations:"
+      },
+      {
+        type: "bullet_point",
+        body: "Cell: The tiny individual rectangles formed where a row and column intersect."
+      },
+      {
+        type: "bullet_point",
+        body: "Cell Address / Reference: The coordinate name of a cell, written as Column Letter followed by Row Number (e.g., C5)."
+      },
+      {
+        type: "bullet_point",
+        body: "Active Cell: Highlighted by a bold black border (cell pointer). Features a tiny square in its bottom-right corner called the fill handle."
+      },
+      {
+        type: "bullet_point",
+        body: "Cell Range: A group of multiple adjacent cells (e.g., A1:A5)."
+      },
+      {
+        type: "challenge_callout",
+        body: "VALID DATA TYPES:\n• Text: Letters, simple words, numbers, and dates.\n• Formatting: Custom look, fonts, and colors applied to the data.\n• Formulas & Functions: Math commands inserted into cells to actively compute numerical values."
+      },
+      {
+        type: "text",
+        body: "Step-by-Step Worksheet Editing Actions:"
+      },
+      {
+        type: "bullet_point",
+        body: "Selecting Items: Click once for a single cell. Click and drag for a range."
+      },
+      {
+        type: "bullet_point",
+        body: "Inserting & Overwriting Content: Click cell to activate, type, and press Enter (or type directly in Formula Bar)."
+      },
+      {
+        type: "challenge_callout",
+        body: "DELETING VS. CLEARING:\n• Clearing Content: Home tab -> Clear -> Clear Contents. The cell remains, but the data is gone.\n• Deleting Cells: Home tab -> Delete. The physical cell disappears, causing surrounding cells to shift up or left."
+      },
+      {
+        type: "challenge_callout",
+        body: "COPY/PASTE VS. CUT/PASTE:\n• Copy and Paste (Ctrl + C & Ctrl + V): Duplicates the data, leaving the original intact.\n• Cut and Paste (Ctrl + X & Ctrl + V): Moves the data, removing it from its original location."
+      }
+    ]
   }
 ];

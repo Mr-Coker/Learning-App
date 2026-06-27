@@ -36,6 +36,145 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const [simStatus, setSimStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS' | 'FAILURE'>('IDLE');
   const [simFeedback, setSimFeedback] = useState<string>('');
 
+  // Spreadsheet Simulator Interactive State
+  const [ssCells, setSsCells] = useState<Record<string, string>>({
+    A1: 'Name', B1: 'Score', C1: 'Bonus',
+    A2: 'Alex', B2: '85', C2: '=B2+5',
+    A3: 'Sarah', B3: '90', C3: '=B3+5',
+    A4: 'Average', B4: '=AVERAGE(B2:B3)', C4: '=AVERAGE(C2:C3)'
+  });
+  const [ssActiveCell, setSsActiveCell] = useState<string>('A1');
+  const [ssFormulaInput, setSsFormulaInput] = useState<string>('Name');
+
+  const getCellsInRange = (rangeStr: string): string[] => {
+    const parts = rangeStr.split(':');
+    if (parts.length !== 2) return [rangeStr];
+    const start = parts[0];
+    const end = parts[1];
+    const startCol = start.charCodeAt(0);
+    const startRow = parseInt(start.slice(1));
+    const endCol = end.charCodeAt(0);
+    const endRow = parseInt(end.slice(1));
+    
+    const cells = [];
+    for (let c = Math.min(startCol, endCol); c <= Math.max(startCol, endCol); c++) {
+      for (let r = Math.min(startRow, endRow); r <= Math.max(startRow, endRow); r++) {
+        cells.push(String.fromCharCode(c) + r);
+      }
+    }
+    return cells;
+  };
+
+  const evaluateCell = (cellId: string, data: Record<string, string>, visited = new Set<string>()): string => {
+    const val = data[cellId] || '';
+    if (!val.startsWith('=')) {
+      return val;
+    }
+    if (visited.has(cellId)) {
+      return '#REF!';
+    }
+    visited.add(cellId);
+
+    try {
+      const formula = val.slice(1).toUpperCase().trim();
+      
+      if (formula.startsWith('SUM(') && formula.endsWith(')')) {
+        const rangeStr = formula.slice(4, -1);
+        const cells = getCellsInRange(rangeStr);
+        let sum = 0;
+        for (const c of cells) {
+          const parsed = parseFloat(evaluateCell(c, data, new Set(visited)));
+          if (!isNaN(parsed)) sum += parsed;
+        }
+        return sum.toString();
+      }
+      
+      if (formula.startsWith('AVERAGE(') && formula.endsWith(')')) {
+        const rangeStr = formula.slice(8, -1);
+        const cells = getCellsInRange(rangeStr);
+        let sum = 0;
+        let count = 0;
+        for (const c of cells) {
+          const parsed = parseFloat(evaluateCell(c, data, new Set(visited)));
+          if (!isNaN(parsed)) {
+            sum += parsed;
+            count++;
+          }
+        }
+        return count > 0 ? (sum / count).toFixed(1) : '0';
+      }
+
+      const match = formula.match(/^([A-C][1-4])\s*([\+\-\*\/])\s*([A-C][1-4])$/);
+      if (match) {
+        const cell1 = match[1];
+        const op = match[2];
+        const cell2 = match[3];
+        const val1 = parseFloat(evaluateCell(cell1, data, new Set(visited)));
+        const val2 = parseFloat(evaluateCell(cell2, data, new Set(visited)));
+        if (isNaN(val1) || isNaN(val2)) return '#VALUE!';
+        switch (op) {
+          case '+': return (val1 + val2).toString();
+          case '-': return (val1 - val2).toString();
+          case '*': return (val1 * val2).toString();
+          case '/': return val2 !== 0 ? (val1 / val2).toString() : '#DIV/0!';
+        }
+      }
+
+      return '#NAME?';
+    } catch (e) {
+      return '#ERROR!';
+    }
+  };
+
+  const handleSelectCell = (cellId: string) => {
+    setSsActiveCell(cellId);
+    setSsFormulaInput(ssCells[cellId] || '');
+  };
+
+  const handleCellChange = (cellId: string, val: string) => {
+    const updated = { ...ssCells, [cellId]: val };
+    setSsCells(updated);
+    if (ssActiveCell === cellId) {
+      setSsFormulaInput(val);
+    }
+  };
+
+  const handleFormulaBarChange = (val: string) => {
+    setSsFormulaInput(val);
+    setSsCells(prev => ({ ...prev, [ssActiveCell]: val }));
+  };
+
+  const loadScenario = (type: string) => {
+    if (type === 'grades') {
+      setSsCells({
+        A1: 'Name', B1: 'Score', C1: 'Bonus',
+        A2: 'Alex', B2: '85', C2: '=B2+5',
+        A3: 'Sarah', B3: '90', C3: '=B3+5',
+        A4: 'Average', B4: '=AVERAGE(B2:B3)', C4: '=AVERAGE(C2:C3)'
+      });
+      setSsActiveCell('A1');
+      setSsFormulaInput('Name');
+    } else if (type === 'budget') {
+      setSsCells({
+        A1: 'Item', B1: 'Budgeted', C1: 'Actual',
+        A2: 'Food', B2: '150', C2: '130',
+        A3: 'Books', B3: '80', C3: '95',
+        A4: 'Total', B4: '=SUM(B2:B3)', C4: '=SUM(C2:C3)'
+      });
+      setSsActiveCell('A1');
+      setSsFormulaInput('Item');
+    } else {
+      setSsCells({
+        A1: '', B1: '', C1: '',
+        A2: '', B2: '', C2: '',
+        A3: '', B3: '', C3: '',
+        A4: '', B4: '', C4: ''
+      });
+      setSsActiveCell('A1');
+      setSsFormulaInput('');
+    }
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -117,7 +256,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   }
 
   const fullLessonContent = curriculumNotes.find(
-    (n) => n.id === noteData?.staticLookupKey
+    (n) => n.id === noteData?.staticLookupKey || (noteData?.staticLookupKey === 'intro-spreadsheets' && n.id === 'spreadsheet-basics')
   );
 
   const contentBlocksToRender = fullLessonContent ? fullLessonContent.contentBlocks : [];
@@ -140,6 +279,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "robotics-applications", label: "II. Applications" },
         { id: "robotics-challenges", label: "III. Challenges & Risks" },
         { id: "robotics-interactive", label: "IV. Mission Simulator" }
+      ]
+    : (noteData?.staticLookupKey === 'spreadsheet-basics' || noteData?.staticLookupKey === 'intro-spreadsheets')
+    ? [
+        { id: "spreadsheet-definition", label: "I. What is a Spreadsheet?" },
+        { id: "spreadsheet-uses", label: "II. Common Uses" },
+        { id: "spreadsheet-interface", label: "III. Interface Features" },
+        { id: "spreadsheet-cells", label: "IV. Cells & Operations" },
+        { id: "spreadsheet-editing", label: "V. Editing Actions" },
+        { id: "spreadsheet-interactive", label: "VI. Cell Simulator" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -760,6 +908,297 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                         )}
                       </div>
                     )}
+                  </div>
+                </div>
+              </section>
+            ) : (noteData.staticLookupKey === 'spreadsheet-basics' || noteData.staticLookupKey === 'intro-spreadsheets') ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE SPREADSHEETS NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="spreadsheets-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_03 // INFORMATION TECHNOLOGY
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Introduction to Spreadsheets
+                  </h1>
+                </div>
+
+                {/* Section 1: Definition */}
+                <div className="space-y-4" id="spreadsheet-definition">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. What is a Spreadsheet?
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    A <strong className="text-black font-black">spreadsheet</strong> is a digital file made of rows and columns that help sort, organize, and arrange data efficiently, as well as calculate numerical data.
+                  </p>
+
+                  <div className="bg-[#38BDF8] border-4 border-black p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
+                    <h4 className="font-mono text-[10px] font-bold text-black uppercase tracking-wider mb-2">Unique Capability //</h4>
+                    <p className="font-sans text-sm text-black leading-relaxed">
+                      What makes it unique is its distinct ability to calculate values using mathematical formulas and the data stored inside cells.
+                    </p>
+                  </div>
+
+                  <div className="border border-black p-4 bg-white mt-4 text-left">
+                    <span className="font-mono text-[9px] font-bold text-gray-500 block mb-1">COMMON EXAMPLES //</span>
+                    <p className="font-sans text-xs text-black">
+                      Microsoft Excel, Google Sheets, VisiCalc, iWork Numbers, Lotus 1-2-3, LibreOffice, and OpenOffice.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Section 2: Common Uses */}
+                <div className="space-y-4 pt-6" id="spreadsheet-uses">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Common Uses of Spreadsheet Applications
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Spreadsheet applications are deployed across different domains to track, manage, and model numerical information:
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <span className="font-mono text-[9px] font-black text-black">FINANCE</span>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Budgets, bank accounts, taxes, invoices, receipts, billing, and forecasting.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <span className="font-mono text-[9px] font-black text-black">SCHOOL & GRADES</span>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Track student scores, calculate averages, identify grades and students who need help.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <span className="font-mono text-[9px] font-black text-black">SPORTS STATISTICS</span>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Track scores, player goals, averages, and entire team rosters.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <span className="font-mono text-[9px] font-black text-black">FORMS & FIGURES</span>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Inventory tracking, time tables, performance quizzes, and building visual representations like pie/bar charts.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Interface Features */}
+                <div className="space-y-4 pt-6" id="spreadsheet-interface">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Features of the MS-Excel Interface
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Navigating a spreadsheet requires understanding the layout workspace. The two core aspects are Navigation Tabs and Layout Components:
+                  </p>
+
+                  <div className="space-y-6">
+                    <div className="border-4 border-black p-6 bg-[#C4B5FD] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <h4 className="font-serif text-lg font-black text-black uppercase mb-3">Main Navigation Tabs</h4>
+                      <ul className="space-y-2 text-xs text-black font-semibold leading-relaxed">
+                        <li><strong>Home:</strong> Font controls, text alignment, cell styling, insertion/deletion.</li>
+                        <li><strong>Insert:</strong> Add charts, graphs, images, shapes, equations, headers & footers.</li>
+                        <li><strong>Page Layout:</strong> Worksheet themes, page margins, and orientation.</li>
+                        <li><strong>Formulas:</strong> Access to functions, library, and formula auditing.</li>
+                        <li><strong>Data:</strong> Sort & filter tools, data validation, and external data importing.</li>
+                        <li><strong>Review:</strong> Proofreading, spell-check, and workbook protection/comments.</li>
+                        <li><strong>View:</strong> Adjust zoom levels, window arrangement, display options.</li>
+                      </ul>
+                    </div>
+
+                    <div className="border-4 border-black p-6 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <h4 className="font-serif text-lg font-black text-black uppercase mb-3">Essential Layout Components</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold leading-relaxed">
+                        <div><strong>Workbook:</strong> The entire spreadsheet file containing one or more worksheets.</div>
+                        <div><strong>Worksheet:</strong> The grid of columns and rows where you enter and calculate data.</div>
+                        <div><strong>Columns:</strong> Vertical cells, labeled with letters A to Z (up to XFD).</div>
+                        <div><strong>Rows:</strong> Horizontal cells, numbered 1 to 1,048,576.</div>
+                        <div><strong>Name Box:</strong> Displays the cell address of the currently selected cell.</div>
+                        <div><strong>Formula Bar:</strong> Allows directly viewing and editing cell contents or formulas.</div>
+                        <div><strong>Sheet Tab:</strong> Located at the bottom to switch, add, rename, or delete worksheets.</div>
+                        <div><strong>Status Bar:</strong> Sits at the absolute bottom, displaying modes and zoom levels.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Cells & Operations */}
+                <div className="space-y-4 pt-6" id="spreadsheet-cells">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    4. Understanding Cells & Cell Operations
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Cells are the basic atomic units of a spreadsheet where calculations occur:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border-2 border-black p-5 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">CELL ADDRESSING</h4>
+                      <p className="font-sans text-xs text-black leading-relaxed">
+                        A cell is formed by the intersection of a row and column. Its address is the Column Letter followed by Row Number (e.g., cell B2).
+                      </p>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-[#A7F3D0] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">CELL RANGE</h4>
+                      <p className="font-sans text-xs text-black leading-relaxed">
+                        A block or collection of multiple adjacent cells. Denoted with a colon between start and end coordinates (e.g., A1:C4).
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-2 border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                    <span className="font-mono text-[9px] font-bold text-gray-500 uppercase block">VALID CELL DATA TYPES //</span>
+                    <ul className="list-disc list-inside text-xs text-gray-700 mt-2 space-y-1.5 font-semibold">
+                      <li><strong>Text & Labels:</strong> Letters, names, words, and labels.</li>
+                      <li><strong>Numerical Values:</strong> Pure numbers, currency, percentages, or dates.</li>
+                      <li><strong>Formulas:</strong> Math expressions (must begin with <code className="px-1 bg-gray-100 border font-mono">=</code>) to compute values dynamically.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Section 5: Step-by-Step Editing */}
+                <div className="space-y-4 pt-6" id="spreadsheet-editing">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    5. Step-by-Step Worksheet Editing Actions
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Properly manipulating spreadsheet content is crucial to avoid shifting errors:
+                  </p>
+
+                  <div className="space-y-4 text-left">
+                    <div className="border-2 border-black p-4 bg-white">
+                      <h4 className="font-mono text-xs font-black text-black">CLEARING CONTENTS vs. DELETING CELLS</h4>
+                      <p className="font-sans text-xs text-gray-600 mt-1">
+                        <strong>Clearing Content:</strong> Empties the cell values (Home &rarr; Clear &rarr; Clear Contents). The cell's physical position remains empty.
+                      </p>
+                      <p className="font-sans text-xs text-gray-600 mt-1">
+                        <strong>Deleting Cells:</strong> Completely deletes the structural cell, causing cells below or to the right to shift up/left to fill the gap.
+                      </p>
+                    </div>
+
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6]">
+                      <h4 className="font-mono text-xs font-black text-black">COPYING vs. CUTTING</h4>
+                      <p className="font-sans text-xs text-gray-600 mt-1">
+                        <strong>Copy & Paste (Ctrl + C & Ctrl + V):</strong> Duplicates cell values and formulas.
+                      </p>
+                      <p className="font-sans text-xs text-gray-600 mt-1">
+                        <strong>Cut & Paste (Ctrl + X & Ctrl + V):</strong> Relocates cell values/formulas, deleting the source.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Cell Simulator */}
+                <div className="space-y-6 pt-6 text-left" id="spreadsheet-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <BrainCircuit size={22} />
+                        6. Cell & Formula Simulator
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Interactive Spreadsheet Simulator - Try writing formulas like =A2+B2 or =SUM(B2:B3)
+                      </p>
+                    </div>
+
+                    {/* Presets / Control deck */}
+                    <div className="flex flex-wrap gap-2 border-b-2 border-black pb-4">
+                      <button
+                        onClick={() => loadScenario('grades')}
+                        className="px-3 py-1.5 font-mono text-[10px] font-bold uppercase border-2 border-black bg-[#FFD833] text-black hover:bg-black hover:text-white transition-colors cursor-pointer"
+                      >
+                        Load "Student Grades" Scenario
+                      </button>
+                      <button
+                        onClick={() => loadScenario('budget')}
+                        className="px-3 py-1.5 font-mono text-[10px] font-bold uppercase border-2 border-black bg-[#38BDF8] text-black hover:bg-black hover:text-white transition-colors cursor-pointer"
+                      >
+                        Load "Monthly Budget" Scenario
+                      </button>
+                      <button
+                        onClick={() => loadScenario('clear')}
+                        className="px-3 py-1.5 font-mono text-[10px] font-bold uppercase border-2 border-black bg-white text-black hover:bg-black hover:text-white transition-colors cursor-pointer"
+                      >
+                        Clear Spreadsheet
+                      </button>
+                    </div>
+
+                    {/* Formula Bar UI */}
+                    <div className="border-2 border-black p-2 bg-[#F3F4F6] flex items-center gap-2 font-mono text-xs">
+                      <span className="bg-black text-[#FFD833] px-2 py-1 font-bold">
+                        {ssActiveCell}
+                      </span>
+                      <span className="font-serif italic font-bold text-gray-500 px-1">fx</span>
+                      <input
+                        type="text"
+                        value={ssFormulaInput}
+                        onChange={(e) => handleFormulaBarChange(e.target.value)}
+                        placeholder="Enter value or formula (e.g. =SUM(B2:B3))"
+                        className="flex-1 bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none focus:bg-[#FFF3C4]"
+                      />
+                    </div>
+
+                    {/* The Grid */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse border-2 border-black text-left font-mono">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="border border-black w-12 h-8 text-center text-xs font-black uppercase bg-gray-200"></th>
+                            <th className="border border-black px-2 h-8 text-center text-xs font-black uppercase bg-gray-200">A</th>
+                            <th className="border border-black px-2 h-8 text-center text-xs font-black uppercase bg-gray-200">B</th>
+                            <th className="border border-black px-2 h-8 text-center text-xs font-black uppercase bg-gray-200">C</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[1, 2, 3, 4].map((rowNum) => (
+                            <tr key={rowNum}>
+                              <td className="border border-black h-8 text-center text-xs font-black uppercase bg-gray-200 w-12">
+                                {rowNum}
+                              </td>
+                              {['A', 'B', 'C'].map((colLetter) => {
+                                const cellId = `${colLetter}${rowNum}`;
+                                const isSelected = ssActiveCell === cellId;
+                                const rawValue = ssCells[cellId] || '';
+                                const evaluated = evaluateCell(cellId, ssCells);
+                                return (
+                                  <td
+                                    key={cellId}
+                                    onClick={() => handleSelectCell(cellId)}
+                                    className={`border border-black h-12 p-0 relative cursor-text min-w-[120px] transition-all
+                                      ${isSelected ? 'bg-[#FFF3C4] border-2 border-black shadow-inner' : 'bg-white hover:bg-gray-50'}
+                                    `}
+                                  >
+                                    {isSelected ? (
+                                      <input
+                                        type="text"
+                                        value={ssFormulaInput}
+                                        onChange={(e) => handleFormulaBarChange(e.target.value)}
+                                        className="w-full h-full border-0 outline-none text-xs font-mono font-bold text-black px-2 uppercase bg-transparent"
+                                        autoFocus
+                                      />
+                                    ) : (
+                                      <div className="px-2 py-1 text-xs font-mono font-bold text-black truncate w-full h-full flex flex-col justify-between">
+                                        <span className="text-black">{evaluated}</span>
+                                        {rawValue.startsWith('=') && (
+                                          <span className="text-[7px] text-gray-400 block font-normal text-right self-end select-none">
+                                            {rawValue}
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="bg-[#A7F3D0] border-2 border-black p-4 text-[10px] font-mono leading-relaxed text-emerald-950">
+                      <strong>Pro-tip:</strong> Click any cell above, type a value or a formula, then click another cell to see it evaluate. Formulas must start with <strong>=</strong> (e.g. <code>=SUM(B2:B3)</code>, <code>=AVERAGE(B2:B3)</code>, or <code>=A2+B2</code>).
+                    </div>
                   </div>
                 </div>
               </section>
