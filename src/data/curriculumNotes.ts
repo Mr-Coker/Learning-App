@@ -325,5 +325,102 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "COPY/PASTE VS. CUT/PASTE:\n• Copy and Paste (Ctrl + C & Ctrl + V): Duplicates the data, leaving the original intact.\n• Cut and Paste (Ctrl + X & Ctrl + V): Moves the data, removing it from its original location."
       }
     ]
+  },
+  {
+    id: "web-technologies-basics",
+    title: "Introduction to Web Technologies",
+    classLevel: "Basic 9",
+    subjectCode: "COMP-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "A Virtual Learning Environment (VLE) is a collaborative platform that enables better learning delivery. It helps educators work more efficiently and allows students to complete schoolwork from anywhere."
+      },
+      {
+        type: "challenge_callout",
+        body: "DEFINITION: A Virtual Learning Environment (VLE) is a collaborative web-based platform that facilitates digital learning, course management, and teacher-student interaction from anywhere."
+      },
+      {
+        type: "text",
+        body: "Typical Features of a VLE:"
+      },
+      {
+        type: "bullet_point",
+        body: "Web and mobile applications: Allow learners to access courses from anywhere at any time."
+      },
+      {
+        type: "bullet_point",
+        body: "Highly collaborative features: Includes virtual classrooms, email applications, chat forums, wikis, blogs, and leaderboards."
+      },
+      {
+        type: "bullet_point",
+        body: "Innovative lesson delivery: Utilizes gamified instruction and flipped classrooms (reversing the traditional homework-first format)."
+      },
+      {
+        type: "bullet_point",
+        body: "Synchronous and asynchronous learning: Combines real-time interaction (e.g., meeting for the first 15 minutes) with independent study."
+      },
+      {
+        type: "bullet_point",
+        body: "Offline learning capabilities: Allows creation of electronic records offline when internet access is poor, which synchronize once a connection is available."
+      },
+      {
+        type: "text",
+        body: "Importance of a VLE in modern education:"
+      },
+      {
+        type: "bullet_point",
+        body: "Track learner performance easily: Electronic records and assessments allow teachers to track student progress and submissions."
+      },
+      {
+        type: "bullet_point",
+        body: "Deliver content consistently: The same materials are accessible to all learners and can be easily updated."
+      },
+      {
+        type: "bullet_point",
+        body: "Save cost and time: Content is created once and shared digitally without printing costs."
+      },
+      {
+        type: "bullet_point",
+        body: "Encourage communication and collaboration: Forums and message boards foster a sense of community."
+      },
+      {
+        type: "bullet_point",
+        body: "Promote flexible learning: Students can learn on their own time and review unclear topics."
+      },
+      {
+        type: "bullet_point",
+        body: "Provide a way to explore and experiment: Instructors can innovate new teaching techniques."
+      },
+      {
+        type: "challenge_callout",
+        body: "OPEN LEARNING WEBSITES:\nOpen learning websites offer online courses at a fraction of the cost of traditional institutions. Examples include:\n• Khan Academy: A non-profit providing free, world-class education for anyone.\n• edX: Founded by Harvard and MIT; global non-profit offering free/fee-based courses.\n• Coursera: Features university partners offering courses, specializations, and degrees.\n• Udemy: A global education marketplace driven by content creators.\n• TED-Ed: TED's youth and education arm using original animated videos.\n• Codecademy: Interactive platform focusing on coding and programming."
+      },
+      {
+        type: "text",
+        body: "Evaluating Web Pages (The 5 Core Criteria):\nUnlike print materials, information on the web does not always have strict quality control standards. It is crucial to evaluate web pages using five core criteria:"
+      },
+      {
+        type: "challenge_callout",
+        body: "I. Accuracy: Who wrote the page? Is the person qualified? Can you contact them via email or address?"
+      },
+      {
+        type: "challenge_callout",
+        body: "II. Authority: Which institution published the document? What are their credentials? Check the URL domain: preferred domains include .edu, .gov, and .org."
+      },
+      {
+        type: "challenge_callout",
+        body: "III. Objectivity / Credibility: What goals or objectives does the site meet? Is the page a mask for advertising? (If so, it might be biased)."
+      },
+      {
+        type: "challenge_callout",
+        body: "IV. Currency / Current: When was the site produced and last updated? Are there dead links on the page?"
+      },
+      {
+        type: "challenge_callout",
+        body: "V. Coverage / Functionality: Can you view the information properly without being restricted by fees, browser technology, or software requirements?"
+      }
+    ]
   }
 ];
+

@@ -46,6 +46,22 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const [ssActiveCell, setSsActiveCell] = useState<string>('A1');
   const [ssFormulaInput, setSsFormulaInput] = useState<string>('Name');
 
+  // Web Technologies Credibility Simulator Interactive State
+  const [webPreset, setWebPreset] = useState<string>('edu');
+  const [webUrl, setWebUrl] = useState<string>('https://state-university.edu/research/climate');
+  const [webDomain, setWebDomain] = useState<string>('.edu');
+  const [webAuthor, setWebAuthor] = useState<string>('Dr. Sarah Jenkins (Climatologist)');
+  const [webAds, setWebAds] = useState<string>('None (Sponsored by University)');
+  const [webUpdated, setWebUpdated] = useState<string>('2 weeks ago');
+  const [webAccess, setWebAccess] = useState<string>('Fully Free & Accessible');
+  const [webStatus, setWebStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [webResult, setWebResult] = useState<{
+    score: number;
+    rating: string;
+    color: string;
+    details: string;
+  } | null>(null);
+
   const getCellsInRange = (rangeStr: string): string[] => {
     const parts = rangeStr.split(':');
     if (parts.length !== 2) return [rangeStr];
@@ -175,6 +191,76 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     }
   };
 
+  const loadWebPreset = (preset: string) => {
+    setWebPreset(preset);
+    setWebStatus('IDLE');
+    setWebResult(null);
+    if (preset === 'edu') {
+      setWebUrl('https://state-university.edu/research/climate');
+      setWebDomain('.edu');
+      setWebAuthor('Dr. Sarah Jenkins (Climatologist)');
+      setWebAds('None (Sponsored by University)');
+      setWebUpdated('2 weeks ago');
+      setWebAccess('Fully Free & Accessible');
+    } else if (preset === 'spam') {
+      setWebUrl('http://get-free-gaming-coins.blogspot.com.ru/claim');
+      setWebDomain('.blogspot.com.ru');
+      setWebAuthor('Anonymous User983');
+      setWebAds('Extensive (Pop-ups, banner ads, redirects)');
+      setWebUpdated('Never updated (created 2021)');
+      setWebAccess('Requires signing up for external offers and fees');
+    } else if (preset === 'vintage') {
+      setWebUrl('http://geocities.com/siliconvalley/retro-games');
+      setWebDomain('.com (Geocities archive)');
+      setWebAuthor('RetroGamer99');
+      setWebAds('Minimal (Archived page banners)');
+      setWebUpdated('Last updated July 1998 (12 dead links)');
+      setWebAccess('Free, but requires legacy browser plugins for audio');
+    } else if (preset === 'commercial') {
+      setWebUrl('https://globalnews-network.com/sponsored/health-tips');
+      setWebDomain('.com');
+      setWebAuthor('Sponsored Content Desk (Ad agency)');
+      setWebAds('Moderate (Ads disguised as news articles)');
+      setWebUpdated('Today');
+      setWebAccess('Free, but pops up newsletter subscribe prompt');
+    }
+  };
+
+  const runWebEvaluation = () => {
+    setWebStatus('COMPUTING');
+    setTimeout(() => {
+      let score = 0;
+      let rating = 'SUSPICIOUS';
+      let color = '#FFD833'; // Yellow
+      let details = '';
+
+      if (webPreset === 'edu') {
+        score = 95;
+        rating = 'HIGHLY CREDIBLE (TRUSTWORTHY)';
+        color = '#A7F3D0'; // Emerald Green
+        details = 'EXCELLENT: .edu domain indicates official academic publishing. Dr. Jenkins is a qualified researcher (Authority). The content is free of ads (Objectivity), recently updated (Currency), and fully free to access (Coverage).';
+      } else if (webPreset === 'spam') {
+        score = 15;
+        rating = 'CRITICAL RISK (UNRELIABLE)';
+        color = '#FCA5A5'; // Red
+        details = 'DANGER: Unqualified anonymous author. Shady domain extension. Masked commercial motive filled with invasive ads (no Objectivity). Outdated and contains paywalls/hidden cost links (poor Coverage). Fails all 5 credibility criteria.';
+      } else if (webPreset === 'vintage') {
+        score = 55;
+        rating = 'LIMITED VALUE (OUTDATED)';
+        color = '#FDBA74'; // Orange
+        details = 'CAUTION: Highly outdated information (Currency) and contains multiple dead links. Free to access, but some parts are broken due to plugin requirements. Good for historical retro gaming archive, but not for modern technical or scientific facts.';
+      } else if (webPreset === 'commercial') {
+        score = 70;
+        rating = 'MODERATE BIAS (USE WITH CAUTION)';
+        color = '#FFD833'; // Yellow
+        details = 'NOTE: High currency and professional layout, but objectivity is compromised due to sponsored content/ads. Verified company desk, but aims to sell or market products. Cross-reference with independent non-commercial sources.';
+      }
+
+      setWebResult({ score, rating, color, details });
+      setWebStatus('SUCCESS');
+    }, 1200);
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -288,6 +374,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "spreadsheet-cells", label: "IV. Cells & Operations" },
         { id: "spreadsheet-editing", label: "V. Editing Actions" },
         { id: "spreadsheet-interactive", label: "VI. Cell Simulator" }
+      ]
+    : noteData?.staticLookupKey === 'web-technologies-basics'
+    ? [
+        { id: "vle-definition", label: "I. What is a VLE?" },
+        { id: "vle-features", label: "II. VLE Features" },
+        { id: "vle-importance", label: "III. VLE Importance" },
+        { id: "open-learning", label: "IV. Open Learning Sites" },
+        { id: "evaluating-web", label: "V. Evaluating Web Pages" },
+        { id: "web-interactive", label: "VI. Credibility Evaluator" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -1199,6 +1294,296 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     <div className="bg-[#A7F3D0] border-2 border-black p-4 text-[10px] font-mono leading-relaxed text-emerald-950">
                       <strong>Pro-tip:</strong> Click any cell above, type a value or a formula, then click another cell to see it evaluate. Formulas must start with <strong>=</strong> (e.g. <code>=SUM(B2:B3)</code>, <code>=AVERAGE(B2:B3)</code>, or <code>=A2+B2</code>).
                     </div>
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'web-technologies-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE WEB TECHNOLOGIES NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="web-technologies-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_04 // DIGITAL CITIZENSHIP
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Web Technologies & VLEs
+                  </h1>
+                </div>
+
+                {/* Section 1: What is a VLE */}
+                <div className="space-y-4" id="vle-definition">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. What is a Virtual Learning Environment (VLE)?
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    A <strong className="text-black font-black">Virtual Learning Environment (VLE)</strong> is a collaborative platform that enables better learning delivery. It helps educators work more efficiently and allows students to complete schoolwork from anywhere.
+                  </p>
+
+                  <div className="bg-[#38BDF8] border-4 border-black p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
+                    <h4 className="font-mono text-[10px] font-bold text-black uppercase tracking-wider mb-2">Core Purpose //</h4>
+                    <p className="font-sans text-sm text-black leading-relaxed">
+                      A VLE serves to digitize and expand the physical classroom, enabling teachers to manage materials, assign work, and collaborate with learners beyond school hours.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Section 2: VLE Features */}
+                <div className="space-y-4 pt-6" id="vle-features">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Typical Features of a VLE
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    VLE applications integrate various technological features to mimic and improve traditional education structures:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Web & Mobile Apps</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Allow learners to access courses from anywhere at any time on multiple devices.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Collaborative Tools</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Includes virtual classrooms, email, discussion forums, wikis, blogs, and interactive leaderboards.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Innovative Lesson Delivery</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Utilizes gamified learning elements and flipped classrooms (reversing traditional homework first).</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Dual Learning Mode</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Combines synchronous (real-time virtual meetings) with asynchronous (independent study) tracks.</p>
+                    </div>
+                  </div>
+
+                  <div className="border-2 border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left mt-2">
+                    <span className="font-mono text-[9px] font-bold text-gray-500 uppercase block">OFFLINE LEARNING CAPABILITIES //</span>
+                    <p className="font-sans text-xs text-black mt-1 leading-relaxed">
+                      Allows creation of electronic records offline when internet access is poor or unstable. These records automatically synchronize with the central system once a working internet connection is restored.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Section 3: VLE Importance */}
+                <div className="space-y-4 pt-6" id="vle-importance">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Importance of a VLE
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Adopting a VLE yields significant benefits for educational institutions, teachers, and learners alike:
+                  </p>
+
+                  <div className="space-y-3 text-left">
+                    <div className="border border-black p-4 bg-white flex gap-3 items-start">
+                      <span className="font-mono text-xs font-black bg-[#FFD833] border border-black px-2 py-0.5">01</span>
+                      <div>
+                        <strong>Track Learner Performance Easily</strong>
+                        <p className="font-sans text-xs text-gray-600 mt-0.5">Electronic records and auto-assessments allow teachers to monitor student progress and submissions instantly.</p>
+                      </div>
+                    </div>
+
+                    <div className="border border-black p-4 bg-white flex gap-3 items-start">
+                      <span className="font-mono text-xs font-black bg-[#FFD833] border border-black px-2 py-0.5">02</span>
+                      <div>
+                        <strong>Deliver Content Consistently</strong>
+                        <p className="font-sans text-xs text-gray-600 mt-0.5">The same high-quality materials are accessible to all students simultaneously and can be updated instantly.</p>
+                      </div>
+                    </div>
+
+                    <div className="border border-black p-4 bg-white flex gap-3 items-start">
+                      <span className="font-mono text-xs font-black bg-[#FFD833] border border-black px-2 py-0.5">03</span>
+                      <div>
+                        <strong>Save Cost & Time</strong>
+                        <p className="font-sans text-xs text-gray-600 mt-0.5">Educational materials are created once and shared digitally, removing heavy paper printing and distribution costs.</p>
+                      </div>
+                    </div>
+
+                    <div className="border border-black p-4 bg-white flex gap-3 items-start">
+                      <span className="font-mono text-xs font-black bg-[#FFD833] border border-black px-2 py-0.5">04</span>
+                      <div>
+                        <strong>Encourage Collaboration & Community</strong>
+                        <p className="font-sans text-xs text-gray-600 mt-0.5">Forums, shared blogs, and message boards build a virtual sense of community and support peer tutoring.</p>
+                      </div>
+                    </div>
+
+                    <div className="border border-black p-4 bg-white flex gap-3 items-start">
+                      <span className="font-mono text-xs font-black bg-[#FFD833] border border-black px-2 py-0.5">05</span>
+                      <div>
+                        <strong>Promote Flexible, Student-Centered Learning</strong>
+                        <p className="font-sans text-xs text-gray-600 mt-0.5">Students learn at their own pace, re-review complex topics, and study around individual schedules.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Open Learning Websites */}
+                <div className="space-y-4 pt-6" id="open-learning">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    4. Use of Open Learning Websites
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Open learning websites democratize education by offering quality academic courses online at a fraction of the cost of traditional universities:
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="border-2 border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong>Khan Academy</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">A non-profit providing free, world-class education covering kindergarten to early college levels.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong>edX</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Founded by Harvard and MIT; global non-profit providing university-level courses using open-source platforms.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong>Coursera</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Features university partners offering formal courses, professional specializations, and digital degrees.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong>Udemy</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">A global education marketplace where content creators curate and sell their own educational courses.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong>TED-Ed</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">TED's youth arm that utilizes original animations and enables teachers to build interactive lesson wrappers.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong>Codecademy</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">An interactive online portal focusing specifically on programming languages and modern tech topics.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 5: Evaluating Web Pages */}
+                <div className="space-y-4 pt-6" id="evaluating-web">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    5. Evaluating Web Pages (The 5 Core Criteria)
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Unlike books or peer-reviewed journals, content published on the internet does not have strict, universal quality control guidelines. It is vital to evaluate pages using these five core criteria:
+                  </p>
+
+                  <div className="space-y-4 text-left">
+                    <div className="border-2 border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                      <span className="font-mono text-[10px] font-black text-black">I. ACCURACY //</span>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Who wrote the page? Is the person qualified? Can you contact them via email or address to verify statements?</p>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                      <span className="font-mono text-[10px] font-black text-black">II. AUTHORITY //</span>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Which institution published the document? What are their credentials? Check the URL domain: preferred domains include <strong>.edu</strong>, <strong>.gov</strong>, and <strong>.org</strong>.</p>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                      <span className="font-mono text-[10px] font-black text-black">III. OBJECTIVITY / CREDIBILITY //</span>
+                      <p className="font-sans text-xs text-gray-600 mt-1">What goals or objectives does the site meet? Is the page a mask for advertising? (If so, it might be heavily biased).</p>
+                    </div>
+
+                    {/* Accent box: Currency */}
+                    <div className="border-4 border-black p-6 bg-[#C4B5FD] shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                      <h4 className="font-serif text-lg font-black text-black uppercase mb-1">IV. Currency / Current Status</h4>
+                      <p className="font-sans text-xs text-black leading-relaxed">
+                        When was the site produced and last updated? Are there dead links (broken links) on the page? A page with broken links is often abandoned and outdated.
+                      </p>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-[#FCA5A5] shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                      <span className="font-mono text-[10px] font-black text-black">V. COVERAGE / FUNCTIONALITY //</span>
+                      <p className="font-sans text-xs text-black mt-1">Can you view the information properly without being restricted by fees, paywalls, outdated browser requirements, or special software?</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Credibility Evaluator */}
+                <div className="space-y-6 pt-6 text-left" id="web-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <BrainCircuit size={22} />
+                        6. Web Page Credibility Evaluator
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Interactive Credibility Simulator - Evaluate websites based on the 5 core criteria
+                      </p>
+                    </div>
+
+                    {/* Presets */}
+                    <div className="flex flex-wrap gap-2 border-b-2 border-black pb-4">
+                      {[
+                        { id: 'edu', name: 'University Climate Research (.edu)', color: '#A7F3D0' },
+                        { id: 'spam', name: 'Free Game Coins Portal', color: '#FCA5A5' },
+                        { id: 'vintage', name: 'Vintage Gaming Hub (1998)', color: '#FDBA74' },
+                        { id: 'commercial', name: 'Sponsored Health Article', color: '#FFD833' }
+                      ].map((presetItem) => (
+                        <button
+                          key={presetItem.id}
+                          onClick={() => loadWebPreset(presetItem.id)}
+                          className={`px-3 py-1.5 font-mono text-[10px] font-bold uppercase border-2 border-black transition-all cursor-pointer
+                            ${webPreset === presetItem.id
+                              ? 'bg-black text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]'
+                              : 'bg-white text-black hover:bg-gray-100'
+                            }
+                          `}
+                          style={{ borderColor: 'black' }}
+                        >
+                          {presetItem.name}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Simulation Parameters Deck */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-2">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">PAGE METRICS</span>
+                        <div><strong>URL:</strong> <span className="text-blue-700 underline break-all">{webUrl}</span></div>
+                        <div><strong>Domain:</strong> <span className="bg-gray-200 px-1 border border-gray-300 font-bold">{webDomain}</span></div>
+                        <div><strong>Author / Publisher:</strong> <span>{webAuthor}</span></div>
+                      </div>
+
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-2">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">FUNCTIONALITY & OBJECTIVITY</span>
+                        <div><strong>Ads / Marketing:</strong> <span>{webAds}</span></div>
+                        <div><strong>Last Updated:</strong> <span>{webUpdated}</span></div>
+                        <div><strong>Access Requirements:</strong> <span>{webAccess}</span></div>
+                      </div>
+                    </div>
+
+                    {/* Button trigger */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runWebEvaluation}
+                        disabled={webStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {webStatus === 'COMPUTING' ? 'ANALYZING CREDIBILITY VECTOR...' : 'CALCULATE CREDIBILITY SCORE'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Display */}
+                    {webStatus === 'SUCCESS' && webResult && (
+                      <div className="border-4 border-black p-6 transition-all animate-fadeIn" style={{ backgroundColor: webResult.color }}>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3 mb-4">
+                          <h4 className="font-serif text-xl font-black uppercase text-black">EVALUATION REPORT</h4>
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-xs font-bold uppercase text-black">CREDIBILITY SCORE:</span>
+                            <span className="bg-black text-white px-3 py-1 font-mono text-lg font-black border-2 border-black shadow-[2px_2px_0_0_rgba(255,255,255,1)]">
+                              {webResult.score}/100
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="inline-block bg-black text-white px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+                            RATING: {webResult.rating}
+                          </div>
+                          <p className="font-sans text-sm text-black leading-relaxed font-bold">{webResult.details}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </section>
