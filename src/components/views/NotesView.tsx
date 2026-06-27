@@ -62,6 +62,23 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     details: string;
   } | null>(null);
 
+  // Health & Safety Workstation Simulator Interactive State
+  const [hsPosture, setHsPosture] = useState<string>('good'); // good, hunched, slouch
+  const [hsBreaks, setHsBreaks] = useState<string>('regular'); // regular, occasional, none
+  const [hsLoad, setHsLoad] = useState<number>(1500); // wattage load: 500 to 4500
+  const [hsDaisyChain, setHsDaisyChain] = useState<boolean>(false);
+  const [hsBlockAdaptor, setHsBlockAdaptor] = useState<boolean>(false);
+  const [hsDangerSigns, setHsDangerSigns] = useState<string>('none'); // none, hot_plastic, sparks, frayed_wires
+  const [hsAudioLevel, setHsAudioLevel] = useState<number>(50); // volume: 0 to 100
+  const [hsStatus, setHsStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [hsReport, setHsReport] = useState<{
+    ergoScore: number;
+    elecScore: number;
+    riskLevel: string;
+    riskColor: string;
+    riskFeedback: string;
+  } | null>(null);
+
   const getCellsInRange = (rangeStr: string): string[] => {
     const parts = rangeStr.split(':');
     if (parts.length !== 2) return [rangeStr];
@@ -261,6 +278,102 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     }, 1200);
   };
 
+  const runHealthSafetyCheck = () => {
+    setHsStatus('COMPUTING');
+    setTimeout(() => {
+      // 1. Calculate Ergonomics Score (Max 100)
+      let ergoScore = 100;
+      let ergoDeductions: string[] = [];
+
+      if (hsPosture === 'hunched') {
+        ergoScore -= 30;
+        ergoDeductions.push("Hunched posture increases strain on back, neck, and shoulders.");
+      } else if (hsPosture === 'slouch') {
+        ergoScore -= 40;
+        ergoDeductions.push("Slouching or crossing legs reduces joint natural alignment and muscular balance.");
+      }
+
+      if (hsBreaks === 'occasional') {
+        ergoScore -= 15;
+        ergoDeductions.push("Occasional breaks only partially defend against mental fatigue and stress.");
+      } else if (hsBreaks === 'none') {
+        ergoScore -= 35;
+        ergoDeductions.push("Failing to take regular breaks triggers mental fatigue, stress, and higher error rates.");
+      }
+
+      if (hsAudioLevel > 80) {
+        ergoScore -= 15;
+        ergoDeductions.push(`High audio volume (${hsAudioLevel}%) can cause long-term hearing impairment.`);
+      }
+
+      // 2. Calculate Electrical Safety Score (Max 100)
+      let elecScore = 100;
+      let elecDeductions: string[] = [];
+
+      if (hsLoad > 3000) {
+        elecScore -= 30;
+        elecDeductions.push(`Socket wattage load exceeds safe limit of 3000W (${hsLoad}W). Risk of plugs overheating!`);
+      }
+      if (hsDaisyChain) {
+        elecScore -= 25;
+        elecDeductions.push("Daisy-chaining extension leads increases fire risks and wall plug overheating.");
+      }
+      if (hsBlockAdaptor) {
+        elecScore -= 20;
+        elecDeductions.push("Block adaptors often lack internal safety fuses and are unsafe to use.");
+      }
+      if (hsDangerSigns !== 'none') {
+        elecScore -= 45;
+        if (hsDangerSigns === 'hot_plastic') {
+          elecDeductions.push("CRITICAL danger: Smell of hot melting plastic detected!");
+        } else if (hsDangerSigns === 'sparks') {
+          elecDeductions.push("CRITICAL danger: Sparks or scorch marks observed around sockets!");
+        } else if (hsDangerSigns === 'frayed_wires') {
+          elecDeductions.push("CRITICAL danger: Damaged or exposed colored wires inside leads!");
+        }
+      }
+
+      ergoScore = Math.max(0, ergoScore);
+      elecScore = Math.max(0, elecScore);
+
+      // Determine risk levels
+      let riskLevel = 'LOW RISK (SAFE WORKSTATION)';
+      let riskColor = '#A7F3D0'; // green
+      if (ergoScore < 50 || elecScore < 50) {
+        riskLevel = 'CRITICAL HAZARD (IMMEDIATE ACTION REQUIRED)';
+        riskColor = '#FCA5A5'; // red
+      } else if (ergoScore < 80 || elecScore < 80) {
+        riskLevel = 'WARNING (SAFETY IMPROVEMENTS NEEDED)';
+        riskColor = '#FFD833'; // yellow
+      }
+
+      // Compile feedback
+      let feedbackLines = [];
+      if (ergoDeductions.length > 0) {
+        feedbackLines.push("ERGONOMIC CHALLENGES:");
+        ergoDeductions.forEach(d => feedbackLines.push(`• ${d}`));
+      } else {
+        feedbackLines.push("✓ Workstation ergonomics & posture follow ideal safety guidelines.");
+      }
+      feedbackLines.push("");
+      if (elecDeductions.length > 0) {
+        feedbackLines.push("ELECTRICAL PRECAUTIONS:");
+        elecDeductions.forEach(d => feedbackLines.push(`• ${d}`));
+      } else {
+        feedbackLines.push("✓ Electrical connections & load levels are safe.");
+      }
+
+      setHsReport({
+        ergoScore,
+        elecScore,
+        riskLevel,
+        riskColor,
+        riskFeedback: feedbackLines.join("\n")
+      });
+      setHsStatus('SUCCESS');
+    }, 1200);
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -383,6 +496,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "open-learning", label: "IV. Open Learning Sites" },
         { id: "evaluating-web", label: "V. Evaluating Web Pages" },
         { id: "web-interactive", label: "VI. Credibility Evaluator" }
+      ]
+    : noteData?.staticLookupKey === 'computer-safety-basics'
+    ? [
+        { id: "hs-ergonomics", label: "I. Ergonomics & Posture" },
+        { id: "hs-breaks", label: "II. Importance of Breaks" },
+        { id: "hs-tools", label: "III. Supportive Tools" },
+        { id: "hs-audio", label: "IV. Audio Settings" },
+        { id: "hs-electrical", label: "V. Electrical Safety" },
+        { id: "hs-interactive", label: "VI. Workstation Simulator" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -1581,6 +1703,307 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             RATING: {webResult.rating}
                           </div>
                           <p className="font-sans text-sm text-black leading-relaxed font-bold">{webResult.details}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'computer-safety-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE HEALTH & SAFETY NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="health-safety-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_05 // WORKSTATION MANAGEMENT
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Computer Health & Safety
+                  </h1>
+                </div>
+
+                {/* Section 1: Workstation Health Risk Assessment & Posture */}
+                <div className="space-y-4" id="hs-ergonomics">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. Ergonomic Sitting Posture
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Good sitting posture respects the natural positioning of our joints and preserves muscular balance. Adopting proper posture avoids physical fatigue, strains, and repetitive injury risks.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 font-semibold text-xs text-black leading-relaxed">
+                    <div className="border border-black p-4 bg-white">
+                      <strong>Back & Shoulders</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Keep back straight, shoulders relaxed and back. Avoid rounding them forward. Set the monitor at eye level.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white">
+                      <strong>Elbow Angle</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Position elbows to form a 90° – 100° angle (never less) relative to the keyboard.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white">
+                      <strong>Knee Height</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Maintain knees at the height of the hips, forming a 90° – 100° angle with your torso.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white">
+                      <strong>Legs & Feet</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Rest feet flat on the ground with legs relaxed at a 90° – 100° angle. Avoid crossing legs.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Importance of Breaks */}
+                <div className="space-y-4 pt-6" id="hs-breaks">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Importance of Taking Breaks
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    When dealing with high workloads or complex coding/writing tasks, taking regular breaks (micro-breaks, lunch breaks, and longer pauses) is vital to preserve both well-being and performance:
+                  </p>
+
+                  <div className="border-4 border-black p-6 bg-[#C4B5FD] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                    <h4 className="font-serif text-lg font-black text-black uppercase mb-3">Key Benefits of Breaks</h4>
+                    <ul className="space-y-2 text-xs text-black font-semibold leading-relaxed">
+                      <li><strong>Avoids Mental Fatigue:</strong> Prevents impairments in memory, concentration, and logic.</li>
+                      <li><strong>Reduces Stress & Burnout:</strong> Helps regulate pressure, protecting motivation and mood.</li>
+                      <li><strong>Recharges Mental Energy:</strong> Refreshes cognitive processes, restoring overall focus.</li>
+                      <li><strong>Enhances Work Quality:</strong> Boosts problem-solving accuracy and reduces programming errors.</li>
+                      <li><strong>Stimulates Creativity:</strong> Stepping away sparks new solutions and visual perspectives.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Section 3: Supportive Tools */}
+                <div className="space-y-4 pt-6" id="hs-tools">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Supportive Postural Tools
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Adding simple accessories drastically lowers workstation occupational fatigue:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border-2 border-black p-5 bg-[#38BDF8] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">DOCUMENT HOLDERS</h4>
+                      <p className="font-sans text-xs text-black leading-relaxed">
+                        Holds printed materials close to the monitor. Eliminates awkward neck twist and head postures, reducing headaches and eye strain.
+                      </p>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-2">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">COMPUTER SPECTACLES</h4>
+                      <p className="font-sans text-xs text-black leading-relaxed">
+                        Special anti-glare eyeglasses that reduce screen glare, stopping you from leaning in or hunching over the screen.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Audio Settings */}
+                <div className="space-y-4 pt-6" id="hs-audio">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    4. Audio Settings & Hearing Protection
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Setting safe volume thresholds on speakers and headphones protects against ear fatigue and hearing degradation. In Windows, this is configured via the Control Panel:
+                  </p>
+
+                  <div className="border border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left font-mono text-xs space-y-2">
+                    <div className="font-bold text-gray-500 uppercase">VOLUME CONFIGURATION GUIDE //</div>
+                    <ol className="list-decimal list-inside space-y-1.5 font-bold text-black">
+                      <li>Search for and select <strong className="underline">Control Panel</strong> in the Windows search bar.</li>
+                      <li>Select <strong className="underline">Sound</strong> from the list.</li>
+                      <li>Select <strong className="underline">Properties</strong> for the active audio output device.</li>
+                      <li>Navigate to the <strong className="underline">Levels tab</strong> to adjust and safely limit the volume slider.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                {/* Section 5: Electrical Safety */}
+                <div className="space-y-4 pt-6" id="hs-electrical">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    5. Electrical Safety & Socket Overloading
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Plugging too many appliances into one extension lead causes cords and wall plugs to overheat, creating severe fire hazards. Avoid these dangers with clean connection habits:
+                  </p>
+
+                  <div className="space-y-4 text-left">
+                    <div className="border-2 border-black p-4 bg-white">
+                      <h4 className="font-mono text-xs font-black text-black">EXTENSION LEAD RATINGS & LOAD</h4>
+                      <p className="font-sans text-xs text-gray-600 mt-1">
+                        Check the maximum amperage rating of your extension lead (most are 13A or less). Ensure the combined load of plugged appliances does not exceed this rating, or a maximum wattage of <strong>3000W</strong>.
+                      </p>
+                    </div>
+
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6]">
+                      <h4 className="font-mono text-xs font-black text-black">NO DAISY-CHAINING</h4>
+                      <p className="font-sans text-xs text-gray-600 mt-1">
+                        Never plug one extension lead into another (daisy-chaining). Always use fused multiway bars instead of block adaptors, as block adaptors often lack fuses and overheat easily.
+                      </p>
+                    </div>
+
+                    {/* Accent box: Danger Signs */}
+                    <div className="border-4 border-black p-6 bg-[#FCA5A5] shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                      <h4 className="font-serif text-lg font-black text-black uppercase mb-2">Regular Danger Signs to Inspect</h4>
+                      <ul className="list-disc list-inside text-xs text-black font-semibold space-y-1">
+                        <li>Smell of hot, melting plastic.</li>
+                        <li>Sparks or scorch marks on wall sockets or plugs.</li>
+                        <li>Damaged, frayed, or exposed colored wires in power cords.</li>
+                        <li>Fuses that repeatedly blow without reason.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Workstation Safety Checker */}
+                <div className="space-y-6 pt-6 text-left" id="hs-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <BrainCircuit size={22} />
+                        6. Workstation & Electrical Safety Simulator
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Interactive Safety Checker - Adjust workstation settings to check health and safety levels
+                      </p>
+                    </div>
+
+                    {/* Simulation Parameters Deck */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+                      {/* Ergonomic settings */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">ERGONOMICS & WORK HABITS</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Sitting Posture:</label>
+                          <select 
+                            value={hsPosture} 
+                            onChange={(e) => { setHsPosture(e.target.value); setHsStatus('IDLE'); setHsReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="good">Good (Straight back, relaxed, screen eye level)</option>
+                            <option value="hunched">Hunched (Leaning forward, hunched shoulders)</option>
+                            <option value="slouch">Slouched (Arching lower back, legs crossed)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Taking Breaks:</label>
+                          <select 
+                            value={hsBreaks} 
+                            onChange={(e) => { setHsBreaks(e.target.value); setHsStatus('IDLE'); setHsReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="regular">Regular Breaks (Micro-breaks & lunch breaks)</option>
+                            <option value="occasional">Occasional Breaks (Few short breaks)</option>
+                            <option value="none">No Breaks (Continuous computer use)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Audio Level (Speaker/Earpieces): {hsAudioLevel}%</label>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            value={hsAudioLevel} 
+                            onChange={(e) => { setHsAudioLevel(parseInt(e.target.value)); setHsStatus('IDLE'); setHsReport(null); }}
+                            className="w-full accent-black cursor-pointer"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Electrical safety settings */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">ELECTRICAL SAFETY</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Wattage Load: {hsLoad}W</label>
+                          <input 
+                            type="range" 
+                            min="500" 
+                            max="4500" 
+                            step="250"
+                            value={hsLoad} 
+                            onChange={(e) => { setHsLoad(parseInt(e.target.value)); setHsStatus('IDLE'); setHsReport(null); }}
+                            className="w-full accent-black cursor-pointer"
+                          />
+                          <span className="text-[8px] text-gray-500 block">MAX SAFE LIMIT: 3000W</span>
+                        </div>
+
+                        <div className="flex flex-col gap-2 pt-1 font-bold">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              checked={hsDaisyChain} 
+                              onChange={(e) => { setHsDaisyChain(e.target.checked); setHsStatus('IDLE'); setHsReport(null); }}
+                              className="accent-black border-2 border-black rounded-none cursor-pointer"
+                            />
+                            Daisy-chaining Leads (Extension into Extension)
+                          </label>
+
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              checked={hsBlockAdaptor} 
+                              onChange={(e) => { setHsBlockAdaptor(e.target.checked); setHsStatus('IDLE'); setHsReport(null); }}
+                              className="accent-black border-2 border-black rounded-none cursor-pointer"
+                            />
+                            Using Block Adaptors (Instead of Fused Multiway Bars)
+                          </label>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Danger Signs Observed:</label>
+                          <select 
+                            value={hsDangerSigns} 
+                            onChange={(e) => { setHsDangerSigns(e.target.value); setHsStatus('IDLE'); setHsReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="none">No Danger Signs</option>
+                            <option value="hot_plastic">Smell of Hot Plastic</option>
+                            <option value="sparks">Sparks / Scorch Marks</option>
+                            <option value="frayed_wires">Damaged / Frayed / Exposed Wires</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Button trigger */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runHealthSafetyCheck}
+                        disabled={hsStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {hsStatus === 'COMPUTING' ? 'COMPUTING SAFETY PROTOCOLS...' : 'RUN WORKSTATION SAFETY CHECK'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Display */}
+                    {hsStatus === 'SUCCESS' && hsReport && (
+                      <div className="border-4 border-black p-6 transition-all animate-fadeIn" style={{ backgroundColor: hsReport.riskColor }}>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3 mb-4">
+                          <h4 className="font-serif text-xl font-black uppercase text-black">SAFETY REPORT</h4>
+                          <div className="flex items-center gap-4 font-mono text-xs font-bold text-black">
+                            <span>ERGONOMICS: {hsReport.ergoScore}/100</span>
+                            <span>ELECTRICAL: {hsReport.elecScore}/100</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="inline-block bg-black text-white px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+                            STATUS: {hsReport.riskLevel}
+                          </div>
+                          <pre className="font-mono text-xs text-black leading-relaxed whitespace-pre-wrap font-bold bg-white/40 p-4 border border-black/10">
+                            {hsReport.riskFeedback}
+                          </pre>
                         </div>
                       </div>
                     )}

@@ -421,6 +421,66 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "V. Coverage / Functionality: Can you view the information properly without being restricted by fees, browser technology, or software requirements?"
       }
     ]
+  },
+  {
+    id: "computer-safety-basics",
+    title: "Health and Safety in the Use of Computers",
+    classLevel: "Basic 9",
+    subjectCode: "COMP-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Understanding health risks, ergonomic workstations, electrical precautions, and hazard signals is essential to maintain safety and well-being when using computers."
+      },
+      {
+        type: "challenge_callout",
+        body: "IMPORTANCE OF BREAKS:\nRegular breaks (micro-breaks, lunch breaks, etc.) restore focus and productivity:\n• Avoids Mental Fatigue: Prevents memory and decision-making lapses.\n• Reduces Stress: Protects mood, energy, and overall performance.\n• Stimulates Creativity: Generates new ideas and solutions."
+      },
+      {
+        type: "text",
+        body: "Adopting Good Sitting Posture:"
+      },
+      {
+        type: "bullet_point",
+        body: "Back & Shoulders: Keep your back straight, shoulders relaxed and back, and screen at eye level to avoid neck strain."
+      },
+      {
+        type: "bullet_point",
+        body: "Elbows: Form a 90° – 100° angle (never less)."
+      },
+      {
+        type: "bullet_point",
+        body: "Knees: Keep knees at hip height (thighs form a 90° – 100° angle with the torso)."
+      },
+      {
+        type: "bullet_point",
+        body: "Feet: Keep feet resting flat on the ground (avoid crossing legs)."
+      },
+      {
+        type: "challenge_callout",
+        body: "SUPPORTIVE TOOLS:\n• Document Holders: Position printed sheets close to the screen to eliminate neck twist, eye strain, and headaches.\n• Computer Spectacles: Anti-glare glasses reduce screen glare and stop you from leaning forward."
+      },
+      {
+        type: "text",
+        body: "Safety Measures in Risk Reduction at Workstations:"
+      },
+      {
+        type: "bullet_point",
+        body: "Adjusting Audio: Set volume safely in Windows (Control Panel -> Sound -> Properties -> Levels tab)."
+      },
+      {
+        type: "bullet_point",
+        body: "Overloaded Sockets: Avoid overloading wall plugs (ratings must not exceed 13A or 3000W combined)."
+      },
+      {
+        type: "bullet_point",
+        body: "Extension Leads: Use multiway bar extensions instead of fuses-less block adaptors. Never daisy-chain extensions."
+      },
+      {
+        type: "challenge_callout",
+        body: "DANGER SIGNALS:\nAlways inspect electrical connections for:\n• Smell of hot plastic.\n• Sparks or scorch marks around sockets/leads.\n• Damaged or exposed colored wires.\n• Fuses that repeatedly blow."
+      }
+    ]
   }
 ];
 
