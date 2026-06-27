@@ -79,6 +79,34 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     riskFeedback: string;
   } | null>(null);
 
+  // Desktop Publishing (DTP) Flyer Builder Simulator Interactive State
+  const [dtpTemplate, setDtpTemplate] = useState<string>('flyer'); // flyer, business_card, brochure
+  const [dtpOrientation, setDtpOrientation] = useState<string>('Portrait'); // Portrait, Landscape
+  const [dtpMargins, setDtpMargins] = useState<string>('Moderate'); // Narrow, Moderate, Wide, None
+  const [dtpTextFit, setDtpTextFit] = useState<string>('Grow Box to Fit'); // Best Fit, Shrink on Overflow, Grow Box to Fit, Do not Autofit
+  const [dtpPictureOption, setDtpPictureOption] = useState<string>('placeholder'); // picture, placeholder, none
+  const [dtpDropCap, setDtpDropCap] = useState<boolean>(true);
+  const [dtpLigatures, setDtpLigatures] = useState<boolean>(true);
+  const [dtpSwash, setDtpSwash] = useState<boolean>(false);
+  const [dtpColorTheme, setDtpColorTheme] = useState<string>('modern'); // modern, vintage, warm
+  const [dtpStatus, setDtpStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [dtpReport, setDtpReport] = useState<{
+    designScore: number;
+    warnings: string[];
+    feedback: string;
+    efficiencyRating: string;
+  } | null>(null);
+
+  // Spreadsheet Formulas Simulator State
+  const [ssfFormulaInput, setSsfFormulaInput] = useState<string>('=SUM(B2:B3)');
+  const [ssfStatus, setSsfStatus] = useState<'IDLE' | 'COMPUTING' | 'SUCCESS'>('IDLE');
+  const [ssfResult, setSsfResult] = useState<{
+    value: string;
+    isError: boolean;
+    errorType: string | null;
+    explanation: string;
+  } | null>(null);
+
   const getCellsInRange = (rangeStr: string): string[] => {
     const parts = rangeStr.split(':');
     if (parts.length !== 2) return [rangeStr];
@@ -374,6 +402,139 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     }, 1200);
   };
 
+  const runDtpEvaluation = () => {
+    setDtpStatus('COMPUTING');
+    setTimeout(() => {
+      let score = 100;
+      let warnings: string[] = [];
+      let feedback = "";
+      
+      // Posture/Layout guidelines evaluation
+      if (dtpTemplate === 'business_card') {
+        if (dtpOrientation === 'Portrait') {
+          score -= 10;
+          warnings.push("Layout caution: Most business cards are traditionally designed in Landscape orientation for standard cardholder storage.");
+        }
+        if (dtpMargins === 'Wide') {
+          score -= 20;
+          warnings.push("Margins too wide: Wide margins leave very little room for contact details on a small 3.5\" x 2.0\" card canvas.");
+        }
+      }
+      
+      if (dtpTemplate === 'brochure') {
+        if (dtpOrientation === 'Portrait') {
+          // Tri-fold brochures are usually landscape
+          score -= 10;
+          warnings.push("Orientation suggestion: Multi-panel brochures are typically designed in Landscape orientation for proper folding segments.");
+        }
+      }
+      
+      if (dtpTextFit === 'Do not Autofit') {
+        score -= 20;
+        warnings.push("Text warning: Without autofitting, text overflow can go unnoticed, resulting in cut-off sentences in the printed publication.");
+      } else if (dtpTextFit === 'Grow Box to Fit') {
+        if (dtpTemplate === 'business_card' || dtpTemplate === 'flyer') {
+          score -= 10;
+          warnings.push("Layout warning: Growing the text box automatically can shift other elements (like images or logos) off-screen or out of alignment.");
+        }
+      }
+      
+      if (dtpPictureOption === 'none') {
+        score -= 15;
+        warnings.push("Design warning: A publication with no illustrations or placeholders relies entirely on text, lowering visual communication appeal.");
+      }
+      
+      // Typography embellishments
+      let typographyBonus = 0;
+      if (dtpDropCap) typographyBonus += 5;
+      if (dtpLigatures) typographyBonus += 5;
+      if (dtpSwash) typographyBonus += 5;
+      score = Math.min(100, Math.max(0, score + typographyBonus));
+      
+      let efficiencyRating = 'EXCELLENT LAYOUT';
+      if (score < 60) {
+        efficiencyRating = 'POOR DESIGN CONFIGURATION';
+      } else if (score < 85) {
+        efficiencyRating = 'MODERATE DESIGN BALANCE';
+      }
+      
+      feedback = warnings.length > 0 
+        ? "LAYOUT CORRECTIONS SUGGESTED:\n" + warnings.map(w => `• ${w}`).join("\n")
+        : "✓ Perfect layout balance! The template meets all professional design and output guidelines.";
+        
+      setDtpReport({
+        designScore: score,
+        warnings,
+        feedback,
+        efficiencyRating
+      });
+      setDtpStatus('SUCCESS');
+    }, 1200);
+  };
+
+  const runSsfEvaluation = () => {
+    setSsfStatus('COMPUTING');
+    setTimeout(() => {
+      const formula = ssfFormulaInput.trim().toUpperCase();
+      let valStr = "";
+      let isError = false;
+      let errorType = null;
+      let explanation = "";
+
+      if (!formula.startsWith('=')) {
+        valStr = formula;
+        explanation = "This is treated as pure text/label. Remember, all formulas and functions MUST begin with an equal sign (=) to calculate values.";
+      } else {
+        const expression = formula.slice(1).trim();
+
+        if (expression.startsWith('SU(')) {
+          isError = true;
+          errorType = '#NAME?';
+          explanation = "NAME ERROR: The function name is misspelled as SU. In Excel, the function to add cell ranges must be spelled exactly as SUM.";
+        } else if (expression.includes('/0')) {
+          isError = true;
+          errorType = '#DIV/0!';
+          explanation = "DIVISION BY ZERO: You attempted to divide a value by zero (or an empty cell). Use the IFERROR function to handle empty fields elegantly, e.g., =IFERROR(A2/B2, 0).";
+        } else if (expression.includes('D4') || expression.includes('E5')) {
+          isError = true;
+          errorType = '#REF!';
+          explanation = "REFERENCE ERROR: The formula refers to a cell that is missing or deleted. Lock references using absolute coordinates ($) or paste calculations as values before deletion.";
+        } else if (expression.includes(' ') && !expression.includes('"') && !expression.includes("'")) {
+          isError = true;
+          errorType = '#NULL!';
+          explanation = "NULL ERROR: A space was used instead of a comma (,) or a colon (:) separator between arguments. Ensure proper syntax in lists and ranges.";
+        } else if (expression.includes('+A') || expression.includes('+"') || expression.includes('+TEXT')) {
+          isError = true;
+          errorType = '#VALUE!';
+          explanation = "VALUE ERROR: You attempted an arithmetic operation using a text string instead of numeric data types. Check that all referenced cells contain numbers.";
+        } else if (expression.startsWith('SUM(B2:B3)') || expression.startsWith('SUM(85,90)')) {
+          valStr = "175";
+          explanation = "✓ SUCCESS: SUM added B2 (85) and B3 (90) correctly.";
+        } else if (expression.startsWith('AVERAGE(B2:B3)') || expression.startsWith('AVERAGE(85,90)')) {
+          valStr = "87.5";
+          explanation = "✓ SUCCESS: AVERAGE calculated the mean of B2 (85) and B3 (90).";
+        } else if (expression.startsWith('RATE(')) {
+          valStr = "6.5%";
+          explanation = "✓ SUCCESS: RATE calculated the periodic loan interest rate correctly based on periods (nper), pmt, and pv.";
+        } else if (expression.startsWith('COUNTIF(')) {
+          valStr = "1";
+          explanation = "✓ SUCCESS: COUNTIF checked the range and counted cells matching the logical condition.";
+        } else {
+          valStr = "Calculated Result";
+          explanation = "✓ Formula compiled. Standard cell evaluation returned a successful numeric response.";
+        }
+      }
+
+      setSsfResult({
+        value: isError ? errorType! : valStr,
+        isError,
+        errorType,
+        explanation
+      });
+      setSsfStatus('SUCCESS');
+    }, 1200);
+  };
+
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
@@ -505,6 +666,24 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         { id: "hs-audio", label: "IV. Audio Settings" },
         { id: "hs-electrical", label: "V. Electrical Safety" },
         { id: "hs-interactive", label: "VI. Workstation Simulator" }
+      ]
+    : noteData?.staticLookupKey === 'dtp-basics'
+    ? [
+        { id: "dtp-definition", label: "I. What is DTP?" },
+        { id: "dtp-importance", label: "II. DTP Importance" },
+        { id: "dtp-templates", label: "III. Template Actions" },
+        { id: "dtp-ribbons", label: "IV. Publisher Ribbons" },
+        { id: "dtp-fitting", label: "V. Text Fitting & Typos" },
+        { id: "dtp-interactive", label: "VI. Flyer Builder" }
+      ]
+    : noteData?.staticLookupKey === 'spreadsheet-formulas-basics'
+    ? [
+        { id: "ssf-definition", label: "I. Formulas vs. Functions" },
+        { id: "ssf-functions", label: "II. Built-In Functions" },
+        { id: "ssf-references", label: "III. Cell References" },
+        { id: "ssf-percentages", label: "IV. Percentage Methods" },
+        { id: "ssf-financial", label: "V. Loan Interest Rates" },
+        { id: "ssf-interactive", label: "VI. Formulas Simulator" }
       ]
     : contentBlocksToRender
         ?.map((block: any, idx: number) => {
@@ -2004,6 +2183,660 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                           <pre className="font-mono text-xs text-black leading-relaxed whitespace-pre-wrap font-bold bg-white/40 p-4 border border-black/10">
                             {hsReport.riskFeedback}
                           </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'dtp-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE DESKTOP PUBLISHING NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="dtp-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_06 // DIGITAL DESIGN & PRINT
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Desktop Publishing (DTP)
+                  </h1>
+                </div>
+
+                {/* Section 1: What is DTP */}
+                <div className="space-y-4" id="dtp-definition">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. What is Desktop Publishing?
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Desktop publishing (DTP) software is designed specifically for creating visual communications—such as brochures, business cards, greeting cards, web pages, posters, and flyers—for professional or personal printing, online or on-screen.
+                  </p>
+
+                  <div className="border border-black p-4 bg-white mt-4 text-left">
+                    <span className="font-mono text-[9px] font-bold text-gray-500 block mb-1">COMMON EXAMPLES OF DTP SOFTWARE //</span>
+                    <p className="font-sans text-xs text-black">
+                      Adobe InDesign, Adobe FrameMaker, Adobe PageMaker, CorelDraw, Corel Ventura, LibreOffice Draw, Microsoft Publisher, QuarkXPress, and Page Stream.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Section 2: Importance of DTP */}
+                <div className="space-y-4 pt-6" id="dtp-importance">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Importance of Desktop Publishing
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    DTP software replaces traditional physical paste-up methods and streamlines the layout design pipeline:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Professional Design</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Allows creating documents with high design sophistication by combining text, photos, and graphical borders.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Visual Appeal</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Provides robust controls over typography, colors, and graphics to instantly capture the reader's attention.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Efficiency & Styles</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Speeds up production using reusable master templates, master pages, and paragraph styles.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Cost-Effective</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Empowers small companies and individuals to create professional layouts without high agency expenses.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Template & File Actions */}
+                <div className="space-y-4 pt-6" id="dtp-templates">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Template Creation & Document Saving
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    DTP software features pre-designed layout templates to optimize design workflow:
+                  </p>
+
+                  <div className="space-y-6">
+                    <div className="border border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <h4 className="font-serif text-lg font-black text-black uppercase mb-3">Creating from Template</h4>
+                      <ol className="list-decimal list-inside text-xs text-black font-semibold space-y-1.5">
+                        <li>Navigate to the **File tab** and select **New** to open the Backstage View.</li>
+                        <li>Select the desired **Publication Type** (e.g., Flyers, Brochures).</li>
+                        <li>Choose a template category (such as Microsoft Built-in designs).</li>
+                        <li>Use the preview pane to customize colors, fonts, or company details.</li>
+                        <li>Click **Create** to initialize the workspace.</li>
+                      </ol>
+                    </div>
+
+                    <div className="border-4 border-black p-6 bg-[#38BDF8] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                      <h4 className="font-serif text-lg font-black text-black uppercase mb-2">Save vs. Save As</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold">
+                        <div>
+                          <strong>Save:</strong>
+                          <p className="mt-1 text-black/80">Updates and overwrites the active content of an existing, previously saved file on your disk.</p>
+                        </div>
+                        <div>
+                          <strong>Save As:</strong>
+                          <p className="mt-1 text-black/80">Creates a new instance of the file under a new name, in a new location, or inside a new directory folder.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Publisher Ribbons & Tabs */}
+                <div className="space-y-4 pt-6" id="dtp-ribbons">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    4. Publisher Ribbons & Layout Setup
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Publisher consolidates commands inside context-specific ribbons to simplify editing:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="border-2 border-black p-5 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-3">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">RIBON & TABS DIRECTORY</h4>
+                      <ul className="space-y-1 text-xs font-semibold text-gray-700">
+                        <li><strong>Home:</strong> Text styles, font sizing, alignments, and drawing boxes.</li>
+                        <li><strong>Insert:</strong> Content items (pictures, placeholders, tables, shapes, headers).</li>
+                        <li><strong>Page Design:</strong> Page setup (orientation, margins, and global color/font schemes).</li>
+                        <li><strong>Review:</strong> Proofing, spelling audits, thesaurus, and translations.</li>
+                        <li><strong>View:</strong> Navigation guides, page view styles (1-page or 2-page spreads), rulers.</li>
+                      </ul>
+                    </div>
+
+                    <div className="border-2 border-black p-5 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-3">
+                      <h4 className="font-serif text-lg font-bold uppercase text-black">PAGE SETUP & MARGINS</h4>
+                      <div className="space-y-2 text-xs text-black font-semibold">
+                        <div>
+                          <strong>Orientation:</strong>
+                          <p className="text-black/80">Page Design &rarr; Orientation. Toggle between Portrait (taller than wide) and Landscape (wider than tall).</p>
+                        </div>
+                        <div>
+                          <strong>Margins (Global):</strong>
+                          <p className="text-black/80">Page Design &rarr; Margins. Choose presets like Wide, Moderate, Narrow, or None.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 5: Text Fitting & Typography */}
+                <div className="space-y-4 pt-6" id="dtp-fitting">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    5. Text Fitting, Linking & Typography
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Publications require fluid layout adjustments to prevent text cut-off, and embellishments to increase readability:
+                  </p>
+
+                  <div className="space-y-4 text-left">
+                    <div className="border border-black p-4 bg-white">
+                      <strong>Text Box Linking (Flow Control):</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">
+                        Connect multiple text frames to handle text overflow automatically. Select the first text box &rarr; click <strong>Format tab</strong> &rarr; click <strong>Create Link</strong> &rarr; click on the secondary box.
+                      </p>
+                    </div>
+
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6]">
+                      <h4 className="font-mono text-xs font-black text-black">TEXT FIT OPTIONS</h4>
+                      <ul className="list-disc list-inside text-xs text-gray-700 mt-2 space-y-1 font-semibold">
+                        <li><strong>Best Fit:</strong> Adjusts font size up or down to fill the box layout perfectly.</li>
+                        <li><strong>Shrink Text on Overflow:</strong> Lowers the font size only if text spills over boundaries.</li>
+                        <li><strong>Grow Text Box to Fit:</strong> Automatically expands the text box size (default).</li>
+                        <li><strong>Do not Autofit:</strong> Applies no font or box resizing.</li>
+                      </ul>
+                    </div>
+
+                    <div className="border border-black p-4 bg-white">
+                      <strong>Typography Embellishments (Format Tab &rarr; Typography):</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">
+                        Enhance textual style with advanced decorations: <strong>Drop Cap</strong> (enlarge first letter), <strong>Ligatures</strong> (fuse letter combinations), <strong>Swash</strong> (embellish capital letters), and <strong>Stylistic Alternates</strong> (alternate lowercase designs).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Flyer Builder */}
+                <div className="space-y-6 pt-6 text-left" id="dtp-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <BrainCircuit size={22} />
+                        6. Interactive Flyer / Publication Builder
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Interactive Publisher Simulator - Customize and compile your publication layout
+                      </p>
+                    </div>
+
+                    {/* Simulation Parameters Deck */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+                      {/* Page Setup */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">PAGE SETUP & SCHEME</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Publication Type:</label>
+                          <select 
+                            value={dtpTemplate} 
+                            onChange={(e) => { setDtpTemplate(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="flyer">Event Flyer (8.5" x 11")</option>
+                            <option value="brochure">Tri-fold Brochure (11" x 8.5")</option>
+                            <option value="business_card">Business Card (3.5" x 2.0")</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Orientation:</label>
+                          <select 
+                            value={dtpOrientation} 
+                            onChange={(e) => { setDtpOrientation(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="Portrait">Portrait (Taller than wide)</option>
+                            <option value="Landscape">Landscape (Wider than tall)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Margins:</label>
+                          <select 
+                            value={dtpMargins} 
+                            onChange={(e) => { setDtpMargins(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="Narrow">Narrow (0.25 in)</option>
+                            <option value="Moderate">Moderate (0.5 in)</option>
+                            <option value="Wide">Wide (1.0 in)</option>
+                            <option value="None">None (0.0 in)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Color Theme:</label>
+                          <select 
+                            value={dtpColorTheme} 
+                            onChange={(e) => { setDtpColorTheme(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="modern">Modern Cyberpunk (Yellow/Teal)</option>
+                            <option value="vintage">Vintage Retro (Peach/Orange)</option>
+                            <option value="warm">Warm Editorial (Emerald/Cream)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Content & Typography */}
+                      <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
+                        <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">CONTENT & TYPOGRAPHY OPTIONS</span>
+                        
+                        <div className="space-y-1">
+                          <label className="font-bold block">Text Autofit Mode:</label>
+                          <select 
+                            value={dtpTextFit} 
+                            onChange={(e) => { setDtpTextFit(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="Best Fit">Best Fit (Auto adjust font)</option>
+                            <option value="Shrink on Overflow">Shrink Text on Overflow</option>
+                            <option value="Grow Box to Fit">Grow Text Box to Fit</option>
+                            <option value="Do not Autofit">Do not Autofit (Risk overflow)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold block">Illustration Tool:</label>
+                          <select 
+                            value={dtpPictureOption} 
+                            onChange={(e) => { setDtpPictureOption(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
+                            className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
+                          >
+                            <option value="picture">Insert Picture (Computer)</option>
+                            <option value="placeholder">Picture Placeholder</option>
+                            <option value="none">No Pictures</option>
+                          </select>
+                        </div>
+
+                        <div className="flex flex-col gap-2 pt-1 font-bold">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              checked={dtpDropCap} 
+                              onChange={(e) => { setDtpDropCap(e.target.checked); setDtpStatus('IDLE'); setDtpReport(null); }}
+                              className="accent-black border-2 border-black rounded-none cursor-pointer"
+                            />
+                            Drop Cap (Enlarge first letter)
+                          </label>
+
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              checked={dtpLigatures} 
+                              onChange={(e) => { setDtpLigatures(e.target.checked); setDtpStatus('IDLE'); setDtpReport(null); }}
+                              className="accent-black border-2 border-black rounded-none cursor-pointer"
+                            />
+                            Standard Ligatures (Fuses readable chars)
+                          </label>
+
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              checked={dtpSwash} 
+                              onChange={(e) => { setDtpSwash(e.target.checked); setDtpStatus('IDLE'); setDtpReport(null); }}
+                              className="accent-black border-2 border-black rounded-none cursor-pointer"
+                            />
+                            Swash (Decorated capital letters)
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Button trigger */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runDtpEvaluation}
+                        disabled={dtpStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {dtpStatus === 'COMPUTING' ? 'COMPILING & RENDERING LAYOUT...' : 'COMPILE & RENDER PUBLICATION'}
+                      </button>
+                    </div>
+
+                    {/* Simulation Output Display */}
+                    {dtpStatus === 'SUCCESS' && dtpReport && (
+                      <div className="border-4 border-black p-6 bg-[#F3F4F6] transition-all animate-fadeIn">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3 mb-4">
+                          <h4 className="font-serif text-xl font-black uppercase text-black">RENDER PREVIEW</h4>
+                          <div className="flex items-center gap-2 font-mono text-xs font-bold text-black">
+                            <span>DESIGN SCORE:</span>
+                            <span className="bg-black text-white px-2 py-0.5 font-mono text-sm font-black border border-black shadow-[1px_1px_0_0_rgba(255,255,255,1)]">
+                              {dtpReport.designScore}/100
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Interactive Visual Canvas Mockup */}
+                        <div className="flex justify-center py-4 bg-gray-200 border-2 border-dashed border-black mb-4">
+                          <div 
+                            className={`border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-4 transition-all flex flex-col justify-between
+                              ${dtpOrientation === 'Portrait' ? 'w-48 h-64' : 'w-64 h-48'}
+                            `}
+                            style={{ 
+                              backgroundColor: dtpColorTheme === 'modern' ? '#FFF' : dtpColorTheme === 'vintage' ? '#FFF3C4' : '#F4EFE6',
+                              borderColor: 'black'
+                            }}
+                          >
+                            <div className="flex justify-between items-start">
+                              <span className="font-mono text-[6px] text-gray-500 uppercase tracking-widest">
+                                DTP_RENDER // {dtpTemplate.toUpperCase()}
+                              </span>
+                              <span className="font-mono text-[6px] text-gray-400">
+                                {dtpOrientation.toUpperCase()}
+                              </span>
+                            </div>
+
+                            <div className="flex-1 my-2 flex flex-col gap-2 relative">
+                              {/* Heading with drop cap */}
+                              <div className="flex gap-1 items-start">
+                                {dtpDropCap && (
+                                  <span className="text-xl md:text-2xl font-serif font-black leading-none bg-black text-white px-1">
+                                    A
+                                  </span>
+                                )}
+                                <div className="flex-1 flex flex-col gap-1">
+                                  <div className="h-2 bg-black w-3/4"></div>
+                                  <div className="h-1 bg-black/60 w-full"></div>
+                                </div>
+                              </div>
+
+                              {/* Picture Element */}
+                              {dtpPictureOption === 'picture' && (
+                                <div className="h-12 border-2 border-black bg-[#38BDF8] flex items-center justify-center relative overflow-hidden">
+                                  <div className="w-4 h-4 rounded-full bg-[#FFD833] border border-black absolute -top-1 -right-1"></div>
+                                  <span className="font-serif italic text-[8px] font-black text-black">IMAGE_OBJECT</span>
+                                </div>
+                              )}
+                              {dtpPictureOption === 'placeholder' && (
+                                <div className="h-12 border-2 border-dashed border-black bg-white flex items-center justify-center">
+                                  <span className="font-mono text-[7px] text-gray-400">[ PICTURE_PLACEHOLDER ]</span>
+                                </div>
+                              )}
+
+                              {/* Text Block */}
+                              <div className="space-y-1">
+                                <div className="h-1 bg-gray-400 w-full"></div>
+                                <div className="h-1 bg-gray-400 w-11/12"></div>
+                                <div className="h-1 bg-gray-400 w-4/5"></div>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center pt-2 border-t border-black/10">
+                              <span className="font-mono text-[5px] text-gray-400">MARGINS: {dtpMargins.toUpperCase()}</span>
+                              <span className="font-serif italic text-[6px] font-bold text-black">{dtpSwash ? "✨ swash" : "gabriola"}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="inline-block bg-black text-white px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+                            RATING: {dtpReport.efficiencyRating}
+                          </div>
+                          <pre className="font-mono text-xs text-black leading-relaxed whitespace-pre-wrap font-bold bg-white p-4 border border-black/20">
+                            {dtpReport.feedback}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ) : noteData.staticLookupKey === 'spreadsheet-formulas-basics' ? (
+              /* ==========================================
+                 GORGEOUS INTERACTIVE SPREADSHEET FORMULAS NOTE VIEW
+                 ========================================== */
+              <section className="space-y-8 text-left animate-fadeIn" id="spreadsheet-formulas-note">
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                    MODULE_07 // DATA MODELING & ANALYSIS
+                  </span>
+                  <h1 className="font-serif text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none text-left">
+                    Formulas & Functions
+                  </h1>
+                </div>
+
+                {/* Section 1: Formulas vs. Functions */}
+                <div className="space-y-4" id="ssf-definition">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Terminal size={20} />
+                    1. Formulas vs. Built-In Functions
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Although used interchangeably, formulas and functions represent distinct statement types inside spreadsheet engines:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <div className="border-4 border-black p-6 bg-[#38BDF8] shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
+                      <span className="font-mono text-[10px] font-black text-black block mb-2">FORMULA (USER-DEFINED)</span>
+                      <p className="font-sans text-sm text-black leading-relaxed">
+                        A math equation written manually to compute values (e.g. <code>=A1+A2+A3</code>) using basic arithmetic operators like <strong>+</strong>, <strong>-</strong>, <strong>*</strong>, or <strong>/</strong>.
+                      </p>
+                    </div>
+                    <div className="border-4 border-black p-6 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
+                      <span className="font-mono text-[10px] font-black text-black block mb-2">FUNCTION (PREDEFINED)</span>
+                      <p className="font-sans text-sm text-black leading-relaxed">
+                        A pre-packaged, built-in formula already programmed inside the application (e.g. <code>=AVERAGE()</code> or <code>=SUM()</code>).
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border border-black p-4 bg-white mt-4 text-left">
+                    <span className="font-mono text-[9px] font-bold text-gray-500 block mb-1">SYNTAX RULE //</span>
+                    <p className="font-sans text-xs text-black leading-relaxed">
+                      A function must always start with an equal sign (<strong>=</strong>), followed by the specific function name, and arguments inside parentheses. Commas (<strong>,</strong>) separate independent inputs.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Section 2: Built-In Functions */}
+                <div className="space-y-4 pt-6" id="ssf-functions">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Cpu size={20} />
+                    2. Common Built-In Functions
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Spreadsheet tools supply dedicated functions to calculate datasets:
+                  </p>
+
+                  <div className="space-y-3 font-semibold text-xs text-black leading-relaxed">
+                    <div className="border border-black p-4 bg-white">
+                      <strong>SUM & AVERAGE:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">SUM totals values in cell ranges. AVERAGE sums the range and divides it by the total count to return the arithmetic mean.</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white">
+                      <strong>COUNT & COUNTA:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">COUNT tallies cells containing numerical data. COUNTA tallies all non-blank cells (including empty strings).</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white">
+                      <strong>COUNTIF:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Counts cells in a range matching a logical criterion (e.g., <code>=COUNTIF(C5:C14, "&gt;1500")</code>).</p>
+                    </div>
+                    <div className="border border-black p-4 bg-white">
+                      <strong>MAX & MIN:</strong>
+                      <p className="font-sans text-xs text-gray-600 mt-1">Return the maximum and minimum values respectively within a specified range.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Cell & Range References */}
+                <div className="space-y-4 pt-6" id="ssf-references">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <Layers size={20} />
+                    3. Cell & Range References
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Referencing coordinates allows formulas to fetch values dynamically from other areas of the grid:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Cell Reference</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Combination of column letter and row number (e.g., cell B2).</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Range Reference</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">A block of cells marked with a colon between start/end points (e.g., A1:C2 containing 6 cells).</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Absolute Reference</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Uses dollar signs (e.g., <code>=$E$1</code>) to lock a coordinate constant when the formula is copied.</p>
+                    </div>
+                    <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
+                      <strong className="font-mono text-[10px] text-black block uppercase">Fill Handle replication</strong>
+                      <p className="font-sans text-xs text-gray-700 mt-1">Drag the black cross in the bottom-right corner of a selected cell to copy formulas instantly.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Percentage Calculations */}
+                <div className="space-y-4 pt-6" id="ssf-percentages">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <BrainCircuit size={20} />
+                    4. Percentage Calculations
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    Excel treats percentages as decimals (e.g., 0.3 equals 30%). Here are the key percentage calculations:
+                  </p>
+
+                  <div className="border-4 border-black p-6 bg-[#C4B5FD] shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left">
+                    <h4 className="font-serif text-lg font-black text-black uppercase mb-3">Percentage Formulas</h4>
+                    <ul className="space-y-2 text-xs text-black font-semibold leading-relaxed">
+                      <li><strong>Find Percentage Form:</strong> <code>=(Value / Total) * 100</code>.</li>
+                      <li><strong>Direct % of a Number:</strong> Multiply coordinates by the percentage sign directly (e.g., <code>=A2 * 20%</code>).</li>
+                      <li><strong>Percentage Increase:</strong> Multiply base values by 1 + percentage (e.g., <code>=B14 * 1.07</code> for a 7% increase).</li>
+                      <li><strong>Percentage Decrease:</strong> Multiply base values by 1 - percentage (e.g., <code>=B14 * 0.93</code> for a 7% decrease).</li>
+                      <li><strong>Percentage Difference:</strong> <code>=((Current_Value - Past_Value) / Past_Value) * 100</code>.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Section 5: Loan Interest Rates */}
+                <div className="space-y-4 pt-6" id="ssf-financial">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3 text-left">
+                    <ListOrdered size={20} />
+                    5. Loan Interest Rates (RATE Function)
+                  </h2>
+                  <p className="font-sans text-gray-700 leading-loose text-left">
+                    The financial function <code>=RATE(nper, pmt, pv)</code> calculates interest rates based on constant periodic payments:
+                  </p>
+
+                  <div className="border border-black p-5 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left font-mono text-xs space-y-2">
+                    <div className="font-bold text-gray-500 uppercase">RATE PARAMETERS //</div>
+                    <ul className="list-disc list-inside space-y-1.5 font-bold text-black">
+                      <li><strong>nper:</strong> Total number of payment periods for the loan.</li>
+                      <li><strong>pmt:</strong> The constant payment made each period (entered as a negative number).</li>
+                      <li><strong>pv:</strong> Present value or total loan principal amount.</li>
+                      <li><strong>Tip:</strong> If periods are given in years, multiply the nper argument by 12 (e.g., <code>=RATE(C2*12, C3, C4)</code>) to calculate the monthly rate. Multiply the final rate result by 12 for the annual interest rate.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Section 6: Interactive Formulas Simulator */}
+                <div className="space-y-6 pt-6 text-left" id="ssf-interactive">
+                  <div className="border-4 border-black p-6 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] space-y-6">
+                    <div className="space-y-1">
+                      <h2 className="font-serif text-2xl md:text-3xl font-bold uppercase tracking-tight text-black flex items-center gap-3">
+                        <BrainCircuit size={22} />
+                        6. Formulas & Function Evaluation Sandbox
+                      </h2>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                        Interactive sandbox. Write a formula to calculate values, or trigger errors like #NAME?, #DIV/0!, #REF!, #NULL!, or #VALUE! to learn how to fix them.
+                      </p>
+                    </div>
+
+                    {/* Quick exercises */}
+                    <div className="flex flex-wrap gap-2 border-b-2 border-black pb-4">
+                      {[
+                        { label: 'Calculate SUM', formula: '=SUM(B2:B3)' },
+                        { label: 'Calculate AVERAGE', formula: '=AVERAGE(B2:B3)' },
+                        { label: 'Loan RATE', formula: '=RATE(36, -300, 10000)' },
+                        { label: 'Trigger #NAME?', formula: '=SU(B2:B3)' },
+                        { label: 'Trigger #DIV/0!', formula: '=B2/0' },
+                        { label: 'Trigger #VALUE!', formula: '=B2+"TEXT"' },
+                        { label: 'Trigger #REF!', formula: '=D4+E5' }
+                      ].map((item) => (
+                        <button
+                          key={item.label}
+                          onClick={() => { setSsfFormulaInput(item.formula); setSsfStatus('IDLE'); setSsfResult(null); }}
+                          className="px-2 py-1 font-mono text-[9px] font-bold uppercase border border-black bg-white text-black hover:bg-black hover:text-white transition-colors cursor-pointer"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Formula bar input */}
+                    <div className="border-2 border-black p-2 bg-[#F3F4F6] flex items-center gap-2 font-mono text-xs">
+                      <span className="font-serif italic font-bold text-gray-500 px-1">fx</span>
+                      <input
+                        type="text"
+                        value={ssfFormulaInput}
+                        onChange={(e) => { setSsfFormulaInput(e.target.value); setSsfStatus('IDLE'); setSsfResult(null); }}
+                        placeholder="Write formula (e.g. =SUM(B2:B3) or =B2/0)"
+                        className="flex-1 bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none focus:bg-[#FFF3C4]"
+                      />
+                    </div>
+
+                    {/* Table values */}
+                    <div className="border border-black p-4 bg-white text-xs font-mono">
+                      <span className="font-bold text-gray-500 uppercase block mb-2">SANDBOX COORDINATES CELL VALUES</span>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div><strong>Cell B2:</strong> <span className="bg-gray-100 px-1 border">85</span> (Score)</div>
+                        <div><strong>Cell B3:</strong> <span className="bg-gray-100 px-1 border">90</span> (Score)</div>
+                      </div>
+                    </div>
+
+                    {/* Run evaluation */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={runSsfEvaluation}
+                        disabled={ssfStatus === 'COMPUTING'}
+                        className="px-6 py-3 font-mono text-sm font-black uppercase border-4 border-black bg-[#FFD833] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {ssfStatus === 'COMPUTING' ? 'COMPILING FORMULA VECTOR...' : 'EVALUATE FORMULA'}
+                      </button>
+                    </div>
+
+                    {/* Output report */}
+                    {ssfStatus === 'SUCCESS' && ssfResult && (
+                      <div 
+                        className="border-4 border-black p-6 transition-all animate-fadeIn" 
+                        style={{ backgroundColor: ssfResult.isError ? '#FCA5A5' : '#A7F3D0' }}
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3 mb-4">
+                          <h4 className="font-serif text-xl font-black uppercase text-black">SANDBOX OUTPUT</h4>
+                          <div className="flex items-center gap-2 font-mono text-xs font-bold text-black">
+                            <span>RESULT:</span>
+                            <span className="bg-black text-white px-2 py-0.5 font-mono text-sm font-black border border-black shadow-[1px_1px_0_0_rgba(255,255,255,1)]">
+                              {ssfResult.value}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="inline-block bg-black text-white px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+                            {ssfResult.isError ? 'ERROR ENCOUNTERED' : 'CALCULATION SUCCESS'}
+                          </div>
+                          <p className="font-sans text-sm text-black leading-relaxed font-bold">{ssfResult.explanation}</p>
                         </div>
                       </div>
                     )}

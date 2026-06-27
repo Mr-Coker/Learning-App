@@ -481,6 +481,146 @@ export const staticCurriculumNotes: StaticNote[] = [
         body: "DANGER SIGNALS:\nAlways inspect electrical connections for:\n• Smell of hot plastic.\n• Sparks or scorch marks around sockets/leads.\n• Damaged or exposed colored wires.\n• Fuses that repeatedly blow."
       }
     ]
+  },
+  {
+    id: "dtp-basics",
+    title: "Introduction to Desktop Publishing (DTP)",
+    classLevel: "Basic 9",
+    subjectCode: "COMP-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Desktop publishing (DTP) software is designed for creating visual communications such as brochures, business cards, greeting cards, web pages, posters, and flyers for professional or personal printing online or on-screen."
+      },
+      {
+        type: "challenge_callout",
+        body: "COMMON EXAMPLES:\n• Adobe: InDesign, FrameMaker, PageMaker\n• Corel: CorelDraw, Ventura\n• Microsoft: Publisher\n• Open Source: LibreOffice Draw\n• Professional: QuarkXPress, Page Stream"
+      },
+      {
+        type: "text",
+        body: "Importance of Desktop Publishing:"
+      },
+      {
+        type: "bullet_point",
+        body: "Professional Layout: Combines text, images, and graphics effectively into highly sophisticated page formats."
+      },
+      {
+        type: "bullet_point",
+        body: "Visual Communication: Custom layouts, colors, and typography instantly capture audience attention."
+      },
+      {
+        type: "bullet_point",
+        body: "Efficiency & Productivity: Uses master pages, templates, and style sheets to automate repetitive tasks."
+      },
+      {
+        type: "bullet_point",
+        body: "Cost-Effective: Empowers small businesses and individuals to design premium materials without expensive design agencies."
+      },
+      {
+        type: "challenge_callout",
+        body: "FILE ACTIONS:\n• Creating from Template: File tab -> New -> choose Publication Type -> Select Category -> Preview & Customize (Colors/Fonts) -> Click Create.\n• Save vs. Save As:\n  - Save: Updates the existing file content.\n  - Save As: Saves the file in a new location, with a new name, or in a new folder."
+      },
+      {
+        type: "text",
+        body: "Key Interface Tabs (MS Publisher):"
+      },
+      {
+        type: "bullet_point",
+        body: "Home: Core text formatting (font size, style, paragraph alignment)."
+      },
+      {
+        type: "bullet_point",
+        body: "Insert: Adds content objects (pictures, shapes, table placeholders, page headers, hyperlinks)."
+      },
+      {
+        type: "bullet_point",
+        body: "Page Design: Alters publication orientation, margins, master page edits, and global color schemes."
+      },
+      {
+        type: "bullet_point",
+        body: "Review & View: Review manages proofing/spell-check. View controls page layout display (one or two pages) and ruler/guide lines."
+      },
+      {
+        type: "challenge_callout",
+        body: "PAGE SETUP RULES:\n• Margins (Global): Page Design -> Margins -> Choose (Narrow, Moderate, Wide, or None).\n• Margins (Specific Master Page): Page Design -> Master Pages -> Edit Master Pages -> Select Master Page -> Margins -> Custom Margins.\n• Orientation: Page Design -> Page Setup -> Orientation -> Select Portrait (taller) or Landscape (wider)."
+      },
+      {
+        type: "text",
+        body: "Text Fitting & Typography Commands:"
+      },
+      {
+        type: "bullet_point",
+        body: "Linking Text Boxes: Click format tab -> Create Link -> click another text frame to flow overflow text into it."
+      },
+      {
+        type: "bullet_point",
+        body: "Text Fit Options: Best Fit (auto size to fit), Shrink on Overflow (reduces font size), Grow Box to Fit (enlarges frame), or Do not Autofit."
+      },
+      {
+        type: "bullet_point",
+        body: "Typography embellishments: Drop Cap (enlarges first letter), Ligatures (fuses letter combinations), Swashes (decorates capitals), and Stylistic Sets."
+      }
+    ]
+  },
+  {
+    id: "spreadsheet-formulas-basics",
+    title: "Spreadsheet Functions and Formulas",
+    classLevel: "Basic 9",
+    subjectCode: "COMP-B9",
+    contentBlocks: [
+      {
+        type: "text",
+        body: "Formulas and functions form the engine of a spreadsheet, allowing dynamic mathematical modeling, data count assessments, and complex financial rate calculations."
+      },
+      {
+        type: "challenge_callout",
+        body: "FORMULAS VS FUNCTIONS:\n• Formula: A user-defined statement to calculate values (e.g., =A1+A2+A3) using standard operators (+, -, *, /).\n• Function: A pre-programmed formula built directly into the spreadsheet (e.g., =AVERAGE()). Must begin with an equal sign (=), followed by the name, and arguments inside parentheses separated by commas."
+      },
+      {
+        type: "text",
+        body: "Common Built-In Functions:"
+      },
+      {
+        type: "bullet_point",
+        body: "SUM & AVERAGE: SUM totals the argument values. AVERAGE calculates the arithmetic mean of the cell range."
+      },
+      {
+        type: "bullet_point",
+        body: "COUNT & COUNTA: COUNT checks cells with numerical data. COUNTA checks all non-blank cells (including empty strings)."
+      },
+      {
+        type: "bullet_point",
+        body: "COUNTIF: Counts cells in a range matching a logical condition (e.g., =COUNTIF(C5:C14, \">1500\"))."
+      },
+      {
+        type: "bullet_point",
+        body: "MAX & MIN: Determines the highest and lowest values respectively within the specified range."
+      },
+      {
+        type: "challenge_callout",
+        body: "CELL & RANGE REFERENCES:\n• Cell Reference: Identifies a single coordinate cell (e.g., A1).\n• Range Reference: Identifies a cell block separated by a colon (e.g., A1:C2 containing 6 cells).\n• Absolute Reference: Uses dollar signs to lock a row/column reference constant when copying (e.g., =$E$1).\n• Fill Handle: Click and drag the tiny black cross at the bottom-right corner of a selected cell to copy formulas and cell styles."
+      },
+      {
+        type: "text",
+        body: "Calculations: Percentages and Complex Formulas:"
+      },
+      {
+        type: "bullet_point",
+        body: "Percentage Form: =(Value/Total)*100. Calculating percentage of a number: =A2*20%."
+      },
+      {
+        type: "bullet_point",
+        body: "Percentage Increase/Decrease: Multiply by 1 + percentage for increase (e.g., =B14*1.07), or 1 - percentage for decrease (e.g., =B14*0.93)."
+      },
+      {
+        type: "bullet_point",
+        body: "RATE Function: Calculates interest rates on a loan with =RATE(nper, pmt, pv). If duration is in years, multiply nper by 12 (e.g., =RATE(C2*12, C3, C4))."
+      },
+      {
+        type: "challenge_callout",
+        body: "EXCEL FORMULA ERRORS:\n• #NAME?: Misspelled function (e.g. =su(A2,B2) instead of SUM).\n• #DIV/0!: Attempt to divide by zero or empty cells (fix with =IFERROR(A2/B2, 0)).\n• #REF!: Referenced cell deleted or missing.\n• #NULL!: Missing syntax separators (e.g. spaces instead of commas/colons).\n• #VALUE!: Wrong data types/non-numeric values in mathematical operations.\n• #######: Column is too narrow to display numbers (expand column boundary)."
+      }
+    ]
   }
 ];
 
