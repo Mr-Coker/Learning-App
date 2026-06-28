@@ -123,11 +123,11 @@ export function AssignmentsView({ userEmail = '' }: AssignmentsViewProps) {
   ];
 
   const [quests, setQuests] = useState<Quest[]>(questsData);
-  const [activeQuest, setActiveQuest] = useState<Quest>(quests[0]);
+  const [activeQuest, setActiveQuest] = useState<Quest | null>(null);
   const [isFetchLoading, setIsFetchLoading] = useState(false);
 
   const handleQuestClick = (quest: Quest) => {
-    if (quest.id === activeQuest.id) return;
+    if (activeQuest && quest.id === activeQuest.id) return;
     setIsFetchLoading(true);
     // Simulate loading quest data from backend API
     setTimeout(() => {
@@ -137,6 +137,7 @@ export function AssignmentsView({ userEmail = '' }: AssignmentsViewProps) {
   };
 
   const handleQuestComplete = () => {
+    if (!activeQuest) return;
     // Update quest status to Done in UI state when all quiz questions are correct
     setQuests(prev => prev.map(q => {
       if (q.id === activeQuest.id) {
@@ -160,7 +161,7 @@ export function AssignmentsView({ userEmail = '' }: AssignmentsViewProps) {
 
         <div className="flex flex-col gap-4">
           {quests.map((quest) => {
-            const isActive = activeQuest.id === quest.id;
+            const isActive = activeQuest && activeQuest.id === quest.id;
             const isCompleted = quest.status === 'Done';
 
             return (
@@ -232,70 +233,76 @@ export function AssignmentsView({ userEmail = '' }: AssignmentsViewProps) {
           </div>
         )}
 
-        <div className="max-w-3xl mx-auto h-full flex flex-col justify-between">
-          
-          {/* Top Section */}
-          <div className="space-y-8 flex-1">
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 border-b-4 border-black pb-8">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors cursor-pointer w-fit">
-                  <ArrowLeft size={14} />
-                  <span className="font-mono text-[9px] font-bold uppercase tracking-widest">RETURN_TO_ORBIT</span>
+        {activeQuest ? (
+          <div className="max-w-3xl mx-auto h-full flex flex-col justify-between">
+            
+            {/* Top Section */}
+            <div className="space-y-8 flex-1">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 border-b-4 border-black pb-8">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors cursor-pointer w-fit">
+                    <ArrowLeft size={14} />
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-widest">RETURN_TO_ORBIT</span>
+                  </div>
+                  
+                  <h1 className="font-serif text-4xl md:text-5xl font-black uppercase tracking-tighter text-black leading-none">
+                    {activeQuest.title}
+                  </h1>
+                  
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-[#38BDF8] font-bold">
+                    PROTOCOL_TARGET // {activeQuest.category.toUpperCase()}
+                  </p>
                 </div>
-                
-                <h1 className="font-serif text-4xl md:text-5xl font-black uppercase tracking-tighter text-black leading-none">
-                  {activeQuest.title}
-                </h1>
-                
-                <p className="font-mono text-[10px] uppercase tracking-widest text-[#38BDF8] font-bold">
-                  PROTOCOL_TARGET // {activeQuest.category.toUpperCase()}
+
+                {/* Rewards Card */}
+                {activeQuest.xp > 0 && (
+                  <div className="bg-[#FFD833] border-2 border-black rounded-none p-4 flex flex-col items-center justify-center min-w-[120px] shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+                    <span className="font-mono text-[8px] font-bold text-black uppercase tracking-widest">INCENTIVE</span>
+                    <span className="font-mono text-xl font-black text-black tracking-tight mt-1">+{activeQuest.xp} XP</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Protocol Briefing */}
+              <div className="bg-[#F3F4F6] border-2 border-black p-6 rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-4">
+                <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
+                  PROTOCOL_BRIEFING //
+                </h3>
+                <p className="font-sans text-sm text-gray-700 leading-relaxed">
+                  {activeQuest.details}
                 </p>
               </div>
 
-              {/* Rewards Card */}
-              {activeQuest.xp > 0 && (
-                <div className="bg-[#FFD833] border-2 border-black rounded-none p-4 flex flex-col items-center justify-center min-w-[120px] shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
-                  <span className="font-mono text-[8px] font-bold text-black uppercase tracking-widest">INCENTIVE</span>
-                  <span className="font-mono text-xl font-black text-black tracking-tight mt-1">+{activeQuest.xp} XP</span>
+              {/* Interactive Procedural Guide Stepper & Quizzes */}
+              {activeQuest.steps && activeQuest.steps.length > 0 && (
+                <div className="mt-6">
+                  <QuestView 
+                    steps={activeQuest.steps} 
+                    quizQuestions={activeQuest.quizQuestions}
+                    userEmail={userEmail}
+                    onQuestComplete={handleQuestComplete}
+                  />
+                </div>
+              )}
+              
+              {/* Quest Completed Success Panel */}
+              {activeQuest.status === 'Done' && (
+                <div className="bg-[#A7F3D0] border-4 border-black p-8 text-center flex flex-col items-center justify-center shadow-[6px_6px_0_0_rgba(0,0,0,1)] mt-8">
+                  <div className="w-12 h-12 bg-white border-2 border-black flex items-center justify-center mb-4 shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                    <FileCheck size={24} className="text-black" />
+                  </div>
+                  <h4 className="font-serif text-2xl font-black uppercase text-black mb-1">EVALUATION COMPLETED</h4>
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-black font-bold">ALL PROTOCOLS AND TEST CASES PASSED</p>
                 </div>
               )}
             </div>
 
-            {/* Protocol Briefing */}
-            <div className="bg-[#F3F4F6] border-2 border-black p-6 rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-4">
-              <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
-                PROTOCOL_BRIEFING //
-              </h3>
-              <p className="font-sans text-sm text-gray-700 leading-relaxed">
-                {activeQuest.details}
-              </p>
-            </div>
-
-            {/* Interactive Procedural Guide Stepper & Quizzes */}
-            {activeQuest.steps && activeQuest.steps.length > 0 && (
-              <div className="mt-6">
-                <QuestView 
-                  steps={activeQuest.steps} 
-                  quizQuestions={activeQuest.quizQuestions}
-                  userEmail={userEmail}
-                  onQuestComplete={handleQuestComplete}
-                />
-              </div>
-            )}
-            
-            {/* Quest Completed Success Panel */}
-            {activeQuest.status === 'Done' && (
-              <div className="bg-[#A7F3D0] border-4 border-black p-8 text-center flex flex-col items-center justify-center shadow-[6px_6px_0_0_rgba(0,0,0,1)] mt-8">
-                <div className="w-12 h-12 bg-white border-2 border-black flex items-center justify-center mb-4 shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                  <FileCheck size={24} className="text-black" />
-                </div>
-                <h4 className="font-serif text-2xl font-black uppercase text-black mb-1">EVALUATION COMPLETED</h4>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-black font-bold">ALL PROTOCOLS AND TEST CASES PASSED</p>
-              </div>
-            )}
           </div>
-
-        </div>
+        ) : (
+          <div className="max-w-3xl mx-auto h-full flex flex-col justify-center items-center">
+            <QuestView steps={[]} />
+          </div>
+        )}
       </main>
     </div>
   );

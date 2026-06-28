@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { TopNav } from './components/layout/TopNav';
 import { HomeView } from './components/views/HomeView';
 import { ChatView } from './components/views/ChatView';
-import { AssignmentsView } from './components/views/AssignmentsView';
 import { NotesView } from './components/views/NotesView';
 import { LibraryView } from './components/views/LibraryView';
 import { TeacherDashboard } from './components/views/TeacherDashboard';
@@ -195,7 +194,7 @@ export default function App() {
                 {currentView === 'home' && <HomeView userEmail={userEmail} />}
                 {currentView === 'chat' && <ChatView userEmail={userEmail} />}
                 {currentView === 'communication' && <ChatView userEmail={userEmail} />}
-                {currentView === 'assignments' && <AssignmentsView userEmail={userEmail} />}
+
                 {currentView === 'notes' && (
                   <NotesView
                     activeNoteId={activeNoteId}

@@ -16,7 +16,6 @@ interface TopNavProps {
 const viewLabels: Record<ViewState, string> = {
   home: "SYS // DASHBOARD",
   chat: "SYS // COMMS_LINK",
-  assignments: "SYS // QUEST_LOG",
   notes: "SYS // TRANSMISSIONS",
   library: "SYS // DATA_HUB",
   teacher: "SYS // TEACHER_CONSOLE",
@@ -29,7 +28,6 @@ const viewLabels: Record<ViewState, string> = {
 const roleTabs: Record<AppRole, Array<{ view: ViewState; label: string }>> = {
   student: [
     { view: 'home', label: 'Dashboard' },
-    { view: 'assignments', label: 'Quests' },
     { view: 'notes', label: 'Notes' },
     { view: 'library', label: 'Library' },
     { view: 'communication', label: 'Communication' }
@@ -40,7 +38,6 @@ const roleTabs: Record<AppRole, Array<{ view: ViewState; label: string }>> = {
   ],
   admin: [
     { view: 'home', label: 'System Overview' },
-    { view: 'assignments', label: 'Class Roster' },
     { view: 'library', label: 'Financial Terminal' },
     { view: 'notes', label: 'Note Ingester' },
     { view: 'admin_subjects', label: 'Subjects Console' }

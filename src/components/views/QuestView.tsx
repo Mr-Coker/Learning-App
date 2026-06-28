@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HelpCircle, CheckCircle, Eye, AlertTriangle, Check, X } from 'lucide-react';
+import { HelpCircle, CheckCircle, Eye, AlertTriangle, Check, X, Lock } from 'lucide-react';
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 
@@ -21,14 +21,30 @@ export interface QuizQuestion {
 }
 
 interface QuestViewProps {
-  steps: QuestStep[];
+  steps?: QuestStep[];
   quizQuestions?: QuizQuestion[];
   userEmail?: string;
   onQuestComplete?: () => void;
 }
 
-export function QuestView({ steps, quizQuestions = [], userEmail = '', onQuestComplete }: QuestViewProps) {
+export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQuestComplete }: QuestViewProps) {
   const awardQuestXp = useMutation(api.users.awardQuestXp);
+
+  if (!steps || steps.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center p-8 border-4 border-black bg-[#F3F4F6] shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-xl mx-auto my-12">
+        <div className="w-16 h-16 bg-[#FFD833] border-4 border-black flex items-center justify-center rounded-none mb-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] animate-pulse">
+          <Lock size={32} className="text-black" />
+        </div>
+        <h2 className="font-serif text-2xl font-black uppercase text-black mb-4 tracking-tight">
+          Quest Vault Locked
+        </h2>
+        <p className="font-sans text-sm text-gray-700 leading-relaxed max-w-md font-semibold">
+          You must choose a lesson from your Library first. Finish studying the content and hit <strong className="text-black font-bold">"I AM DONE LEARNING // TAKE THE QUEST"</strong> at the bottom of the page to unlock this section!
+        </p>
+      </div>
+    );
+  }
 
   // Store visibility of hints and outcomes per step
   const [revealedHints, setRevealedHints] = useState<Record<number, boolean>>({});
@@ -88,8 +104,8 @@ export function QuestView({ steps, quizQuestions = [], userEmail = '', onQuestCo
     }
   };
 
-  const allStepsRevealed = steps.length > 0 && steps.every(step => !!revealedOutcomes[step.stepNumber]);
-  const completedAllQuestions = quizQuestions.length > 0 && quizQuestions.every(q => !!correctAnswers[q.id]);
+  const allStepsRevealed = (steps?.length ?? 0) > 0 && steps?.every(step => !!revealedOutcomes[step.stepNumber]);
+  const completedAllQuestions = (quizQuestions?.length ?? 0) > 0 && quizQuestions?.every(q => !!correctAnswers[q.id]);
 
   // Trigger completion callback if all answers are correct
   React.useEffect(() => {
@@ -105,12 +121,12 @@ export function QuestView({ steps, quizQuestions = [], userEmail = '', onQuestCo
         <div className="border-b-2 border-black pb-2">
           <h3 className="font-mono text-xs font-bold uppercase tracking-widest text-black flex items-center gap-2">
             <CheckCircle size={14} className="text-black" />
-            <span>PROCEDURAL_GUIDE // {steps.length} STEPS DETECTED</span>
+            <span>PROCEDURAL_GUIDE // {steps?.length ?? 0} STEPS DETECTED</span>
           </h3>
         </div>
 
         <div className="relative border-l-4 border-black ml-4 pl-6 space-y-8">
-          {steps
+          {[...(steps ?? [])]
             .sort((a, b) => a.stepNumber - b.stepNumber)
             .map((step) => {
               const isHintShown = !!revealedHints[step.stepNumber];
@@ -197,7 +213,7 @@ export function QuestView({ steps, quizQuestions = [], userEmail = '', onQuestCo
       </div>
 
       {/* 2. Interactive Multiple Choice Quiz Component */}
-      {allStepsRevealed && quizQuestions.length > 0 && (
+      {allStepsRevealed && (quizQuestions?.length ?? 0) > 0 && (
         <div className="space-y-6 pt-6 border-t-4 border-black">
           <div className="border-b-2 border-black pb-2 flex justify-between items-center">
             <h3 className="font-mono text-xs font-black uppercase tracking-widest text-black flex items-center gap-2">
@@ -210,7 +226,7 @@ export function QuestView({ steps, quizQuestions = [], userEmail = '', onQuestCo
           </div>
 
           <div className="space-y-6">
-            {quizQuestions.map((q, qIndex) => {
+            {quizQuestions?.map((q, qIndex) => {
               const selectedIdx = selectedAnswers[q.id];
               const isAnswered = selectedIdx !== undefined;
               const isCorrect = correctAnswers[q.id];

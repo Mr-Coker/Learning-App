@@ -89,43 +89,7 @@ export function AdminDashboard({ userEmail, onLogout, currentView }: AdminDashbo
         </div>
       )}
 
-      {/* Student Class Roster Table */}
-      {currentView === 'assignments' && (
-        <div className="space-y-10">
-          <div>
-            <div className="font-mono text-xs uppercase tracking-widest text-black font-bold mb-4 flex items-center gap-2">
-              <Activity size={14} />
-              <span>STUDENT_CLASS_ROSTER // SYSTEM_ACTIVE</span>
-            </div>
-            <div className="border-4 border-black bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-auto max-h-[500px]">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-black text-white font-mono text-xs uppercase tracking-widest border-b-4 border-black">
-                    <th className="p-3 border-r-2 border-black">Name</th>
-                    <th className="p-3 border-r-2 border-black">Email</th>
-                    <th className="p-3 border-r-2 border-black">Class Layer</th>
-                    <th className="p-3">XP Score</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y-2 divide-black font-mono text-xs">
-                  {roster?.map((st) => (
-                    <tr key={st._id} className="hover:bg-gray-50 text-black">
-                      <td className="p-3 border-r-2 border-black font-bold uppercase">{st.name}</td>
-                      <td className="p-3 border-r-2 border-black lowercase">{st.email}</td>
-                      <td className="p-3 border-r-2 border-black font-bold text-center">
-                        <span className="bg-[#38BDF8] border border-black px-1.5 py-0.5 font-bold uppercase">
-                          {st.classId}
-                        </span>
-                      </td>
-                      <td className="p-3 font-bold">{st.xp} XP</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Financial Metrics Terminal & Teacher Dispatch Desk */}
       {currentView === 'library' && (
