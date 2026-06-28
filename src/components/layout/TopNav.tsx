@@ -22,7 +22,8 @@ const viewLabels: Record<ViewState, string> = {
   teacher: "SYS // TEACHER_CONSOLE",
   admin: "SYS // ADMIN_CONSOLE",
   communication: "SYS // COMMS_LINK",
-  admin_subjects: "SYS // SUBJECTS_CONSOLE"
+  admin_subjects: "SYS // SUBJECTS_CONSOLE",
+  direct_quest: "SYS // ACTIVE_QUEST"
 };
 
 const roleTabs: Record<AppRole, Array<{ view: ViewState; label: string }>> = {

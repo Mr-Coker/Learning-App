@@ -21,9 +21,10 @@ import { staticCurriculumNotes as curriculumNotes } from '../../data/curriculumN
 interface NotesViewProps {
   activeNoteId: string | null;
   onBack: () => void;
+  onStartQuest: (questData: { steps: any[]; quizQuestions?: any[]; title: string }) => void;
 }
 
-export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
+export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps) {
   const [textSize, setTextSize] = useState<number>(14); // in pixels
   const [activeTab, setActiveTab] = useState<'text' | 'video'>('text');
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
@@ -951,6 +952,13 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const noteData = useQuery(
     api.notesIngestion.getNoteDetails,
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
+  );
+
+  const assignedQuest = useQuery(
+    api.quests.getAssignedQuest,
+    noteData?.subjectId && noteData?.classLevel
+      ? { subjectId: noteData.subjectId, classLevel: noteData.classLevel }
+      : 'skip'
   );
 
   const subjects = useQuery(api.admin.listSubjects);
@@ -5043,6 +5051,39 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
               </div>
             </div>
           )}
+
+          {/* "Test Me" action button transition pipeline */}
+          <div className="mt-12 pt-6 border-t-4 border-black flex flex-col items-center gap-4">
+            {assignedQuest === null ? (
+              <div className="relative group">
+                <button
+                  disabled
+                  className="px-8 py-4 font-mono text-sm font-black uppercase border-4 border-black bg-gray-300 text-gray-500 shadow-[4px_4px_0_0_rgba(0,0,0,1)] cursor-not-allowed select-none"
+                >
+                  I AM DONE LEARNING // TAKE THE QUEST
+                </button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-[#FFD833] text-[10px] font-mono uppercase tracking-wider whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                  Quest Coming Soon
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  if (assignedQuest) {
+                    onStartQuest({
+                      steps: assignedQuest.steps || [],
+                      quizQuestions: assignedQuest.quizQuestions || [],
+                      title: assignedQuest.title,
+                    });
+                  }
+                }}
+                disabled={!assignedQuest}
+                className="px-8 py-4 font-mono text-sm font-black uppercase border-4 border-black bg-[#00FF88] text-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all cursor-pointer select-none"
+              >
+                {assignedQuest === undefined ? 'LOADING QUEST LINK...' : 'I AM DONE LEARNING // TAKE THE QUEST'}
+              </button>
+            )}
+          </div>
           </div>
         ) : (
           noteData && (

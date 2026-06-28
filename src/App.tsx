@@ -12,6 +12,8 @@ import { RegisterPage } from './components/views/RegisterPage';
 import { ViewState, AppRole } from './types';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
+import { QuestView } from './components/views/QuestView';
+import { ArrowLeft } from 'lucide-react';
 
 function LoadingState() {
   return (
@@ -89,6 +91,11 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [showRegister, setShowRegister] = useState(false);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
+  const [directQuest, setDirectQuest] = useState<{
+    steps: any[];
+    quizQuestions?: any[];
+    title: string;
+  } | null>(null);
 
   // Synchronized Convex real-time state for user profile/role
   const user = useQuery(api.users.getCurrentUserRole, userEmail ? { email: userEmail } : 'skip');
@@ -196,7 +203,33 @@ export default function App() {
                       setActiveNoteId(null);
                       setCurrentView('library');
                     }}
+                    onStartQuest={(questData) => {
+                      setDirectQuest(questData);
+                      setCurrentView('direct_quest');
+                    }}
                   />
+                )}
+                {currentView === 'direct_quest' && directQuest && (
+                  <div className="bg-white border-4 border-black p-6 md:p-10 shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-4xl mx-auto w-full relative text-left">
+                    <div 
+                      className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors cursor-pointer w-fit mb-6" 
+                      onClick={() => setCurrentView('notes')}
+                    >
+                      <ArrowLeft size={14} />
+                      <span className="font-mono text-[9px] font-bold uppercase tracking-widest">RETURN_TO_NOTE</span>
+                    </div>
+                    <h1 className="font-serif text-3xl md:text-4xl font-black uppercase text-black mb-8 border-b-4 border-black pb-4">
+                      {directQuest.title}
+                    </h1>
+                    <QuestView
+                      steps={directQuest.steps}
+                      quizQuestions={directQuest.quizQuestions}
+                      userEmail={userEmail}
+                      onQuestComplete={() => {
+                        // Optional callback
+                      }}
+                    />
+                  </div>
                 )}
                 {currentView === 'library' && (
                   <LibraryView
