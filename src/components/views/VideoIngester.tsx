@@ -240,39 +240,39 @@ export function VideoIngester() {
                   <form 
                     key={note._id} 
                     onSubmit={(e) => handleEditSubmit(e, note._id)}
-                    className="border-4 border-black mb-4 p-4 bg-[#FFF3C4] space-y-4 rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left"
+                    className="border-4 border-black mb-4 p-4 bg-[#FFF3C4] space-y-4 rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left w-full min-w-0 overflow-hidden"
                   >
-                    <div className="font-mono text-[9px] font-black uppercase text-black tracking-widest border-b-2 border-black pb-2 flex justify-between items-center">
-                      <span>EDITING_VIDEO_RESOURCE // {note.staticLookupKey}</span>
+                    <div className="font-mono text-[9px] font-black uppercase text-black tracking-widest border-b-2 border-black pb-2 flex justify-between items-center min-w-0">
+                      <span className="truncate pr-2">EDITING_VIDEO_RESOURCE // {note.staticLookupKey}</span>
                     </div>
 
-                    <div className="flex flex-col space-y-1">
+                    <div className="flex flex-col space-y-1 w-full min-w-0">
                       <label className="font-mono text-[9px] font-bold uppercase tracking-wider text-black">TITLE //</label>
                       <input 
                         type="text"
                         value={editVideoTitle}
                         onChange={(e) => setEditVideoTitle(e.target.value)}
-                        className="w-full bg-white border-2 border-black rounded-none p-2.5 font-mono text-xs uppercase focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                        className="w-full bg-white border-2 border-black rounded-none p-2.5 font-mono text-xs uppercase focus:outline-none focus:ring-2 focus:ring-black font-bold min-w-0 block"
                         required
                       />
                     </div>
 
-                    <div className="flex flex-col space-y-1">
+                    <div className="flex flex-col space-y-1 w-full min-w-0">
                       <label className="font-mono text-[9px] font-bold uppercase tracking-wider text-black">STREAM URL //</label>
                       <input 
                         type="text"
                         value={editVideoUrl}
                         onChange={(e) => setEditVideoUrl(e.target.value)}
-                        className="w-full bg-white border-2 border-black rounded-none p-2.5 font-mono text-xs uppercase focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                        className="w-full bg-white border-2 border-black rounded-none p-2.5 font-mono text-xs uppercase focus:outline-none focus:ring-2 focus:ring-black font-bold min-w-0 block"
                         required
                       />
                     </div>
 
-                    <div className="flex gap-2 justify-end pt-1">
+                    <div className="flex gap-2 justify-end pt-1 flex-wrap w-full min-w-0">
                       <button
                         type="button"
                         onClick={() => setEditingVideoId(null)}
-                        className="px-3 py-1.5 border-2 border-black bg-white text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:bg-gray-100 cursor-pointer"
+                        className="px-3 py-1.5 border-2 border-black bg-white text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:bg-gray-100 cursor-pointer flex-shrink-0"
                       >
                         <X size={12} />
                         <span>CANCEL</span>
@@ -280,7 +280,7 @@ export function VideoIngester() {
                       <button
                         type="submit"
                         disabled={isSaving}
-                        className="px-3 py-1.5 border-2 border-black bg-[#00FF88] text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] cursor-pointer disabled:opacity-50"
+                        className="px-3 py-1.5 border-2 border-black bg-[#00FF88] text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] cursor-pointer disabled:opacity-50 flex-shrink-0"
                       >
                         <Check size={12} />
                         <span>{isSaving ? 'SAVING...' : 'SAVE CHANGES'}</span>
@@ -291,24 +291,24 @@ export function VideoIngester() {
               }
 
               return (
-                <div key={note._id} className="border-2 border-black mb-2 p-3 bg-[#F9F9F9] flex justify-between items-center font-mono text-xs font-bold rounded-none">
-                  <div className="flex flex-col text-left max-w-[65%]">
-                    <span className="text-black uppercase truncate">{note.videoTitle || 'UNTITLED VIDEO'}</span>
-                    <span className="text-[9px] text-gray-500 lowercase mt-0.5 truncate">{note.videoUrl}</span>
+                <div key={note._id} className="border-2 border-black mb-2 p-3 bg-[#F9F9F9] flex justify-between items-center font-mono text-xs font-bold rounded-none w-full min-w-0 overflow-hidden gap-2">
+                  <div className="flex flex-col text-left max-w-[65%] min-w-0 flex-1">
+                    <span className="text-black uppercase truncate block">{note.videoTitle || 'UNTITLED VIDEO'}</span>
+                    <span className="text-[9px] text-gray-500 lowercase mt-0.5 truncate block">{note.videoUrl}</span>
                   </div>
-                  <div className="flex items-center gap-3.5 flex-shrink-0">
+                  <div className="flex items-center gap-3.5 flex-shrink-0 min-w-0">
                     <button
                       onClick={() => {
                         setEditingVideoId(note._id);
                         setEditVideoTitle(note.videoTitle || '');
                         setEditVideoUrl(note.videoUrl || '');
                       }}
-                      className="font-mono text-[9px] font-bold text-black border-2 border-black bg-white hover:bg-[#38BDF8] px-2 py-1 transition-all cursor-pointer active:translate-x-0.5 active:translate-y-0.5 shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none flex items-center gap-1"
+                      className="font-mono text-[9px] font-bold text-black border-2 border-black bg-white hover:bg-[#38BDF8] px-2 py-1 transition-all cursor-pointer active:translate-x-0.5 active:translate-y-0.5 shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none flex items-center gap-1 flex-shrink-0"
                     >
                       <Edit3 size={10} />
                       <span>EDIT</span>
                     </button>
-                    <div className="flex flex-col items-end gap-1">
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       <span className="bg-black text-[#00FF88] px-2 py-0.5 border border-black text-[9px] uppercase">
                         {sub ? sub.code : 'LESSON'}
                       </span>
