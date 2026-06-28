@@ -6,6 +6,7 @@ import { Id } from '../../../convex/_generated/dataModel';
 import { ViewState } from '../../types';
 import { NoteIngester } from './NoteIngester';
 import { SubjectManager } from './SubjectManager';
+import { VideoIngester } from './VideoIngester';
 
 interface AdminDashboardProps {
   userEmail: string;
@@ -22,6 +23,7 @@ export function AdminDashboard({ userEmail, onLogout, currentView }: AdminDashbo
 
   const [selectedTeacher, setSelectedTeacher] = useState<{ _id: string; name: string; email: string } | null>(null);
   const [messageText, setMessageText] = useState('');
+  const [ingesterTab, setIngesterTab] = useState<'notes' | 'videos'>('notes');
 
   // Fetch messages between admin and selected teacher
   const messages = useQuery(
@@ -264,8 +266,38 @@ export function AdminDashboard({ userEmail, onLogout, currentView }: AdminDashbo
       )}
 
       {currentView === 'notes' && (
-        <div className="flex justify-center items-center py-6">
-          <NoteIngester />
+        <div className="flex flex-col items-center py-6 w-full max-w-2xl mx-auto space-y-6">
+          {/* Curation Tab Selection */}
+          <div className="flex border-4 border-black bg-white p-1.5 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none w-full">
+            <button
+              onClick={() => setIngesterTab('notes')}
+              className={`flex-1 py-2 font-mono font-bold text-xs uppercase rounded-none border-2 transition-all cursor-pointer text-center
+                ${ingesterTab === 'notes'
+                  ? 'bg-[#FFD833] text-black border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]'
+                  : 'bg-white text-black border-transparent hover:bg-gray-100'
+                }
+                active:translate-x-0.5 active:translate-y-0.5
+              `}
+            >
+              [📝 NOTE_METADATA_INGESTER]
+            </button>
+            <button
+              onClick={() => setIngesterTab('videos')}
+              className={`flex-1 py-2 font-mono font-bold text-xs uppercase rounded-none border-2 transition-all cursor-pointer text-center
+                ${ingesterTab === 'videos'
+                  ? 'bg-[#FF007F] text-white border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]'
+                  : 'bg-white text-black border-transparent hover:bg-gray-100'
+                }
+                active:translate-x-0.5 active:translate-y-0.5
+              `}
+            >
+              [🎥 VIDEO_CURRICULUM_INGESTER]
+            </button>
+          </div>
+
+          <div className="w-full flex justify-center">
+            {ingesterTab === 'notes' ? <NoteIngester /> : <VideoIngester />}
+          </div>
         </div>
       )}
 
