@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
-import { CheckCircle2, Film } from 'lucide-react';
+import { CheckCircle2, Film, Edit3, Check, X } from 'lucide-react';
 
 export function VideoIngester() {
   const subjects = useQuery(api.admin.listSubjects);
   const notesList = useQuery(api.notesIngestion.listAllNotes);
   const attachVideoToNote = useMutation(api.notesIngestion.attachVideoToNote);
+  const updateVideo = useMutation(api.admin.updateVideo);
 
   // Form states
   const [classLevel, setClassLevel] = useState('Basic 9');
@@ -20,6 +21,12 @@ export function VideoIngester() {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Edit states
+  const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
+  const [editVideoTitle, setEditVideoTitle] = useState('');
+  const [editVideoUrl, setEditVideoUrl] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Update default subject code when subjects query completes
   useEffect(() => {
@@ -59,6 +66,25 @@ export function VideoIngester() {
       setErrorMsg(err.message || 'SYSTEM_REGISTRATION_FAILURE: CHECK DATABASE TELEMETRY');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent, noteId: string) => {
+    e.preventDefault();
+    if (!editVideoTitle.trim() || !editVideoUrl.trim()) return;
+
+    setIsSaving(true);
+    try {
+      await updateVideo({
+        id: noteId as Id<"notes">,
+        videoTitle: editVideoTitle.trim(),
+        videoUrl: editVideoUrl.trim(),
+      });
+      setEditingVideoId(null);
+    } catch (err: any) {
+      alert(err.message || 'Error updating video resource');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -112,7 +138,7 @@ export function VideoIngester() {
               <select
                 value={classLevel}
                 onChange={(e) => setClassLevel(e.target.value)}
-                className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
+                className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:bg-[#FFF3C4] focus:ring-2 focus:ring-black placeholder-gray-400 font-bold"
               >
                 <option value="Basic 7">BASIC 7</option>
                 <option value="Basic 8">BASIC 8</option>
@@ -128,7 +154,7 @@ export function VideoIngester() {
               <select
                 value={subjectCode}
                 onChange={(e) => setSubjectCode(e.target.value)}
-                className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
+                className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:bg-[#FFF3C4] focus:ring-2 focus:ring-black placeholder-gray-400 font-bold"
               >
                 {subjects?.map((sub) => (
                   <option key={sub._id} value={sub.code}>
@@ -148,7 +174,7 @@ export function VideoIngester() {
             <select
               value={selectedNoteId}
               onChange={(e) => setSelectedNoteId(e.target.value)}
-              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
+              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:bg-[#FFF3C4] focus:ring-2 focus:ring-black placeholder-gray-400 font-bold"
             >
               <option value="">-- SELECT TARGET TOPIC --</option>
               {notesList?.filter(n => n.classLevel === classLevel).map((note) => (
@@ -169,7 +195,7 @@ export function VideoIngester() {
               value={videoTitle}
               onChange={(e) => setVideoTitle(e.target.value)}
               placeholder="E.G., HOW SPREADSHEETS CALCULATE FORMULAS"
-              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
+              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:bg-[#FFF3C4] focus:ring-2 focus:ring-black placeholder-gray-400 font-bold"
             />
           </div>
 
@@ -183,7 +209,7 @@ export function VideoIngester() {
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder="E.G., HTTPS://WWW.YOUTUBE.COM/WATCH?V=..."
-              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
+              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:bg-[#FFF3C4] focus:ring-2 focus:ring-black placeholder-gray-400 font-bold"
             />
           </div>
 
@@ -203,21 +229,91 @@ export function VideoIngester() {
           <Film size={14} />
           <span>CURATED_VIDEO_REGISTRY //</span>
         </h3>
-        <div className="max-h-48 overflow-y-auto pr-1">
+        <div className="max-h-64 overflow-y-auto pr-1">
           {notesList && notesList.filter(n => n.videoUrl).length > 0 ? (
             notesList.filter(n => n.videoUrl).map((note) => {
               const sub = subjects?.find(s => s._id === note.subjectId);
+              const isEditing = editingVideoId === note._id;
+
+              if (isEditing) {
+                return (
+                  <form 
+                    key={note._id} 
+                    onSubmit={(e) => handleEditSubmit(e, note._id)}
+                    className="border-4 border-black mb-4 p-4 bg-[#FFF3C4] space-y-4 rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] text-left"
+                  >
+                    <div className="font-mono text-[9px] font-black uppercase text-black tracking-widest border-b-2 border-black pb-2 flex justify-between items-center">
+                      <span>EDITING_VIDEO_RESOURCE // {note.staticLookupKey}</span>
+                    </div>
+
+                    <div className="flex flex-col space-y-1">
+                      <label className="font-mono text-[9px] font-bold uppercase tracking-wider text-black">TITLE //</label>
+                      <input 
+                        type="text"
+                        value={editVideoTitle}
+                        onChange={(e) => setEditVideoTitle(e.target.value)}
+                        className="w-full bg-white border-2 border-black rounded-none p-2.5 font-mono text-xs uppercase focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col space-y-1">
+                      <label className="font-mono text-[9px] font-bold uppercase tracking-wider text-black">STREAM URL //</label>
+                      <input 
+                        type="text"
+                        value={editVideoUrl}
+                        onChange={(e) => setEditVideoUrl(e.target.value)}
+                        className="w-full bg-white border-2 border-black rounded-none p-2.5 font-mono text-xs uppercase focus:outline-none focus:ring-2 focus:ring-black font-bold"
+                        required
+                      />
+                    </div>
+
+                    <div className="flex gap-2 justify-end pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setEditingVideoId(null)}
+                        className="px-3 py-1.5 border-2 border-black bg-white text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:bg-gray-100 cursor-pointer"
+                      >
+                        <X size={12} />
+                        <span>CANCEL</span>
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSaving}
+                        className="px-3 py-1.5 border-2 border-black bg-[#00FF88] text-black font-mono text-[9px] font-bold uppercase flex items-center gap-1 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] cursor-pointer disabled:opacity-50"
+                      >
+                        <Check size={12} />
+                        <span>{isSaving ? 'SAVING...' : 'SAVE CHANGES'}</span>
+                      </button>
+                    </div>
+                  </form>
+                );
+              }
+
               return (
                 <div key={note._id} className="border-2 border-black mb-2 p-3 bg-[#F9F9F9] flex justify-between items-center font-mono text-xs font-bold rounded-none">
-                  <div className="flex flex-col text-left">
-                    <span className="text-black uppercase">{note.videoTitle || 'UNTITLED VIDEO'}</span>
-                    <span className="text-[9px] text-gray-500 lowercase mt-0.5">{note.videoUrl}</span>
+                  <div className="flex flex-col text-left max-w-[65%]">
+                    <span className="text-black uppercase truncate">{note.videoTitle || 'UNTITLED VIDEO'}</span>
+                    <span className="text-[9px] text-gray-500 lowercase mt-0.5 truncate">{note.videoUrl}</span>
                   </div>
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    <span className="bg-black text-[#00FF88] px-2 py-0.5 border border-black text-[9px] uppercase">
-                      {sub ? sub.code : 'LESSON'}
-                    </span>
-                    <span className="text-[9px] text-gray-500 uppercase">{note.staticLookupKey}</span>
+                  <div className="flex items-center gap-3.5 flex-shrink-0">
+                    <button
+                      onClick={() => {
+                        setEditingVideoId(note._id);
+                        setEditVideoTitle(note.videoTitle || '');
+                        setEditVideoUrl(note.videoUrl || '');
+                      }}
+                      className="font-mono text-[9px] font-bold text-black border-2 border-black bg-white hover:bg-[#38BDF8] px-2 py-1 transition-all cursor-pointer active:translate-x-0.5 active:translate-y-0.5 shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:shadow-none flex items-center gap-1"
+                    >
+                      <Edit3 size={10} />
+                      <span>EDIT</span>
+                    </button>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="bg-black text-[#00FF88] px-2 py-0.5 border border-black text-[9px] uppercase">
+                        {sub ? sub.code : 'LESSON'}
+                      </span>
+                      <span className="text-[9px] text-gray-500 uppercase">{note.staticLookupKey}</span>
+                    </div>
                   </div>
                 </div>
               );
