@@ -1152,10 +1152,36 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             })
                             .filter((item: any): item is { id: string; label: string } => item !== null) || [];
 
+  const typographyMap = {
+    title: `${textSize * 2.5}px`,
+    h2: `${textSize * 1.8}px`,
+    h3: `${textSize * 1.4}px`,
+    h4: `${textSize * 1.2}px`,
+    body: `${textSize}px`,
+    meta: `${textSize * 0.75}px`,
+  };
+
   return (
-    <div className="w-full h-[calc(100vh-theme(spacing.20))] overflow-hidden flex items-stretch gap-6 bg-white select-none relative">
+    <div className="flex-1 flex overflow-hidden relative w-full h-full bg-white select-none">
+      <style>{`
+        .dynamic-text-container h1 { font-size: ${typographyMap.title} !important; }
+        .dynamic-text-container h2 { font-size: ${typographyMap.h2} !important; }
+        .dynamic-text-container h3 { font-size: ${typographyMap.h3} !important; }
+        .dynamic-text-container h4 { font-size: ${typographyMap.h4} !important; }
+        .dynamic-text-container p, 
+        .dynamic-text-container li, 
+        .dynamic-text-container td,
+        .dynamic-text-container th,
+        .dynamic-text-container label,
+        .dynamic-text-container select,
+        .dynamic-text-container option,
+        .dynamic-text-container input,
+        .dynamic-text-container textarea { font-size: ${typographyMap.body} !important; }
+        .dynamic-text-container .text-xs, 
+        .dynamic-text-container .font-mono:not(.text-lg) { font-size: ${typographyMap.meta} !important; }
+      `}</style>
       {/* Table of Contents & Topic Selector Sidebar (Left Column) */}
-      <aside className="hidden md:block w-72 p-6 overflow-y-auto border-r border-outline-variant bg-[#F3F4F6] flex-shrink-0 h-full select-none flex flex-col justify-between">
+      <aside className="hidden md:block w-72 p-6 overflow-y-auto border-r border-outline-variant bg-[#F3F4F6] flex-shrink-0 h-full flex flex-col justify-between">
         <div className="space-y-8">
           {/* Back button */}
           <button
@@ -1215,7 +1241,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
       </aside>
 
       {/* Reading Canvas (Right Column) */}
-      <article className="flex-1 p-4 md:p-10 max-w-4xl mx-auto h-full w-full overflow-y-auto overflow-x-hidden pr-2 relative pb-20 md:pb-10">
+      <article className="flex-1 p-4 md:p-10 max-w-4xl mx-auto w-full relative overflow-y-auto h-full pb-20 md:pb-10">
 
         {/* Floating Toolbar */}
         <div className="fixed top-24 right-4 md:right-10 z-15 flex flex-col gap-2 bg-[#F3F4F6] border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-2 rounded-none">
@@ -1278,7 +1304,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         </div>
 
         {/* Content Canvas */}
-        <div className="mt-4 md:mt-0 space-y-16" style={{ fontSize: `${textSize}px` }}>
+        <div className="mt-4 md:mt-0 space-y-16 dynamic-text-container" style={{ fontSize: `${textSize}px` }}>
           {noteData ? (
             noteData.staticLookupKey === 'algorithm-basics' ? (
               /* ==========================================
