@@ -15,7 +15,7 @@ import { api } from '../convex/_generated/api';
 
 function LoadingState() {
   return (
-    <div 
+    <div
       className="min-h-screen w-full bg-[#FFD833] flex flex-col justify-between p-6 relative overflow-hidden select-none"
       style={{
         backgroundImage: 'radial-gradient(#000000 1.5px, transparent 1.5px)',
@@ -157,16 +157,16 @@ export default function App() {
   if (!isUserAuthenticated) {
     if (showRegister) {
       return (
-        <RegisterPage 
-          onRegisterSuccess={(email) => handleLogin(email)} 
-          onNavigateToLogin={() => setShowRegister(false)} 
+        <RegisterPage
+          onRegisterSuccess={(email) => handleLogin(email)}
+          onNavigateToLogin={() => setShowRegister(false)}
         />
       );
     }
     return (
-      <LoginPage 
-        onLogin={handleLogin} 
-        onNavigateToRegister={() => setShowRegister(true)} 
+      <LoginPage
+        onLogin={handleLogin}
+        onNavigateToRegister={() => setShowRegister(true)}
       />
     );
   }
@@ -174,13 +174,13 @@ export default function App() {
   if (userRole === 'student' || userRole === 'teacher' || userRole === 'admin') {
     return (
       <div className="min-h-screen w-full flex flex-col bg-[#F0F0F0] overflow-hidden">
-        <TopNav 
-          currentView={currentView} 
-          setCurrentView={setCurrentView} 
-          role={userRole} 
-          onLogout={handleLogout} 
+        <TopNav
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+          role={userRole}
+          onLogout={handleLogout}
         />
-        
+
         <div className="flex flex-1 overflow-hidden relative">
           <main className="flex-1 w-full overflow-y-auto px-4 md:px-8 py-6">
             {userRole === 'student' && (
@@ -190,36 +190,36 @@ export default function App() {
                 {currentView === 'communication' && <ChatView userEmail={userEmail} />}
                 {currentView === 'assignments' && <AssignmentsView />}
                 {currentView === 'notes' && (
-                  <NotesView 
-                    activeNoteId={activeNoteId} 
+                  <NotesView
+                    activeNoteId={activeNoteId}
                     onBack={() => {
                       setActiveNoteId(null);
                       setCurrentView('library');
-                    }} 
+                    }}
                   />
                 )}
                 {currentView === 'library' && (
-                  <LibraryView 
+                  <LibraryView
                     onNoteSelect={(noteId) => {
                       setActiveNoteId(noteId);
                       setCurrentView('notes');
-                    }} 
+                    }}
                   />
                 )}
               </>
             )}
             {userRole === 'teacher' && (
-              <TeacherDashboard 
-                userEmail={userEmail} 
-                onLogout={handleLogout} 
-                currentView={currentView} 
+              <TeacherDashboard
+                userEmail={userEmail}
+                onLogout={handleLogout}
+                currentView={currentView}
               />
             )}
             {userRole === 'admin' && (
-              <AdminDashboard 
-                userEmail={userEmail} 
-                onLogout={handleLogout} 
-                currentView={currentView} 
+              <AdminDashboard
+                userEmail={userEmail}
+                onLogout={handleLogout}
+                currentView={currentView}
               />
             )}
           </main>
@@ -230,9 +230,9 @@ export default function App() {
 
   // In case of an unrecognized role, render Login fallback
   return (
-    <LoginPage 
-      onLogin={handleLogin} 
-      onNavigateToRegister={() => setShowRegister(true)} 
+    <LoginPage
+      onLogin={handleLogin}
+      onNavigateToRegister={() => setShowRegister(true)}
     />
   );
 }

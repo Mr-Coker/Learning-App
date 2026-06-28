@@ -190,7 +190,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     const startRow = parseInt(start.slice(1));
     const endCol = end.charCodeAt(0);
     const endRow = parseInt(end.slice(1));
-    
+
     const cells = [];
     for (let c = Math.min(startCol, endCol); c <= Math.max(startCol, endCol); c++) {
       for (let r = Math.min(startRow, endRow); r <= Math.max(startRow, endRow); r++) {
@@ -212,7 +212,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
     try {
       const formula = val.slice(1).toUpperCase().trim();
-      
+
       if (formula.startsWith('SUM(') && formula.endsWith(')')) {
         const rangeStr = formula.slice(4, -1);
         const cells = getCellsInRange(rangeStr);
@@ -223,7 +223,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
         }
         return sum.toString();
       }
-      
+
       if (formula.startsWith('AVERAGE(') && formula.endsWith(')')) {
         const rangeStr = formula.slice(8, -1);
         const cells = getCellsInRange(rangeStr);
@@ -482,7 +482,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
       let score = 100;
       let warnings: string[] = [];
       let feedback = "";
-      
+
       // Posture/Layout guidelines evaluation
       if (dtpTemplate === 'business_card') {
         if (dtpOrientation === 'Portrait') {
@@ -494,7 +494,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           warnings.push("Margins too wide: Wide margins leave very little room for contact details on a small 3.5\" x 2.0\" card canvas.");
         }
       }
-      
+
       if (dtpTemplate === 'brochure') {
         if (dtpOrientation === 'Portrait') {
           // Tri-fold brochures are usually landscape
@@ -502,7 +502,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           warnings.push("Orientation suggestion: Multi-panel brochures are typically designed in Landscape orientation for proper folding segments.");
         }
       }
-      
+
       if (dtpTextFit === 'Do not Autofit') {
         score -= 20;
         warnings.push("Text warning: Without autofitting, text overflow can go unnoticed, resulting in cut-off sentences in the printed publication.");
@@ -512,30 +512,30 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           warnings.push("Layout warning: Growing the text box automatically can shift other elements (like images or logos) off-screen or out of alignment.");
         }
       }
-      
+
       if (dtpPictureOption === 'none') {
         score -= 15;
         warnings.push("Design warning: A publication with no illustrations or placeholders relies entirely on text, lowering visual communication appeal.");
       }
-      
+
       // Typography embellishments
       let typographyBonus = 0;
       if (dtpDropCap) typographyBonus += 5;
       if (dtpLigatures) typographyBonus += 5;
       if (dtpSwash) typographyBonus += 5;
       score = Math.min(100, Math.max(0, score + typographyBonus));
-      
+
       let efficiencyRating = 'EXCELLENT LAYOUT';
       if (score < 60) {
         efficiencyRating = 'POOR DESIGN CONFIGURATION';
       } else if (score < 85) {
         efficiencyRating = 'MODERATE DESIGN BALANCE';
       }
-      
-      feedback = warnings.length > 0 
+
+      feedback = warnings.length > 0
         ? "LAYOUT CORRECTIONS SUGGESTED:\n" + warnings.map(w => `• ${w}`).join("\n")
         : "✓ Perfect layout balance! The template meets all professional design and output guidelines.";
-        
+
       setDtpReport({
         designScore: score,
         warnings,
@@ -614,7 +614,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     setTimeout(() => {
       const query = seQueryInput.trim();
       const queryLower = query.toLowerCase();
-      
+
       let matches: { title: string; desc: string; url: string }[] = [];
       let relevanceScore = 100;
       let trackersBlocked = 0;
@@ -634,7 +634,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
       // Simple Boolean Parser
       corpus.forEach(item => {
         let isMatch = false;
-        
+
         if (queryLower.includes('gender and shakespeare')) {
           if (item.tags.includes('gender') && item.tags.includes('shakespeare')) {
             isMatch = true;
@@ -754,7 +754,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
       let deficiencies: string[] = [];
 
       const totalRatio = apCarbsRatio + apProteinRatio + apRoughageRatio + apSupplementRatio;
-      
+
       // Verification of feed totals
       if (totalRatio !== 100) {
         nutritionalValue -= Math.abs(100 - totalRatio);
@@ -887,7 +887,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
       let deficiencies: string[] = [];
 
       const cropSeq = [fsYear1Crop, fsYear2Crop, fsYear3Crop, fsYear4Crop];
-      
+
       // Rule 1: Must include leguminous crops
       if (!cropSeq.includes('legume')) {
         soilHealthScore -= 30;
@@ -963,7 +963,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const runMission = () => {
     setSimStatus('COMPUTING');
     setSimFeedback('');
-    
+
     setTimeout(() => {
       if (simMission === 'space') {
         if (simAppearance !== 'rugged') {
@@ -1039,118 +1039,118 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
   const dbNoteToc = noteData?.staticLookupKey === 'algorithm-basics'
     ? [
-        { id: "what-is-algorithm", label: "I. Definition & Analogy" },
-        { id: "characteristics", label: "II. Key Characteristics" },
-        { id: "constructs", label: "III. Programming Constructs" },
-        { id: "computational-concepts", label: "IV. Abstraction & Decomposition" },
-        { id: "examples", label: "V. Practical Algorithms" }
-      ]
+      { id: "what-is-algorithm", label: "I. Definition & Analogy" },
+      { id: "characteristics", label: "II. Key Characteristics" },
+      { id: "constructs", label: "III. Programming Constructs" },
+      { id: "computational-concepts", label: "IV. Abstraction & Decomposition" },
+      { id: "examples", label: "V. Practical Algorithms" }
+    ]
     : noteData?.staticLookupKey === 'robotics-basics'
-    ? [
+      ? [
         { id: "robotics-definitions", label: "I. Robot & Robotics" },
         { id: "robotics-applications", label: "II. Applications" },
         { id: "robotics-challenges", label: "III. Challenges & Risks" },
         { id: "robotics-interactive", label: "IV. Mission Simulator" }
       ]
-    : (noteData?.staticLookupKey === 'spreadsheet-basics' || noteData?.staticLookupKey === 'intro-spreadsheets')
-    ? [
-        { id: "spreadsheet-definition", label: "I. What is a Spreadsheet?" },
-        { id: "spreadsheet-uses", label: "II. Common Uses" },
-        { id: "spreadsheet-interface", label: "III. Interface Features" },
-        { id: "spreadsheet-cells", label: "IV. Cells & Operations" },
-        { id: "spreadsheet-editing", label: "V. Editing Actions" },
-        { id: "spreadsheet-interactive", label: "VI. Cell Simulator" }
-      ]
-    : noteData?.staticLookupKey === 'web-technologies-basics'
-    ? [
-        { id: "vle-definition", label: "I. What is a VLE?" },
-        { id: "vle-features", label: "II. VLE Features" },
-        { id: "vle-importance", label: "III. VLE Importance" },
-        { id: "open-learning", label: "IV. Open Learning Sites" },
-        { id: "evaluating-web", label: "V. Evaluating Web Pages" },
-        { id: "web-interactive", label: "VI. Credibility Evaluator" }
-      ]
-    : noteData?.staticLookupKey === 'computer-safety-basics'
-    ? [
-        { id: "hs-ergonomics", label: "I. Ergonomics & Posture" },
-        { id: "hs-breaks", label: "II. Importance of Breaks" },
-        { id: "hs-tools", label: "III. Supportive Tools" },
-        { id: "hs-audio", label: "IV. Audio Settings" },
-        { id: "hs-electrical", label: "V. Electrical Safety" },
-        { id: "hs-interactive", label: "VI. Workstation Simulator" }
-      ]
-    : noteData?.staticLookupKey === 'dtp-basics'
-    ? [
-        { id: "dtp-definition", label: "I. What is DTP?" },
-        { id: "dtp-importance", label: "II. DTP Importance" },
-        { id: "dtp-templates", label: "III. Template Actions" },
-        { id: "dtp-ribbons", label: "IV. Publisher Ribbons" },
-        { id: "dtp-fitting", label: "V. Text Fitting & Typos" },
-        { id: "dtp-interactive", label: "VI. Flyer Builder" }
-      ]
-    : noteData?.staticLookupKey === 'spreadsheet-formulas-basics'
-    ? [
-        { id: "ssf-definition", label: "I. Formulas vs. Functions" },
-        { id: "ssf-functions", label: "II. Built-In Functions" },
-        { id: "ssf-references", label: "III. Cell References" },
-        { id: "ssf-percentages", label: "IV. Percentage Methods" },
-        { id: "ssf-financial", label: "V. Loan Interest Rates" },
-        { id: "ssf-interactive", label: "VI. Formulas Simulator" }
-      ]
-    : noteData?.staticLookupKey === 'search-engines-basics'
-    ? [
-        { id: "se-techniques", label: "I. Search Techniques" },
-        { id: "se-boolean", label: "II. Boolean Searching" },
-        { id: "se-enhancements", label: "III. Search Enhancements" },
-        { id: "se-engines", label: "IV. Popular Search Engines" },
-        { id: "se-matrix", label: "V. Search Comparison" },
-        { id: "se-interactive", label: "VI. Query Simulator" }
-      ]
-    : noteData?.staticLookupKey === 'ai-basics'
-    ? [
-        { id: "ai-ann", label: "I. Neural Networks" },
-        { id: "ai-intelligence", label: "II. Comparing Intelligence" },
-        { id: "ai-differences", label: "III. Human vs. AI" },
-        { id: "ai-strong-weak", label: "IV. Strong vs. Weak AI" },
-        { id: "ai-hologram", label: "V. Holograms & MR" },
-        { id: "ai-interactive", label: "VI. Neural Sandbox" }
-      ]
-    : noteData?.staticLookupKey === 'animal-production-basics'
-    ? [
-        { id: "ap-definition", label: "I. Feed Definitions" },
-        { id: "ap-feed-class", label: "II. Feed Classification" },
-        { id: "ap-nutrients", label: "III. Nutrient Components" },
-        { id: "ap-usefulness", label: "IV. Importance of Water" },
-        { id: "ap-proportions", label: "V. Ration Proportions" },
-        { id: "ap-interactive", label: "VI. Feed Calculator" }
-      ]
-    : noteData?.staticLookupKey === 'energy-conversion-basics'
-    ? [
-        { id: "ec-intro", label: "I. Energy Concepts" },
-        { id: "ec-classification", label: "II. Renewable vs. Non-Renewable" },
-        { id: "ec-specific", label: "III. Specific Sources" },
-        { id: "ec-challenges", label: "IV. Source Challenges" },
-        { id: "ec-heat-temp", label: "V. Heat vs. Temperature" },
-        { id: "ec-interactive", label: "VI. Grid Simulator" }
-      ]
-    : noteData?.staticLookupKey === 'farming-systems-basics'
-    ? [
-        { id: "fs-intro", label: "I. Farming Systems" },
-        { id: "fs-mixed-farming", label: "II. Mixed Farming" },
-        { id: "fs-mixed-cropping", label: "III. Mixed Cropping" },
-        { id: "fs-intercropping", label: "IV. Inter-Cropping" },
-        { id: "fs-rotation", label: "V. Crop Rotation" },
-        { id: "fs-sustainability", label: "VI. Sustainability & Interdependence" },
-        { id: "fs-interactive", label: "VII. Rotation Sandbox" }
-      ]
-    : contentBlocksToRender
-        ?.map((block: any, idx: number) => {
-          if (block.heading) {
-            return { id: `block-${idx}`, label: block.heading };
-          }
-          return null;
-        })
-        .filter((item: any): item is { id: string; label: string } => item !== null) || [];
+      : (noteData?.staticLookupKey === 'spreadsheet-basics' || noteData?.staticLookupKey === 'intro-spreadsheets')
+        ? [
+          { id: "spreadsheet-definition", label: "I. What is a Spreadsheet?" },
+          { id: "spreadsheet-uses", label: "II. Common Uses" },
+          { id: "spreadsheet-interface", label: "III. Interface Features" },
+          { id: "spreadsheet-cells", label: "IV. Cells & Operations" },
+          { id: "spreadsheet-editing", label: "V. Editing Actions" },
+          { id: "spreadsheet-interactive", label: "VI. Cell Simulator" }
+        ]
+        : noteData?.staticLookupKey === 'web-technologies-basics'
+          ? [
+            { id: "vle-definition", label: "I. What is a VLE?" },
+            { id: "vle-features", label: "II. VLE Features" },
+            { id: "vle-importance", label: "III. VLE Importance" },
+            { id: "open-learning", label: "IV. Open Learning Sites" },
+            { id: "evaluating-web", label: "V. Evaluating Web Pages" },
+            { id: "web-interactive", label: "VI. Credibility Evaluator" }
+          ]
+          : noteData?.staticLookupKey === 'computer-safety-basics'
+            ? [
+              { id: "hs-ergonomics", label: "I. Ergonomics & Posture" },
+              { id: "hs-breaks", label: "II. Importance of Breaks" },
+              { id: "hs-tools", label: "III. Supportive Tools" },
+              { id: "hs-audio", label: "IV. Audio Settings" },
+              { id: "hs-electrical", label: "V. Electrical Safety" },
+              { id: "hs-interactive", label: "VI. Workstation Simulator" }
+            ]
+            : noteData?.staticLookupKey === 'dtp-basics'
+              ? [
+                { id: "dtp-definition", label: "I. What is DTP?" },
+                { id: "dtp-importance", label: "II. DTP Importance" },
+                { id: "dtp-templates", label: "III. Template Actions" },
+                { id: "dtp-ribbons", label: "IV. Publisher Ribbons" },
+                { id: "dtp-fitting", label: "V. Text Fitting & Typos" },
+                { id: "dtp-interactive", label: "VI. Flyer Builder" }
+              ]
+              : noteData?.staticLookupKey === 'spreadsheet-formulas-basics'
+                ? [
+                  { id: "ssf-definition", label: "I. Formulas vs. Functions" },
+                  { id: "ssf-functions", label: "II. Built-In Functions" },
+                  { id: "ssf-references", label: "III. Cell References" },
+                  { id: "ssf-percentages", label: "IV. Percentage Methods" },
+                  { id: "ssf-financial", label: "V. Loan Interest Rates" },
+                  { id: "ssf-interactive", label: "VI. Formulas Simulator" }
+                ]
+                : noteData?.staticLookupKey === 'search-engines-basics'
+                  ? [
+                    { id: "se-techniques", label: "I. Search Techniques" },
+                    { id: "se-boolean", label: "II. Boolean Searching" },
+                    { id: "se-enhancements", label: "III. Search Enhancements" },
+                    { id: "se-engines", label: "IV. Popular Search Engines" },
+                    { id: "se-matrix", label: "V. Search Comparison" },
+                    { id: "se-interactive", label: "VI. Query Simulator" }
+                  ]
+                  : noteData?.staticLookupKey === 'ai-basics'
+                    ? [
+                      { id: "ai-ann", label: "I. Neural Networks" },
+                      { id: "ai-intelligence", label: "II. Comparing Intelligence" },
+                      { id: "ai-differences", label: "III. Human vs. AI" },
+                      { id: "ai-strong-weak", label: "IV. Strong vs. Weak AI" },
+                      { id: "ai-hologram", label: "V. Holograms & MR" },
+                      { id: "ai-interactive", label: "VI. Neural Sandbox" }
+                    ]
+                    : noteData?.staticLookupKey === 'animal-production-basics'
+                      ? [
+                        { id: "ap-definition", label: "I. Feed Definitions" },
+                        { id: "ap-feed-class", label: "II. Feed Classification" },
+                        { id: "ap-nutrients", label: "III. Nutrient Components" },
+                        { id: "ap-usefulness", label: "IV. Importance of Water" },
+                        { id: "ap-proportions", label: "V. Ration Proportions" },
+                        { id: "ap-interactive", label: "VI. Feed Calculator" }
+                      ]
+                      : noteData?.staticLookupKey === 'energy-conversion-basics'
+                        ? [
+                          { id: "ec-intro", label: "I. Energy Concepts" },
+                          { id: "ec-classification", label: "II. Renewable vs. Non-Renewable" },
+                          { id: "ec-specific", label: "III. Specific Sources" },
+                          { id: "ec-challenges", label: "IV. Source Challenges" },
+                          { id: "ec-heat-temp", label: "V. Heat vs. Temperature" },
+                          { id: "ec-interactive", label: "VI. Grid Simulator" }
+                        ]
+                        : noteData?.staticLookupKey === 'farming-systems-basics'
+                          ? [
+                            { id: "fs-intro", label: "I. Farming Systems" },
+                            { id: "fs-mixed-farming", label: "II. Mixed Farming" },
+                            { id: "fs-mixed-cropping", label: "III. Mixed Cropping" },
+                            { id: "fs-intercropping", label: "IV. Inter-Cropping" },
+                            { id: "fs-rotation", label: "V. Crop Rotation" },
+                            { id: "fs-sustainability", label: "VI. Sustainability & Interdependence" },
+                            { id: "fs-interactive", label: "VII. Rotation Sandbox" }
+                          ]
+                          : contentBlocksToRender
+                            ?.map((block: any, idx: number) => {
+                              if (block.heading) {
+                                return { id: `block-${idx}`, label: block.heading };
+                              }
+                              return null;
+                            })
+                            .filter((item: any): item is { id: string; label: string } => item !== null) || [];
 
   return (
     <div className="flex-1 flex overflow-hidden relative w-full h-full bg-white select-none">
@@ -1342,7 +1342,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                   <p className="font-sans text-gray-700 leading-loose">
                     To be effective, any computer algorithm must possess the following structural traits:
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
                       <span className="font-mono text-[9px] font-black text-black">INPUT / OUTPUT</span>
@@ -1415,7 +1415,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     <BrainCircuit size={20} />
                     4. Key Computational Concepts
                   </h2>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Abstraction */}
                     <div className="border-2 border-black p-6 bg-[#FFD833] shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-3">
@@ -1454,7 +1454,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                   <div className="border-2 border-black p-6 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-4">
                     <h4 className="font-serif text-lg font-bold text-black uppercase tracking-tight">A. Simple Multiplication Plan</h4>
                     <p className="font-sans text-xs text-gray-600">A step-by-step plan to multiply two numbers and display the result:</p>
-                    
+
                     <div className="bg-[#F3F4F6] border border-black p-4 font-mono text-xs space-y-1.5 text-black">
                       <div>STEP 1 // Start</div>
                       <div>STEP 2 // Declare three integers: x, y, and z</div>
@@ -1467,12 +1467,12 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                   </div>
 
                   {/* Linear Search */}
-                  <div 
+                  <div
                     className={`border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none overflow-hidden transition-all
                       ${searchAccordionActive ? 'bg-[#F3F4F6]' : 'bg-white'}
-                    `} 
+                    `}
                   >
-                    <button 
+                    <button
                       onClick={() => setSearchAccordionActive(prev => !prev)}
                       className="w-full flex items-center justify-between p-6 text-left focus:outline-none hover:bg-gray-50 transition-colors"
                     >
@@ -1480,20 +1480,20 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                         <Search size={18} className="text-black" />
                         B. Linear Search Walkthrough
                       </span>
-                      <ChevronDown 
-                        size={20} 
+                      <ChevronDown
+                        size={20}
                         className={`text-black transition-transform duration-200
                           ${searchAccordionActive ? 'transform rotate-180' : ''}
-                        `} 
+                        `}
                       />
                     </button>
-                    
+
                     {searchAccordionActive && (
                       <div className="border-t-2 border-black p-6 md:p-8 space-y-6 font-sans text-sm text-gray-700 leading-loose bg-white">
                         <p>
                           <strong>Linear Search</strong> is the simplest sequential searching method, where you start at one end of a list and check every single element one by one until the desired item (the "key") is found.
                         </p>
-                        
+
                         <div className="border-l-4 border-black pl-4 py-2 space-y-2">
                           <div className="font-mono text-xs font-bold text-black">VISUAL WALKTHROUGH //</div>
                           <div className="font-mono text-xs text-gray-600">Given array: arr[] = [10, 50, 30, 70, 80, 20, 90, 40] and Target Key = 30</div>
@@ -1575,8 +1575,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                         key={tab.name}
                         onClick={() => setSelectedApp(tab.name)}
                         className={`px-3 py-1.5 font-mono text-[10px] font-bold uppercase border-2 border-black rounded-none cursor-pointer transition-all duration-700
-                          ${selectedApp === tab.name 
-                            ? 'bg-black text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                          ${selectedApp === tab.name
+                            ? 'bg-black text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]'
                             : 'bg-white text-black hover:bg-gray-100'
                           }
                         `}
@@ -1813,7 +1813,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                   <p className="font-sans text-gray-700 leading-loose text-left">
                     Spreadsheet applications are deployed across different domains to track, manage, and model numerical information:
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="border-2 border-black p-4 bg-[#F3F4F6] shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-left">
                       <span className="font-mono text-[9px] font-black text-black">FINANCE</span>
@@ -2516,11 +2516,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Ergonomic settings */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">ERGONOMICS & WORK HABITS</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Sitting Posture:</label>
-                          <select 
-                            value={hsPosture} 
+                          <select
+                            value={hsPosture}
                             onChange={(e) => { setHsPosture(e.target.value); setHsStatus('IDLE'); setHsReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2532,8 +2532,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Taking Breaks:</label>
-                          <select 
-                            value={hsBreaks} 
+                          <select
+                            value={hsBreaks}
                             onChange={(e) => { setHsBreaks(e.target.value); setHsStatus('IDLE'); setHsReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2545,11 +2545,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Audio Level (Speaker/Earpieces): {hsAudioLevel}%</label>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            value={hsAudioLevel} 
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={hsAudioLevel}
                             onChange={(e) => { setHsAudioLevel(parseInt(e.target.value)); setHsStatus('IDLE'); setHsReport(null); }}
                             className="w-full accent-black cursor-pointer"
                           />
@@ -2559,15 +2559,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Electrical safety settings */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">ELECTRICAL SAFETY</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Wattage Load: {hsLoad}W</label>
-                          <input 
-                            type="range" 
-                            min="500" 
-                            max="4500" 
+                          <input
+                            type="range"
+                            min="500"
+                            max="4500"
                             step="250"
-                            value={hsLoad} 
+                            value={hsLoad}
                             onChange={(e) => { setHsLoad(parseInt(e.target.value)); setHsStatus('IDLE'); setHsReport(null); }}
                             className="w-full accent-black cursor-pointer"
                           />
@@ -2576,9 +2576,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="flex flex-col gap-2 pt-1 font-bold">
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              checked={hsDaisyChain} 
+                            <input
+                              type="checkbox"
+                              checked={hsDaisyChain}
                               onChange={(e) => { setHsDaisyChain(e.target.checked); setHsStatus('IDLE'); setHsReport(null); }}
                               className="accent-black border-2 border-black rounded-none cursor-pointer"
                             />
@@ -2586,9 +2586,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                           </label>
 
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              checked={hsBlockAdaptor} 
+                            <input
+                              type="checkbox"
+                              checked={hsBlockAdaptor}
                               onChange={(e) => { setHsBlockAdaptor(e.target.checked); setHsStatus('IDLE'); setHsReport(null); }}
                               className="accent-black border-2 border-black rounded-none cursor-pointer"
                             />
@@ -2598,8 +2598,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Danger Signs Observed:</label>
-                          <select 
-                            value={hsDangerSigns} 
+                          <select
+                            value={hsDangerSigns}
                             onChange={(e) => { setHsDangerSigns(e.target.value); setHsStatus('IDLE'); setHsReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2840,11 +2840,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Page Setup */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">PAGE SETUP & SCHEME</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Publication Type:</label>
-                          <select 
-                            value={dtpTemplate} 
+                          <select
+                            value={dtpTemplate}
                             onChange={(e) => { setDtpTemplate(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2856,8 +2856,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Orientation:</label>
-                          <select 
-                            value={dtpOrientation} 
+                          <select
+                            value={dtpOrientation}
                             onChange={(e) => { setDtpOrientation(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2868,8 +2868,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Margins:</label>
-                          <select 
-                            value={dtpMargins} 
+                          <select
+                            value={dtpMargins}
                             onChange={(e) => { setDtpMargins(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2882,8 +2882,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Color Theme:</label>
-                          <select 
-                            value={dtpColorTheme} 
+                          <select
+                            value={dtpColorTheme}
                             onChange={(e) => { setDtpColorTheme(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2897,11 +2897,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Content & Typography */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">CONTENT & TYPOGRAPHY OPTIONS</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Text Autofit Mode:</label>
-                          <select 
-                            value={dtpTextFit} 
+                          <select
+                            value={dtpTextFit}
                             onChange={(e) => { setDtpTextFit(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2914,8 +2914,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Illustration Tool:</label>
-                          <select 
-                            value={dtpPictureOption} 
+                          <select
+                            value={dtpPictureOption}
                             onChange={(e) => { setDtpPictureOption(e.target.value); setDtpStatus('IDLE'); setDtpReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -2927,9 +2927,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="flex flex-col gap-2 pt-1 font-bold">
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              checked={dtpDropCap} 
+                            <input
+                              type="checkbox"
+                              checked={dtpDropCap}
                               onChange={(e) => { setDtpDropCap(e.target.checked); setDtpStatus('IDLE'); setDtpReport(null); }}
                               className="accent-black border-2 border-black rounded-none cursor-pointer"
                             />
@@ -2937,9 +2937,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                           </label>
 
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              checked={dtpLigatures} 
+                            <input
+                              type="checkbox"
+                              checked={dtpLigatures}
                               onChange={(e) => { setDtpLigatures(e.target.checked); setDtpStatus('IDLE'); setDtpReport(null); }}
                               className="accent-black border-2 border-black rounded-none cursor-pointer"
                             />
@@ -2947,9 +2947,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                           </label>
 
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              checked={dtpSwash} 
+                            <input
+                              type="checkbox"
+                              checked={dtpSwash}
                               onChange={(e) => { setDtpSwash(e.target.checked); setDtpStatus('IDLE'); setDtpReport(null); }}
                               className="accent-black border-2 border-black rounded-none cursor-pointer"
                             />
@@ -2985,11 +2985,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         {/* Interactive Visual Canvas Mockup */}
                         <div className="flex justify-center py-4 bg-gray-200 border-2 border-dashed border-black mb-4">
-                          <div 
+                          <div
                             className={`border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-4 transition-all flex flex-col justify-between
                               ${dtpOrientation === 'Portrait' ? 'w-48 h-64' : 'w-64 h-48'}
                             `}
-                            style={{ 
+                            style={{
                               backgroundColor: dtpColorTheme === 'modern' ? '#FFF' : dtpColorTheme === 'vintage' ? '#FFF3C4' : '#F4EFE6',
                               borderColor: 'black'
                             }}
@@ -3276,8 +3276,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                     {/* Output report */}
                     {ssfStatus === 'SUCCESS' && ssfResult && (
-                      <div 
-                        className="border-4 border-black p-6 transition-all animate-fadeIn" 
+                      <div
+                        className="border-4 border-black p-6 transition-all animate-fadeIn"
                         style={{ backgroundColor: ssfResult.isError ? '#FCA5A5' : '#A7F3D0' }}
                       >
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3 mb-4">
@@ -3417,7 +3417,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     <ListOrdered size={20} />
                     5. Comparison Matrix at a Glance
                   </h2>
-                  
+
                   <div className="overflow-x-auto border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
                     <table className="w-full text-left font-mono text-xs border-collapse">
                       <thead>
@@ -3470,11 +3470,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Engine Profiles */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">ENGINE PROFILE CONFIGURATION</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Search Engine:</label>
-                          <select 
-                            value={seEngineSelect} 
+                          <select
+                            value={seEngineSelect}
                             onChange={(e) => { setSeEngineSelect(e.target.value); setSeStatus('IDLE'); setSeResult(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -3486,7 +3486,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                         <div className="border border-black p-3 bg-white space-y-1 font-sans text-xs text-left">
                           <strong>Engine Details:</strong>
                           <p className="text-gray-600">
-                            {seEngineSelect === 'google' 
+                            {seEngineSelect === 'google'
                               ? 'Google tracks query strings and links them to personal metrics to build interest tags.'
                               : 'DuckDuckGo enforces a localized session with zero tracking cookies and blocks hidden tracking agents.'}
                           </p>
@@ -3496,7 +3496,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Query Editor */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">BOOLEAN QUERY COMPOSER</span>
-                        
+
                         <div className="space-y-2">
                           <label className="font-bold block">Quick Presets:</label>
                           <div className="flex flex-wrap gap-1.5">
@@ -3519,7 +3519,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Search Box:</label>
-                          <input 
+                          <input
                             type="text"
                             value={seQueryInput}
                             onChange={(e) => { setSeQueryInput(e.target.value); setSeStatus('IDLE'); setSeResult(null); }}
@@ -3664,7 +3664,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     <Layers size={20} />
                     3. Key Differences: Human vs. AI
                   </h2>
-                  
+
                   <div className="overflow-x-auto border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
                     <table className="w-full text-left font-mono text-xs border-collapse">
                       <thead>
@@ -3770,11 +3770,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Neural Net Config */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">A. NEURAL NETWORK CONFIGURATION</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Input Data Feed:</label>
-                          <select 
-                            value={aiDataType} 
+                          <select
+                            value={aiDataType}
                             onChange={(e) => { setAiDataType(e.target.value); setAiStatus('IDLE'); setAiReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -3786,8 +3786,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Hidden Layers:</label>
-                          <select 
-                            value={aiHiddenLayers} 
+                          <select
+                            value={aiHiddenLayers}
                             onChange={(e) => { setAiHiddenLayers(parseInt(e.target.value)); setAiStatus('IDLE'); setAiReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -3799,8 +3799,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Training Epochs:</label>
-                          <select 
-                            value={aiTrainingEpochs} 
+                          <select
+                            value={aiTrainingEpochs}
                             onChange={(e) => { setAiTrainingEpochs(parseInt(e.target.value)); setAiStatus('IDLE'); setAiReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -3814,12 +3814,12 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Holographic Setup */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">B. HOLOGRAPHIC BEAM CONFIG</span>
-                        
+
                         <div className="flex flex-col gap-2 pt-1 font-bold">
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              checked={aiLaserCoherent} 
+                            <input
+                              type="checkbox"
+                              checked={aiLaserCoherent}
                               onChange={(e) => { setAiLaserCoherent(e.target.checked); setAiStatus('IDLE'); setAiReport(null); }}
                               className="accent-black border-2 border-black rounded-none cursor-pointer"
                             />
@@ -3829,8 +3829,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Beam Splitting Angle:</label>
-                          <select 
-                            value={aiSplitAngle} 
+                          <select
+                            value={aiSplitAngle}
                             onChange={(e) => { setAiSplitAngle(parseInt(e.target.value)); setAiStatus('IDLE'); setAiReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -3861,7 +3861,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     {/* Simulation Output Display */}
                     {aiStatus === 'SUCCESS' && aiReport && (
                       <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-6 transition-all animate-fadeIn text-left text-xs font-mono">
-                        
+
                         {/* Part A: Neural Report */}
                         <div className="space-y-4">
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
@@ -3886,12 +3886,12 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                         {/* Part B: Hologram Visual Representation */}
                         <div className="space-y-4 pt-4 border-t-2 border-black/10">
                           <h4 className="font-serif text-lg font-black uppercase text-black">B. HOLOGRAPHIC 3D PROJECTION PREVIEW</h4>
-                          
+
                           <div className="flex justify-center py-6 bg-black border-2 border-black relative overflow-hidden h-48">
                             {aiLaserCoherent ? (
                               <div className="absolute inset-0 flex flex-col items-center justify-center">
                                 {/* Visual Hologram Representation */}
-                                <div 
+                                <div
                                   className={`border-2 border-dashed border-cyan-400 rounded-full flex items-center justify-center transition-all animate-pulse duration-1000
                                     ${aiSplitAngle === 45 ? 'w-24 h-24 bg-cyan-500/10 text-cyan-400' : 'w-32 h-16 bg-cyan-500/5 text-cyan-500/60'}
                                   `}
@@ -3999,7 +3999,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     <Layers size={20} />
                     3. Major Nutrients in Animal Feeds
                   </h2>
-                  
+
                   <div className="overflow-x-auto border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
                     <table className="w-full text-left font-mono text-xs border-collapse">
                       <thead>
@@ -4103,11 +4103,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Ration Config */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">A. DIET FORMULATION RATIO</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Target Livestock:</label>
-                          <select 
-                            value={apLivestockType} 
+                          <select
+                            value={apLivestockType}
                             onChange={(e) => { setApLivestockType(e.target.value); setApStatus('IDLE'); setApReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4124,9 +4124,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             <span>Basal / Carbohydrates (Maize):</span>
                             <span>{apCarbsRatio}%</span>
                           </div>
-                          <input 
-                            type="range" min="0" max="100" 
-                            value={apCarbsRatio} 
+                          <input
+                            type="range" min="0" max="100"
+                            value={apCarbsRatio}
                             onChange={(e) => { setApCarbsRatio(parseInt(e.target.value)); setApStatus('IDLE'); setApReport(null); }}
                             className="w-full accent-black cursor-pointer"
                           />
@@ -4138,9 +4138,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             <span>Concentrates / Proteins (Fish Meal):</span>
                             <span>{apProteinRatio}%</span>
                           </div>
-                          <input 
-                            type="range" min="0" max="100" 
-                            value={apProteinRatio} 
+                          <input
+                            type="range" min="0" max="100"
+                            value={apProteinRatio}
                             onChange={(e) => { setApProteinRatio(parseInt(e.target.value)); setApStatus('IDLE'); setApReport(null); }}
                             className="w-full accent-black cursor-pointer"
                           />
@@ -4152,9 +4152,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             <span>Roughage / Fibers (Hay/Pasture):</span>
                             <span>{apRoughageRatio}%</span>
                           </div>
-                          <input 
-                            type="range" min="0" max="100" 
-                            value={apRoughageRatio} 
+                          <input
+                            type="range" min="0" max="100"
+                            value={apRoughageRatio}
                             onChange={(e) => { setApRoughageRatio(parseInt(e.target.value)); setApStatus('IDLE'); setApReport(null); }}
                             className="w-full accent-black cursor-pointer"
                           />
@@ -4166,9 +4166,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             <span>Supplements (Oyster Shells):</span>
                             <span>{apSupplementRatio}%</span>
                           </div>
-                          <input 
-                            type="range" min="0" max="100" 
-                            value={apSupplementRatio} 
+                          <input
+                            type="range" min="0" max="100"
+                            value={apSupplementRatio}
                             onChange={(e) => { setApSupplementRatio(parseInt(e.target.value)); setApStatus('IDLE'); setApReport(null); }}
                             className="w-full accent-black cursor-pointer"
                           />
@@ -4182,11 +4182,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Water Setup */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">B. HYDRATION SUPPLY</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Water Options:</label>
-                          <select 
-                            value={apWaterOption} 
+                          <select
+                            value={apWaterOption}
                             onChange={(e) => { setApWaterOption(e.target.value); setApStatus('IDLE'); setApReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4217,7 +4217,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     {/* Simulation Output Display */}
                     {apStatus === 'SUCCESS' && apReport && (
                       <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-6 transition-all animate-fadeIn text-left text-xs font-mono">
-                        
+
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
                           <h4 className="font-serif text-lg font-black uppercase text-black">NUTRITIONAL YIELD AUDIT</h4>
                           <div className="flex items-center gap-4 font-mono text-xs font-bold text-black">
@@ -4314,7 +4314,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     <Layers size={20} />
                     3. Specific Sources and Transformations
                   </h2>
-                  
+
                   <div className="space-y-3 font-semibold text-xs text-black leading-relaxed">
                     <div className="border border-black p-4 bg-white text-left">
                       <strong>Hydroelectric Power:</strong>
@@ -4337,7 +4337,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     <ListOrdered size={20} />
                     4. Renewable Energy: Management Challenges
                   </h2>
-                  
+
                   <div className="overflow-x-auto border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
                     <table className="w-full text-left font-mono text-xs border-collapse">
                       <thead>
@@ -4412,11 +4412,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Grid setup */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">A. POWER GENERATION SETUPS</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Power Technology:</label>
-                          <select 
-                            value={ecSource} 
+                          <select
+                            value={ecSource}
                             onChange={(e) => { setEcSource(e.target.value); setEcStatus('IDLE'); setEcReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4435,9 +4435,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             <span>Resource Availability (Drought / Cloud / Wind):</span>
                             <span>{ecSourceAvailability}%</span>
                           </div>
-                          <input 
-                            type="range" min="0" max="100" 
-                            value={ecSourceAvailability} 
+                          <input
+                            type="range" min="0" max="100"
+                            value={ecSourceAvailability}
                             onChange={(e) => { setEcSourceAvailability(parseInt(e.target.value)); setEcStatus('IDLE'); setEcReport(null); }}
                             className="w-full accent-black cursor-pointer"
                           />
@@ -4446,8 +4446,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                         {/* Load requirements */}
                         <div className="space-y-1">
                           <label className="font-bold block">Target Grid Load Demand:</label>
-                          <select 
-                            value={ecGridLoad} 
+                          <select
+                            value={ecGridLoad}
                             onChange={(e) => { setEcGridLoad(parseInt(e.target.value)); setEcStatus('IDLE'); setEcReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4461,15 +4461,15 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Calorimeter Setup */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">B. THERMAL CALORIMETER SANDBOX</span>
-                        
+
                         <div className="space-y-1">
                           <div className="flex justify-between font-bold">
                             <span>Heat Energy Added (Joules):</span>
                             <span>{ecHeatInput} J</span>
                           </div>
-                          <input 
+                          <input
                             type="range" min="0" max="1000" step="100"
-                            value={ecHeatInput} 
+                            value={ecHeatInput}
                             onChange={(e) => { setEcHeatInput(parseInt(e.target.value)); setEcStatus('IDLE'); setEcReport(null); }}
                             className="w-full accent-black cursor-pointer"
                           />
@@ -4496,7 +4496,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     {/* Simulation Output Display */}
                     {ecStatus === 'SUCCESS' && ecReport && (
                       <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-6 transition-all animate-fadeIn text-left text-xs font-mono">
-                        
+
                         {/* Part A: Power Station report */}
                         <div className="space-y-4">
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
@@ -4530,11 +4530,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                         {/* Part B: Calorimeter report */}
                         <div className="space-y-4 pt-4 border-t-2 border-black/10">
                           <h4 className="font-serif text-lg font-black uppercase text-black">B. CALORIMETER TEMPERATURE READOUT</h4>
-                          
+
                           <div className="flex items-center gap-6 bg-white border-2 border-black p-4">
                             {/* Thermometer Visual representation */}
                             <div className="w-6 h-28 bg-gray-200 border-2 border-black rounded-full relative flex items-end p-0.5">
-                              <div 
+                              <div
                                 className="w-full bg-red-600 rounded-full transition-all duration-500"
                                 style={{ height: `${Math.min(100, Math.max(10, ecReport.temperatureRise))}%` }}
                               />
@@ -4774,11 +4774,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Rotation Cycle */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">A. 4-YEAR ROTATION PLANNER</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Year 1 Crop:</label>
-                          <select 
-                            value={fsYear1Crop} 
+                          <select
+                            value={fsYear1Crop}
                             onChange={(e) => { setFsYear1Crop(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4791,8 +4791,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Year 2 Crop:</label>
-                          <select 
-                            value={fsYear2Crop} 
+                          <select
+                            value={fsYear2Crop}
                             onChange={(e) => { setFsYear2Crop(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4805,8 +4805,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Year 3 Crop:</label>
-                          <select 
-                            value={fsYear3Crop} 
+                          <select
+                            value={fsYear3Crop}
                             onChange={(e) => { setFsYear3Crop(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4819,8 +4819,8 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
                         <div className="space-y-1">
                           <label className="font-bold block">Year 4 Crop:</label>
-                          <select 
-                            value={fsYear4Crop} 
+                          <select
+                            value={fsYear4Crop}
                             onChange={(e) => { setFsYear4Crop(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4835,11 +4835,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       {/* Mixed Farming interdependence */}
                       <div className="border-2 border-black p-4 bg-[#F3F4F6] space-y-4">
                         <span className="font-bold text-black uppercase block border-b border-black pb-1 mb-2 bg-black text-white px-2 py-0.5">B. MIXED LIVESTOCK CARE</span>
-                        
+
                         <div className="space-y-1">
                           <label className="font-bold block">Livestock System:</label>
-                          <select 
-                            value={fsAnimalCare} 
+                          <select
+                            value={fsAnimalCare}
                             onChange={(e) => { setFsAnimalCare(e.target.value); setFsStatus('IDLE'); setFsReport(null); }}
                             className="w-full bg-white border border-black p-1 text-black font-bold uppercase focus:outline-none"
                           >
@@ -4869,7 +4869,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     {/* Simulation Output Display */}
                     {fsStatus === 'SUCCESS' && fsReport && (
                       <div className="border-4 border-black p-6 bg-[#F3F4F6] space-y-6 transition-all animate-fadeIn text-left text-xs font-mono">
-                        
+
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-black pb-3">
                           <h4 className="font-serif text-lg font-black uppercase text-black">SOIL HEALTH & YIELD AUDIT</h4>
                           <div className="flex items-center gap-4 font-mono text-xs font-bold text-black">
