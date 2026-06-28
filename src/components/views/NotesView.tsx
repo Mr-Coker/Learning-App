@@ -953,6 +953,10 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
     activeNoteId ? { noteId: activeNoteId as Id<"notes"> } : 'skip'
   );
 
+  const subjects = useQuery(api.admin.listSubjects);
+  const matchedSubject = subjects?.find((s) => s._id === noteData?.subjectId);
+  const subjectCode = matchedSubject?.code || "GENERAL";
+
   const handleSave = () => {
     setSaveStatus('SAVING');
     setTimeout(() => {
@@ -5044,15 +5048,16 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           noteData && (
             <div className="border-4 border-black bg-white p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
               <div className="flex justify-between items-center mb-4">
-                <span className="font-mono text-xs font-bold text-gray-500 uppercase tracking-widest">
+                <span className="font-mono text-xs font-bold text-gray-500 uppercase tracking-widest font-mono">
                   VIDEO_TRANSMISSION // {noteData.videoUrl ? 'CONNECTED' : 'MOCK_STREAM'}
                 </span>
-                <span className="bg-[#FF007F] text-white border-2 border-black font-mono text-[10px] font-bold px-2 py-0.5 rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] uppercase">
-                  DURATION: 14:22
+                <span className="bg-[#FF007F] text-white border-2 border-black font-mono text-[10px] font-bold px-2 py-0.5 rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] uppercase font-mono">
+                  {noteData.classLevel || "UNASSIGNED LEVEL"} // {subjectCode || "GENERAL"}
                 </span>
               </div>
+              
               <h2 className="font-serif text-2xl md:text-3xl font-black uppercase tracking-tight text-black mb-4">
-                {noteData.videoTitle || `${noteData.title} — Video Lesson`}
+                {noteData.videoTitle || "UNTITLED LESSON VIDEO"}
               </h2>
               
               {/* Video Canvas Frame */}
@@ -5084,9 +5089,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                     </div>
 
                     {/* Simulated HUD elements */}
-                    <div className="z-10 p-4 w-full flex justify-between font-mono text-[10px] text-gray-400 uppercase tracking-widest pointer-events-none">
+                    <div className="z-10 p-4 w-full flex justify-between font-mono text-[10px] text-gray-400 uppercase tracking-widest pointer-events-none font-mono">
                       <div>CAM // 01</div>
-                      <div>LIVE // STREAMING</div>
+                      <div>STATUS // OFFLINE</div>
                     </div>
 
                     {/* Video controls footer */}
@@ -5094,11 +5099,11 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                       <div className="flex items-center gap-4">
                         <span className="text-white font-bold cursor-pointer">PLAY</span>
                         <span className="text-white font-bold cursor-pointer">MUTE</span>
-                        <span className="text-gray-500">00:00 / 14:22</span>
+                        <span className="text-gray-500">00:00 / 00:00</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-[#FFD833]">1080P</span>
-                        <span className="border border-white px-1">HD</span>
+                        <span className="border border-white px-1">SD</span>
                       </div>
                     </div>
                   </>
@@ -5107,33 +5112,10 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
 
               {/* Description */}
               <div className="border-2 border-black p-4 bg-gray-50 rounded-none mb-4">
-                <h4 className="font-mono text-xs font-bold text-black uppercase tracking-wider mb-2">Lesson Overview //</h4>
-                <p className="font-sans text-sm text-gray-700 leading-relaxed">
-                  In this dynamic video presentation, we cover the core syllabus targets of <strong className="text-black">{noteData.title}</strong>. Follow the visual demonstrations, interactive diagrams, and expert walkthroughs to reinforce your understanding.
+                <h4 className="font-mono text-xs font-bold text-black uppercase tracking-wider mb-2 font-mono">Lesson Overview //</h4>
+                <p className="font-sans text-sm font-bold text-black mt-2">
+                  This video lesson covers the complete core curriculum requirements for {noteData.title}. Use the left navigation panel to browse corresponding text notes and textbook block modules.
                 </p>
-              </div>
-
-              {/* Quick moments */}
-              <div className="space-y-2">
-                <h4 className="font-mono text-xs font-bold text-black uppercase tracking-wider">Key Moments in this Lesson //</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="border border-black p-3 bg-white font-mono text-[10px] flex justify-between items-center hover:bg-gray-50 cursor-pointer">
-                    <span>01. INTRODUCTION & BASIC CONCEPTS</span>
-                    <span className="bg-black text-white px-1.5 py-0.5">00:00</span>
-                  </div>
-                  <div className="border border-black p-3 bg-white font-mono text-[10px] flex justify-between items-center hover:bg-gray-50 cursor-pointer">
-                    <span>02. CORE WORKED EXAMPLE DECONSTRUCTION</span>
-                    <span className="bg-black text-white px-1.5 py-0.5">04:15</span>
-                  </div>
-                  <div className="border border-black p-3 bg-white font-mono text-[10px] flex justify-between items-center hover:bg-gray-50 cursor-pointer">
-                    <span>03. SYLLABUS PRACTICE QUESTIONS & EXAM TIPS</span>
-                    <span className="bg-black text-white px-1.5 py-0.5">09:40</span>
-                  </div>
-                  <div className="border border-black p-3 bg-white font-mono text-[10px] flex justify-between items-center hover:bg-gray-50 cursor-pointer">
-                    <span>04. SUMMARY & INTERACTIVE WRAP-UP</span>
-                    <span className="bg-black text-white px-1.5 py-0.5">12:10</span>
-                  </div>
-                </div>
               </div>
             </div>
           )
