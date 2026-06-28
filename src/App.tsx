@@ -208,21 +208,23 @@ export default function App() {
                     }}
                   />
                 )}
-                {currentView === 'direct_quest' && directQuest && (
+                {currentView === 'direct_quest' && (
                   <div className="bg-white border-4 border-black p-6 md:p-10 shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-4xl mx-auto w-full relative text-left">
-                    <div 
-                      className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors cursor-pointer w-fit mb-6" 
-                      onClick={() => setCurrentView('notes')}
-                    >
-                      <ArrowLeft size={14} />
-                      <span className="font-mono text-[9px] font-bold uppercase tracking-widest">RETURN_TO_NOTE</span>
-                    </div>
+                    {directQuest && (
+                      <div 
+                        className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors cursor-pointer w-fit mb-6" 
+                        onClick={() => setCurrentView('notes')}
+                      >
+                        <ArrowLeft size={14} />
+                        <span className="font-mono text-[9px] font-bold uppercase tracking-widest">RETURN_TO_NOTE</span>
+                      </div>
+                    )}
                     <h1 className="font-serif text-3xl md:text-4xl font-black uppercase text-black mb-8 border-b-4 border-black pb-4">
-                      {directQuest.title}
+                      {directQuest ? directQuest.title : "Active Quest"}
                     </h1>
                     <QuestView
-                      steps={directQuest.steps}
-                      quizQuestions={directQuest.quizQuestions}
+                      steps={directQuest?.steps}
+                      quizQuestions={directQuest?.quizQuestions}
                       userEmail={userEmail}
                       onQuestComplete={() => {
                         // Optional callback

@@ -22,12 +22,13 @@ const viewLabels: Record<ViewState, string> = {
   admin: "SYS // ADMIN_CONSOLE",
   communication: "SYS // COMMS_LINK",
   admin_subjects: "SYS // SUBJECTS_CONSOLE",
-  direct_quest: "SYS // ACTIVE_QUEST"
+  direct_quest: "SYS // QUESTS"
 };
 
 const roleTabs: Record<AppRole, Array<{ view: ViewState; label: string }>> = {
   student: [
     { view: 'home', label: 'Dashboard' },
+    { view: 'direct_quest', label: 'Quests' },
     { view: 'notes', label: 'Notes' },
     { view: 'library', label: 'Library' },
     { view: 'communication', label: 'Communication' }
