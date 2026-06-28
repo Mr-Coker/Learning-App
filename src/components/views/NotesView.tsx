@@ -25,6 +25,7 @@ interface NotesViewProps {
 
 export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
   const [textSize, setTextSize] = useState<number>(14); // in pixels
+  const [activeTab, setActiveTab] = useState<'text' | 'video'>('text');
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>('IDLE'); // IDLE, SAVING, SAVED
   const [searchAccordionActive, setSearchAccordionActive] = useState<boolean>(false);
@@ -1303,8 +1304,37 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           )}
         </div>
 
+        {/* View Tabs Selector */}
+        <div className="flex border-4 border-black bg-white mb-6 p-1.5 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none">
+          <button
+            onClick={() => setActiveTab('text')}
+            className={`flex-1 py-2 font-mono font-bold text-xs uppercase rounded-none border-2 transition-all cursor-pointer text-center
+              ${activeTab === 'text'
+                ? 'bg-[#FFD833] text-black border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]'
+                : 'bg-white text-black border-transparent hover:bg-gray-100'
+              }
+              active:translate-x-0.5 active:translate-y-0.5
+            `}
+          >
+            DOCUMENT_TEXT
+          </button>
+          <button
+            onClick={() => setActiveTab('video')}
+            className={`flex-1 py-2 font-mono font-bold text-xs uppercase rounded-none border-2 transition-all cursor-pointer text-center
+              ${activeTab === 'video'
+                ? 'bg-[#FF007F] text-white border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]'
+                : 'bg-white text-black border-transparent hover:bg-gray-100'
+              }
+              active:translate-x-0.5 active:translate-y-0.5
+            `}
+          >
+            VIDEO_LESSON
+          </button>
+        </div>
+
         {/* Content Canvas */}
-        <div className="mt-4 md:mt-0 space-y-16 dynamic-text-container" style={{ fontSize: `${textSize}px` }}>
+        {activeTab === 'text' ? (
+          <div className="mt-4 md:mt-0 space-y-16 dynamic-text-container" style={{ fontSize: `${textSize}px` }}>
           {noteData ? (
             noteData.staticLookupKey === 'algorithm-basics' ? (
               /* ==========================================
@@ -5009,7 +5039,93 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
               </div>
             </div>
           )}
-        </div>
+          </div>
+        ) : (
+          noteData && (
+            <div className="border-4 border-black bg-white p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-mono text-xs font-bold text-gray-500 uppercase tracking-widest">
+                  VIDEO_TRANSMISSION // ACTIVE
+                </span>
+                <span className="bg-[#FF007F] text-white border-2 border-black font-mono text-[10px] font-bold px-2 py-0.5 rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] uppercase">
+                  DURATION: 14:22
+                </span>
+              </div>
+              <h2 className="font-serif text-2xl md:text-3xl font-black uppercase tracking-tight text-black mb-4">
+                {noteData.title} — Video Lesson
+              </h2>
+              
+              {/* Mock Video Canvas Frame */}
+              <div className="aspect-video bg-black border-4 border-black relative flex flex-col justify-between rounded-none overflow-hidden group mb-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                {/* Visual grid / background inside black screen */}
+                <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+                  backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
+                  backgroundSize: '16px 16px'
+                }}></div>
+                
+                {/* Simulated playback visual */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#FFD833] gap-4">
+                  <button className="w-16 h-16 bg-[#FFD833] border-4 border-black flex items-center justify-center text-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] cursor-pointer hover:bg-white transition-all transform active:translate-x-0.5 active:translate-y-0.5">
+                    <span className="border-y-[10px] border-y-transparent border-l-[16px] border-l-black ml-1"></span>
+                  </button>
+                  <span className="font-mono text-xs uppercase tracking-widest font-black bg-black/80 px-3 py-1 border border-white/20 text-white">
+                    Click to Stream Lesson Transmission
+                  </span>
+                </div>
+
+                {/* Simulated HUD elements */}
+                <div className="z-10 p-4 w-full flex justify-between font-mono text-[10px] text-gray-400 uppercase tracking-widest pointer-events-none">
+                  <div>CAM // 01</div>
+                  <div>LIVE // STREAMING</div>
+                </div>
+
+                {/* Video controls footer */}
+                <div className="z-10 bg-black/95 border-t-2 border-white p-3 flex items-center justify-between font-mono text-[10px] text-white">
+                  <div className="flex items-center gap-4">
+                    <span className="text-white font-bold cursor-pointer">PLAY</span>
+                    <span className="text-white font-bold cursor-pointer">MUTE</span>
+                    <span className="text-gray-500">00:00 / 14:22</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#FFD833]">1080P</span>
+                    <span className="border border-white px-1">HD</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="border-2 border-black p-4 bg-gray-50 rounded-none mb-4">
+                <h4 className="font-mono text-xs font-bold text-black uppercase tracking-wider mb-2">Lesson Overview //</h4>
+                <p className="font-sans text-sm text-gray-700 leading-relaxed">
+                  In this dynamic video presentation, we cover the core syllabus targets of <strong className="text-black">{noteData.title}</strong>. Follow the visual demonstrations, interactive diagrams, and expert walkthroughs to reinforce your understanding.
+                </p>
+              </div>
+
+              {/* Quick moments */}
+              <div className="space-y-2">
+                <h4 className="font-mono text-xs font-bold text-black uppercase tracking-wider">Key Moments in this Lesson //</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="border border-black p-3 bg-white font-mono text-[10px] flex justify-between items-center hover:bg-gray-50 cursor-pointer">
+                    <span>01. INTRODUCTION & BASIC CONCEPTS</span>
+                    <span className="bg-black text-white px-1.5 py-0.5">00:00</span>
+                  </div>
+                  <div className="border border-black p-3 bg-white font-mono text-[10px] flex justify-between items-center hover:bg-gray-50 cursor-pointer">
+                    <span>02. CORE WORKED EXAMPLE DECONSTRUCTION</span>
+                    <span className="bg-black text-white px-1.5 py-0.5">04:15</span>
+                  </div>
+                  <div className="border border-black p-3 bg-white font-mono text-[10px] flex justify-between items-center hover:bg-gray-50 cursor-pointer">
+                    <span>03. SYLLABUS PRACTICE QUESTIONS & EXAM TIPS</span>
+                    <span className="bg-black text-white px-1.5 py-0.5">09:40</span>
+                  </div>
+                  <div className="border border-black p-3 bg-white font-mono text-[10px] flex justify-between items-center hover:bg-gray-50 cursor-pointer">
+                    <span>04. SUMMARY & INTERACTIVE WRAP-UP</span>
+                    <span className="bg-black text-white px-1.5 py-0.5">12:10</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        )}
       </article>
     </div>
   );
