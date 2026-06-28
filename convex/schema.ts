@@ -46,6 +46,18 @@ export default defineSchema({
         })
       )
     ),
+    quizQuestions: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          question: v.string(),
+          options: v.array(v.string()),
+          correctAnswerIndex: v.number(),
+          explanation: v.string(),
+          xpValue: v.number(),
+        })
+      )
+    ),
   }).index("by_subjectId", ["subjectId"]),
 
   questSubmissions: defineTable({

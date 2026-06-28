@@ -69,3 +69,33 @@ export const getCurrentUserRole = query({
     };
   },
 });
+
+export const awardQuestXp = mutation({
+  args: {
+    email: v.string(),
+    xp: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email.trim().toLowerCase()))
+      .unique();
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const newXp = (user.xp || 0) + args.xp;
+    await ctx.db.patch(user._id, {
+      xp: newXp,
+    });
+    
+    // Log the activity to record progress
+    await ctx.db.insert("activityLogs", {
+      type: "QUEST_COMPLETED",
+      message: `Earned +${args.xp} XP from Quest Quiz`,
+      userId: user._id,
+      createdAt: Date.now(),
+    });
+
+    return newXp;
+  },
+});

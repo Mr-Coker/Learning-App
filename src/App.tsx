@@ -188,7 +188,7 @@ export default function App() {
                 {currentView === 'home' && <HomeView userEmail={userEmail} />}
                 {currentView === 'chat' && <ChatView userEmail={userEmail} />}
                 {currentView === 'communication' && <ChatView userEmail={userEmail} />}
-                {currentView === 'assignments' && <AssignmentsView />}
+                {currentView === 'assignments' && <AssignmentsView userEmail={userEmail} />}
                 {currentView === 'notes' && (
                   <NotesView
                     activeNoteId={activeNoteId}
