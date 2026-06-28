@@ -35,6 +35,17 @@ export default defineSchema({
     subjectId: v.id("subjects"),
     xpReward: v.number(),
     dueDate: v.string(),
+    steps: v.optional(
+      v.array(
+        v.object({
+          stepNumber: v.number(),
+          title: v.string(),
+          instruction: v.string(),
+          hint: v.string(),
+          expectedOutcome: v.string(),
+        })
+      )
+    ),
   }).index("by_subjectId", ["subjectId"]),
 
   questSubmissions: defineTable({

@@ -10,6 +10,7 @@ import {
   X
 } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { QuestView, QuestStep } from './QuestView';
 
 interface Quest {
   id: number;
@@ -19,6 +20,7 @@ interface Quest {
   status: string;
   xp: number;
   details: string;
+  steps?: QuestStep[];
 }
 
 export function AssignmentsView() {
@@ -30,7 +32,30 @@ export function AssignmentsView() {
       due: "Today, 11:59 PM", 
       status: "80%", 
       xp: 50,
-      details: "Solve multi-variable quadratic equations, analyze vertex positions, and calculate trajectories. Ensure all steps are written out in point-slope and vertex formats."
+      details: "Solve multi-variable quadratic equations, analyze vertex positions, and calculate trajectories. Ensure all steps are written out in point-slope and vertex formats.",
+      steps: [
+        {
+          stepNumber: 1,
+          title: "Rearrange Equation",
+          instruction: "Move all terms to one side of the equation to set it to zero (ax^2 + bx + c = 0).",
+          hint: "Subtract the right-hand constant from both sides.",
+          expectedOutcome: "The equation is formatted as 2x^2 + 5x - 12 = 0"
+        },
+        {
+          stepNumber: 2,
+          title: "Factor the Quadratic",
+          instruction: "Identify two numbers that multiply to a*c (-24) and add to b (5), then factor by grouping.",
+          hint: "The numbers are 8 and -3.",
+          expectedOutcome: "(2x - 3)(x + 4) = 0"
+        },
+        {
+          stepNumber: 3,
+          title: "Find the Roots",
+          instruction: "Set each factored term to zero and solve for x.",
+          hint: "Set 2x - 3 = 0 and x + 4 = 0.",
+          expectedOutcome: "x = 1.5 or x = -4"
+        }
+      ]
     },
     { 
       id: 2, 
@@ -39,7 +64,23 @@ export function AssignmentsView() {
       due: "Tomorrow, 5:00 PM", 
       status: "0%", 
       xp: 120,
-      details: "Complete the kinetic energy and momentum laboratory write-up. Include hypothesis, tabulated velocity data, collision calculations, and a clear error analysis section."
+      details: "Complete the kinetic energy and momentum laboratory write-up. Include hypothesis, tabulated velocity data, collision calculations, and a clear error analysis section.",
+      steps: [
+        {
+          stepNumber: 1,
+          title: "Record Initial Velocity",
+          instruction: "Calculate the photogate sensor velocities prior to the momentum impact test.",
+          hint: "Divide the cart distance by the blocker time.",
+          expectedOutcome: "v_initial = 1.45 m/s"
+        },
+        {
+          stepNumber: 2,
+          title: "Calculate Post-Collision Kinetic Energy",
+          instruction: "Compute the combined mass kinetic energy using KE = 0.5 * m * v^2.",
+          hint: "Mass of cart A is 0.5kg, cart B is 0.5kg.",
+          expectedOutcome: "KE_post = 0.52 Joules"
+        }
+      ]
     },
     { 
       id: 3, 
@@ -265,6 +306,13 @@ export function AssignmentsView() {
                 <span className="font-mono text-[9px] font-bold px-2 py-0.5 border border-black bg-white shadow-[1px_1px_0_0_rgba(0,0,0,1)]">MAX 25MB</span>
               </div>
             </div>
+
+            {/* Interactive Procedural Guide Stepper */}
+            {activeQuest.steps && activeQuest.steps.length > 0 && (
+              <div className="mt-6">
+                <QuestView steps={activeQuest.steps} />
+              </div>
+            )}
           </div>
 
           {/* Bottom Section: Drag-and-Drop Portal */}
