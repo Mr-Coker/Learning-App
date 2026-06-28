@@ -1153,9 +1153,9 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
                             .filter((item: any): item is { id: string; label: string } => item !== null) || [];
 
   return (
-    <div className="flex-1 flex overflow-hidden relative w-full h-full bg-white select-none">
+    <div className="w-full h-[calc(100vh-theme(spacing.20))] overflow-hidden flex items-stretch gap-6 bg-white select-none relative">
       {/* Table of Contents & Topic Selector Sidebar (Left Column) */}
-      <aside className="hidden md:block w-72 p-6 overflow-y-auto border-r border-outline-variant bg-[#F3F4F6] flex-shrink-0 h-full flex flex-col justify-between">
+      <aside className="hidden md:block w-72 p-6 overflow-y-auto border-r border-outline-variant bg-[#F3F4F6] flex-shrink-0 h-full select-none flex flex-col justify-between">
         <div className="space-y-8">
           {/* Back button */}
           <button
@@ -1215,7 +1215,7 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
       </aside>
 
       {/* Reading Canvas (Right Column) */}
-      <article className="flex-1 p-4 md:p-10 max-w-4xl mx-auto w-full relative overflow-y-auto h-full pb-20 md:pb-10">
+      <article className="flex-1 p-4 md:p-10 max-w-4xl mx-auto h-full w-full overflow-y-auto overflow-x-hidden pr-2 relative pb-20 md:pb-10">
 
         {/* Floating Toolbar */}
         <div className="fixed top-24 right-4 md:right-10 z-15 flex flex-col gap-2 bg-[#F3F4F6] border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-2 rounded-none">
