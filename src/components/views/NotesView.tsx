@@ -5041,79 +5041,69 @@ export function NotesView({ activeNoteId, onBack }: NotesViewProps) {
           )}
           </div>
         ) : (
-          noteData && (() => {
-            const savedPayload = localStorage.getItem(`video_payload_${noteData.staticLookupKey}`);
-            let customVideo = null;
-            if (savedPayload) {
-              try {
-                customVideo = JSON.parse(savedPayload);
-              } catch (e) {
-                console.error(e);
-              }
-            }
-            return (
-              <div className="border-4 border-black bg-white p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="font-mono text-xs font-bold text-gray-500 uppercase tracking-widest">
-                    VIDEO_TRANSMISSION // {customVideo ? 'CONNECTED' : 'MOCK_STREAM'}
-                  </span>
-                  <span className="bg-[#FF007F] text-white border-2 border-black font-mono text-[10px] font-bold px-2 py-0.5 rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] uppercase">
-                    DURATION: {customVideo ? '14:22' : '14:22'}
-                  </span>
-                </div>
-                <h2 className="font-serif text-2xl md:text-3xl font-black uppercase tracking-tight text-black mb-4">
-                  {customVideo ? customVideo.videoTitle : `${noteData.title} — Video Lesson`}
-                </h2>
-                
-                {/* Video Canvas Frame */}
-                <div className="aspect-video bg-black border-4 border-black relative flex flex-col justify-between rounded-none overflow-hidden group mb-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-                  {customVideo && customVideo.videoUrl ? (
-                    <iframe
-                      src={customVideo.videoUrl}
-                      title={customVideo.videoTitle}
-                      className="w-full h-full border-none"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                  ) : (
-                    <>
-                      {/* Visual grid / background inside black screen */}
-                      <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
-                        backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
-                        backgroundSize: '16px 16px'
-                      }}></div>
-                      
-                      {/* Simulated playback visual */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-[#FFD833] gap-4">
-                        <button className="w-16 h-16 bg-[#FFD833] border-4 border-black flex items-center justify-center text-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] cursor-pointer hover:bg-white transition-all transform active:translate-x-0.5 active:translate-y-0.5">
-                          <span className="border-y-[10px] border-y-transparent border-l-[16px] border-l-black ml-1"></span>
-                        </button>
-                        <span className="font-mono text-xs uppercase tracking-widest font-black bg-black/80 px-3 py-1 border border-white/20 text-white">
-                          Click to Stream Lesson Transmission
-                        </span>
-                      </div>
+          noteData && (
+            <div className="border-4 border-black bg-white p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-none text-left">
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-mono text-xs font-bold text-gray-500 uppercase tracking-widest">
+                  VIDEO_TRANSMISSION // {noteData.videoUrl ? 'CONNECTED' : 'MOCK_STREAM'}
+                </span>
+                <span className="bg-[#FF007F] text-white border-2 border-black font-mono text-[10px] font-bold px-2 py-0.5 rounded-none shadow-[2px_2px_0_0_rgba(0,0,0,1)] uppercase">
+                  DURATION: 14:22
+                </span>
+              </div>
+              <h2 className="font-serif text-2xl md:text-3xl font-black uppercase tracking-tight text-black mb-4">
+                {noteData.videoTitle || `${noteData.title} — Video Lesson`}
+              </h2>
+              
+              {/* Video Canvas Frame */}
+              <div className="aspect-video bg-black border-4 border-black relative flex flex-col justify-between rounded-none overflow-hidden group mb-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                {noteData.videoUrl ? (
+                  <iframe
+                    src={noteData.videoUrl}
+                    title={noteData.videoTitle || 'Lesson Video'}
+                    className="w-full h-full border-none"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                ) : (
+                  <>
+                    {/* Visual grid / background inside black screen */}
+                    <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+                      backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
+                      backgroundSize: '16px 16px'
+                    }}></div>
+                    
+                    {/* Simulated playback visual */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-[#FFD833] gap-4">
+                      <button className="w-16 h-16 bg-[#FFD833] border-4 border-black flex items-center justify-center text-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] cursor-pointer hover:bg-white transition-all transform active:translate-x-0.5 active:translate-y-0.5">
+                        <span className="border-y-[10px] border-y-transparent border-l-[16px] border-l-black ml-1"></span>
+                      </button>
+                      <span className="font-mono text-xs uppercase tracking-widest font-black bg-black/80 px-3 py-1 border border-white/20 text-white">
+                        Click to Stream Lesson Transmission
+                      </span>
+                    </div>
 
-                      {/* Simulated HUD elements */}
-                      <div className="z-10 p-4 w-full flex justify-between font-mono text-[10px] text-gray-400 uppercase tracking-widest pointer-events-none">
-                        <div>CAM // 01</div>
-                        <div>LIVE // STREAMING</div>
-                      </div>
+                    {/* Simulated HUD elements */}
+                    <div className="z-10 p-4 w-full flex justify-between font-mono text-[10px] text-gray-400 uppercase tracking-widest pointer-events-none">
+                      <div>CAM // 01</div>
+                      <div>LIVE // STREAMING</div>
+                    </div>
 
-                      {/* Video controls footer */}
-                      <div className="z-10 bg-black/95 border-t-2 border-white p-3 flex items-center justify-between font-mono text-[10px] text-white">
-                        <div className="flex items-center gap-4">
-                          <span className="text-white font-bold cursor-pointer">PLAY</span>
-                          <span className="text-white font-bold cursor-pointer">MUTE</span>
-                          <span className="text-gray-500">00:00 / 14:22</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[#FFD833]">1080P</span>
-                          <span className="border border-white px-1">HD</span>
-                        </div>
+                    {/* Video controls footer */}
+                    <div className="z-10 bg-black/95 border-t-2 border-white p-3 flex items-center justify-between font-mono text-[10px] text-white">
+                      <div className="flex items-center gap-4">
+                        <span className="text-white font-bold cursor-pointer">PLAY</span>
+                        <span className="text-white font-bold cursor-pointer">MUTE</span>
+                        <span className="text-gray-500">00:00 / 14:22</span>
                       </div>
-                    </>
-                  )}
-                </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#FFD833]">1080P</span>
+                        <span className="border border-white px-1">HD</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
 
               {/* Description */}
               <div className="border-2 border-black p-4 bg-gray-50 rounded-none mb-4">

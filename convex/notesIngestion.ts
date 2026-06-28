@@ -71,3 +71,25 @@ export const updateNote = mutation({
     return id;
   },
 });
+
+export const attachVideoToNote = mutation({
+  args: {
+    noteId: v.id("notes"),
+    videoUrl: v.string(),
+    videoTitle: v.string(),
+  },
+  handler: async (ctx, args) => {
+    let url = args.videoUrl.trim();
+    if (url.includes("watch?v=")) {
+      url = url.replace("watch?v=", "embed/");
+    } else if (url.includes("youtu.be/")) {
+      url = url.replace("youtu.be/", "youtube.com/embed/");
+    }
+
+    await ctx.db.patch(args.noteId, {
+      videoUrl: url,
+      videoTitle: args.videoTitle.trim(),
+    });
+    return args.noteId;
+  },
+});

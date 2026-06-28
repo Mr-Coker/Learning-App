@@ -1,44 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { Id } from '../../../convex/_generated/dataModel';
 import { CheckCircle2, Film } from 'lucide-react';
-
-interface VideoPayload {
-  classLevel: string;
-  subjectCode: string;
-  lookupKey: string;
-  videoUrl: string;
-  videoTitle: string;
-  duration: string;
-}
 
 export function VideoIngester() {
   const subjects = useQuery(api.admin.listSubjects);
   const notesList = useQuery(api.notesIngestion.listAllNotes);
+  const attachVideoToNote = useMutation(api.notesIngestion.attachVideoToNote);
 
   // Form states
   const [classLevel, setClassLevel] = useState('Basic 9');
   const [subjectCode, setSubjectCode] = useState('');
-  const [lookupKey, setLookupKey] = useState('');
+  const [selectedNoteId, setSelectedNoteId] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
   
   // Status states
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const [registry, setRegistry] = useState<VideoPayload[]>([]);
-
-  // Load registry from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('edusphere_video_registry');
-    if (saved) {
-      try {
-        setRegistry(JSON.parse(saved));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Update default subject code when subjects query completes
   useEffect(() => {
@@ -47,12 +28,12 @@ export function VideoIngester() {
     }
   }, [subjects]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!lookupKey.trim()) {
-      setErrorMsg('ERROR: LOCAL DATA ARRAY KEY MATCH REQUIRED');
+    if (!selectedNoteId) {
+      setErrorMsg('ERROR: TARGET NOTES TOPIC KEY REQUIRED');
       return;
     }
     if (!videoUrl.trim()) {
@@ -64,26 +45,21 @@ export function VideoIngester() {
       return;
     }
 
-    const payload: VideoPayload = {
-      classLevel,
-      subjectCode,
-      lookupKey: lookupKey.trim(),
-      videoUrl: videoUrl.trim(),
-      videoTitle: videoTitle.trim(),
-      duration: '14:22'
-    };
-
-    // Save individual payload for NotesView access
-    localStorage.setItem(`video_payload_${payload.lookupKey}`, JSON.stringify(payload));
-
-    // Update main list registry
-    const updatedRegistry = [payload, ...registry.filter(item => item.lookupKey !== payload.lookupKey)];
-    localStorage.setItem('edusphere_video_registry', JSON.stringify(updatedRegistry));
-    setRegistry(updatedRegistry);
-
-    setStatus('success');
-    setVideoUrl('');
-    setVideoTitle('');
+    setIsLoading(true);
+    try {
+      await attachVideoToNote({
+        noteId: selectedNoteId as Id<"notes">,
+        videoUrl: videoUrl.trim(),
+        videoTitle: videoTitle.trim(),
+      });
+      setStatus('success');
+      setVideoUrl('');
+      setVideoTitle('');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'SYSTEM_REGISTRATION_FAILURE: CHECK DATABASE TELEMETRY');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -109,7 +85,7 @@ export function VideoIngester() {
               VIDEO PIPELINE UPDATED
             </h3>
             <p className="font-mono text-[9px] uppercase tracking-wider text-black/75 mt-1">
-              Video attachment deployed and cached successfully!
+              Video attachment deployed and synchronized successfully!
             </p>
           </div>
           <button
@@ -136,7 +112,7 @@ export function VideoIngester() {
               <select
                 value={classLevel}
                 onChange={(e) => setClassLevel(e.target.value)}
-                className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400"
+                className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
               >
                 <option value="Basic 7">BASIC 7</option>
                 <option value="Basic 8">BASIC 8</option>
@@ -152,7 +128,7 @@ export function VideoIngester() {
               <select
                 value={subjectCode}
                 onChange={(e) => setSubjectCode(e.target.value)}
-                className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400"
+                className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
               >
                 {subjects?.map((sub) => (
                   <option key={sub._id} value={sub.code}>
@@ -170,13 +146,13 @@ export function VideoIngester() {
               <span className="text-gray-400">REQUIRED</span>
             </label>
             <select
-              value={lookupKey}
-              onChange={(e) => setLookupKey(e.target.value)}
-              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400"
+              value={selectedNoteId}
+              onChange={(e) => setSelectedNoteId(e.target.value)}
+              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
             >
               <option value="">-- SELECT TARGET TOPIC --</option>
-              {notesList?.map((note) => (
-                <option key={note._id} value={note.staticLookupKey}>
+              {notesList?.filter(n => n.classLevel === classLevel).map((note) => (
+                <option key={note._id} value={note._id}>
                   {note.title} [{note.staticLookupKey}]
                 </option>
               ))}
@@ -193,7 +169,7 @@ export function VideoIngester() {
               value={videoTitle}
               onChange={(e) => setVideoTitle(e.target.value)}
               placeholder="E.G., HOW SPREADSHEETS CALCULATE FORMULAS"
-              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400"
+              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
             />
           </div>
 
@@ -206,16 +182,17 @@ export function VideoIngester() {
               type="text"
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
-              placeholder="E.G., HTTPS://WWW.YOUTUBE.COM/EMBED/..."
-              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400"
+              placeholder="E.G., HTTPS://WWW.YOUTUBE.COM/WATCH?V=..."
+              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs uppercase focus:outline-none focus:ring-0 placeholder-gray-400 font-bold"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#00FF88] text-black border-2 border-black py-3 font-mono font-black text-sm uppercase rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            disabled={isLoading}
+            className="w-full bg-[#00FF88] text-black border-2 border-black py-3 font-mono font-black text-sm uppercase rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
           >
-            [🚀 UPDATE VIDEO PIPELINE]
+            {isLoading ? 'SYNCING PIPELINE...' : '🚀 ATTACH MEDIA'}
           </button>
         </form>
       )}
@@ -227,21 +204,24 @@ export function VideoIngester() {
           <span>CURATED_VIDEO_REGISTRY //</span>
         </h3>
         <div className="max-h-48 overflow-y-auto pr-1">
-          {registry.length > 0 ? (
-            registry.map((item, idx) => (
-              <div key={idx} className="border-2 border-black mb-2 p-3 bg-[#F9F9F9] flex justify-between items-center font-mono text-xs font-bold rounded-none">
-                <div className="flex flex-col text-left">
-                  <span className="text-black uppercase">{item.videoTitle}</span>
-                  <span className="text-[9px] text-gray-500 lowercase mt-0.5">{item.videoUrl}</span>
+          {notesList && notesList.filter(n => n.videoUrl).length > 0 ? (
+            notesList.filter(n => n.videoUrl).map((note) => {
+              const sub = subjects?.find(s => s._id === note.subjectId);
+              return (
+                <div key={note._id} className="border-2 border-black mb-2 p-3 bg-[#F9F9F9] flex justify-between items-center font-mono text-xs font-bold rounded-none">
+                  <div className="flex flex-col text-left">
+                    <span className="text-black uppercase">{note.videoTitle || 'UNTITLED VIDEO'}</span>
+                    <span className="text-[9px] text-gray-500 lowercase mt-0.5">{note.videoUrl}</span>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span className="bg-black text-[#00FF88] px-2 py-0.5 border border-black text-[9px] uppercase">
+                      {sub ? sub.code : 'LESSON'}
+                    </span>
+                    <span className="text-[9px] text-gray-500 uppercase">{note.staticLookupKey}</span>
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                  <span className="bg-black text-[#00FF88] px-2 py-0.5 border border-black text-[9px] uppercase">
-                    {item.subjectCode}
-                  </span>
-                  <span className="text-[9px] text-gray-500 uppercase">{item.lookupKey}</span>
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="text-center p-4 border border-dashed border-gray-300 font-mono text-[9px] text-gray-400 uppercase tracking-wider">
               [ NO VIDEO LINKS REGISTERED ]

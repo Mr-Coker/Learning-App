@@ -77,5 +77,7 @@ export default defineSchema({
     subjectId: v.id("subjects"),
     classLevel: v.string(),       // e.g., "Basic 9"
     staticLookupKey: v.string(),  // e.g., "algorithm-basics" to match src/data/curriculumNotes.ts keys
+    videoUrl: v.optional(v.string()),
+    videoTitle: v.optional(v.string()),
   }).index("by_subjectId", ["subjectId"]),
 });
