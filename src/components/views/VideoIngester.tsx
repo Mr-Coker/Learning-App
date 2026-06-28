@@ -28,6 +28,11 @@ export function VideoIngester() {
   const [editVideoUrl, setEditVideoUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('ALL');
+  const [selectedClass, setSelectedClass] = useState('ALL');
+
   // Update default subject code when subjects query completes
   useEffect(() => {
     if (subjects && subjects.length > 0 && !subjectCode) {
@@ -229,9 +234,95 @@ export function VideoIngester() {
           <Film size={14} />
           <span>CURATED_VIDEO_REGISTRY //</span>
         </h3>
+
+        {/* Brutalist Control Deck UI */}
+        <div className="border-4 border-black bg-[#F0F0F0] p-4 space-y-4 text-left shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+          <div className="flex flex-col space-y-1.5">
+            <label className="font-mono text-[10px] font-bold uppercase text-black">SEARCH VIDEOS //</label>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+              placeholder="FILTER BY TITLE OR LOOKUP KEY..."
+              className="w-full bg-white border-2 border-black rounded-none p-3 font-mono uppercase text-xs focus:outline-none placeholder-gray-500 font-bold focus:bg-[#FFF3C4]"
+            />
+          </div>
+
+          {/* Class level filter chips */}
+          <div className="space-y-2">
+            <span className="font-mono text-[9px] font-bold text-gray-500 uppercase block">FILTER BY LEVEL //</span>
+            <div className="flex flex-wrap gap-2">
+              {['ALL', 'Basic 7', 'Basic 8', 'Basic 9'].map((lvl) => (
+                <button
+                  key={lvl}
+                  type="button"
+                  onClick={() => setSelectedClass(lvl)}
+                  className={`px-3 py-1.5 font-mono text-[10px] cursor-pointer rounded-none font-bold border-2 border-black transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0_0_rgba(0,0,0,1)]
+                    ${selectedClass === lvl 
+                      ? 'bg-[#FFDE00] text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                      : 'bg-white text-black'
+                    }
+                  `}
+                >
+                  {lvl}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Subject filter chips */}
+          <div className="space-y-2">
+            <span className="font-mono text-[9px] font-bold text-gray-500 uppercase block">FILTER BY SUBJECT NODE //</span>
+            <div className="flex flex-wrap gap-2">
+              {['ALL', ...(subjects ? subjects.map(s => s._id) : [])].map((subId) => {
+                const subObj = subjects?.find(s => s._id === subId);
+                const displayName = subId === 'ALL' ? 'ALL SUBJECTS' : subObj ? `${subObj.code} (${subObj.name.toUpperCase()})` : 'UNKNOWN';
+                return (
+                  <button
+                    key={subId}
+                    type="button"
+                    onClick={() => setSelectedSubject(subId)}
+                    className={`px-3 py-1.5 font-mono text-[10px] cursor-pointer rounded-none font-bold border-2 border-black transition-all duration-100 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0_0_rgba(0,0,0,1)]
+                      ${selectedSubject === subId 
+                        ? 'bg-[#38BDF8] text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
+                        : 'bg-white text-black'
+                      }
+                    `}
+                  >
+                    {displayName}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         <div className="max-h-64 overflow-y-auto pr-1">
-          {notesList && notesList.filter(n => n.videoUrl).length > 0 ? (
-            notesList.filter(n => n.videoUrl).map((note) => {
+          {notesList === undefined ? (
+            <div className="font-mono text-xs font-bold uppercase text-gray-400 p-4 border-2 border-dashed border-black/30">
+              STREAMING ACTIVE VIDEOS...
+            </div>
+          ) : (() => {
+            const filteredNotes = notesList.filter((note) => {
+              if (!note.videoUrl) return false;
+              const matchesClass = selectedClass === 'ALL' || note.classLevel === selectedClass;
+              const matchesSubject = selectedSubject === 'ALL' || note.subjectId === selectedSubject;
+              const matchesSearch = searchQuery.trim() === '' || 
+                (note.videoTitle || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (note.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                note.staticLookupKey.toLowerCase().includes(searchQuery.toLowerCase());
+              return matchesClass && matchesSubject && matchesSearch;
+            });
+
+            if (filteredNotes.length === 0) {
+              return (
+                <div className="font-mono text-xs font-bold uppercase text-red-500 p-8 border-2 border-dashed border-black text-center bg-red-50">
+                  NO MATCHING VIDEO LINKS SYNCED
+                </div>
+              );
+            }
+
+            return filteredNotes.map((note) => {
               const sub = subjects?.find(s => s._id === note.subjectId);
               const isEditing = editingVideoId === note._id;
 
@@ -251,7 +342,7 @@ export function VideoIngester() {
                       <input 
                         type="text"
                         value={editVideoTitle}
-                        onChange={(e) => setEditVideoTitle(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditVideoTitle(e.target.value)}
                         className="w-full bg-white border-2 border-black rounded-none p-2.5 font-mono text-xs uppercase focus:outline-none focus:ring-2 focus:ring-black font-bold min-w-0 block"
                         required
                       />
@@ -262,7 +353,7 @@ export function VideoIngester() {
                       <input 
                         type="text"
                         value={editVideoUrl}
-                        onChange={(e) => setEditVideoUrl(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditVideoUrl(e.target.value)}
                         className="w-full bg-white border-2 border-black rounded-none p-2.5 font-mono text-xs uppercase focus:outline-none focus:ring-2 focus:ring-black font-bold min-w-0 block"
                         required
                       />
@@ -317,12 +408,8 @@ export function VideoIngester() {
                   </div>
                 </div>
               );
-            })
-          ) : (
-            <div className="text-center p-4 border border-dashed border-gray-300 font-mono text-[9px] text-gray-400 uppercase tracking-wider">
-              [ NO VIDEO LINKS REGISTERED ]
-            </div>
-          )}
+            });
+          })()}
         </div>
       </div>
     </div>
