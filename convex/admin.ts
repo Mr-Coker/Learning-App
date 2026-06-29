@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { questRegistry } from "./questRegistry";
 
 export const getSystemUsers = query({
   args: {},
@@ -175,5 +176,109 @@ export const updateVideo = mutation({
       videoTitle: args.videoTitle.trim(),
     });
     return args.id;
+  },
+});
+
+export const upsertQuestPipeline = mutation({
+  args: {
+    subjectId: v.id("subjects"),
+    title: v.string(),
+    description: v.string(),
+    xpReward: v.number(),
+    dueDate: v.string(),
+    steps: v.array(
+      v.object({
+        stepNumber: v.number(),
+        title: v.string(),
+        instruction: v.string(),
+        hint: v.string(),
+        expectedOutcome: v.string(),
+      })
+    ),
+    quizQuestions: v.array(
+      v.object({
+        id: v.string(),
+        question: v.string(),
+        options: v.array(v.string()),
+        correctAnswerIndex: v.number(),
+        explanation: v.string(),
+        xpValue: v.number(),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("quests")
+      .withIndex("by_subjectId", (q) => q.eq("subjectId", args.subjectId))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        title: args.title,
+        description: args.description,
+        xpReward: args.xpReward,
+        dueDate: args.dueDate,
+        steps: args.steps,
+        quizQuestions: args.quizQuestions,
+      });
+      return existing._id;
+    } else {
+      const questId = await ctx.db.insert("quests", {
+        subjectId: args.subjectId,
+        title: args.title,
+        description: args.description,
+        xpReward: args.xpReward,
+        dueDate: args.dueDate,
+        steps: args.steps,
+        quizQuestions: args.quizQuestions,
+      });
+      return questId;
+    }
+  },
+});
+
+export const assignQuestRegistryKey = mutation({
+  args: {
+    subjectId: v.id("subjects"),
+    classLevel: v.string(),
+    questRegistryKey: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const blueprint = questRegistry[args.questRegistryKey];
+    if (!blueprint) {
+      throw new Error(`Registry key "${args.questRegistryKey}" not found in blueprints`);
+    }
+
+    const existing = await ctx.db
+      .query("quests")
+      .withIndex("by_subjectId", (q) => q.eq("subjectId", args.subjectId))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        title: blueprint.title,
+        description: blueprint.description,
+        xpReward: blueprint.xpReward,
+        dueDate: blueprint.dueDate,
+        steps: blueprint.steps,
+        quizQuestions: blueprint.quizQuestions,
+        questRegistryKey: args.questRegistryKey,
+        classLevel: args.classLevel,
+      });
+      return existing._id;
+    } else {
+      const questId = await ctx.db.insert("quests", {
+        subjectId: args.subjectId,
+        title: blueprint.title,
+        description: blueprint.description,
+        xpReward: blueprint.xpReward,
+        dueDate: blueprint.dueDate,
+        steps: blueprint.steps,
+        quizQuestions: blueprint.quizQuestions,
+        questRegistryKey: args.questRegistryKey,
+        classLevel: args.classLevel,
+      });
+      return questId;
+    }
   },
 });

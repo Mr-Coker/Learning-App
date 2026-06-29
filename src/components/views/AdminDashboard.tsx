@@ -7,6 +7,7 @@ import { ViewState } from '../../types';
 import { NoteIngester } from './NoteIngester';
 import { SubjectManager } from './SubjectManager';
 import { VideoIngester } from './VideoIngester';
+import { QuestIngester } from './QuestIngester';
 
 interface AdminDashboardProps {
   userEmail: string;
@@ -23,7 +24,7 @@ export function AdminDashboard({ userEmail, onLogout, currentView }: AdminDashbo
 
   const [selectedTeacher, setSelectedTeacher] = useState<{ _id: string; name: string; email: string } | null>(null);
   const [messageText, setMessageText] = useState('');
-  const [ingesterTab, setIngesterTab] = useState<'notes' | 'videos'>('notes');
+  const [ingesterTab, setIngesterTab] = useState<'notes' | 'videos' | 'quests'>('notes');
 
   // Fetch messages between admin and selected teacher
   const messages = useQuery(
@@ -257,10 +258,24 @@ export function AdminDashboard({ userEmail, onLogout, currentView }: AdminDashbo
             >
               [🎥 VIDEO_CURRICULUM_INGESTER]
             </button>
+            <button
+              onClick={() => setIngesterTab('quests')}
+              className={`flex-1 py-2 font-mono font-bold text-xs uppercase rounded-none border-2 transition-all cursor-pointer text-center
+                ${ingesterTab === 'quests'
+                  ? 'bg-[#00FF88] text-black border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]'
+                  : 'bg-white text-black border-transparent hover:bg-gray-100'
+                }
+                active:translate-x-0.5 active:translate-y-0.5
+              `}
+            >
+              [⚔️ QUEST_QUIZ_INGESTER]
+            </button>
           </div>
 
           <div className="w-full flex justify-center">
-            {ingesterTab === 'notes' ? <NoteIngester /> : <VideoIngester />}
+            {ingesterTab === 'notes' && <NoteIngester />}
+            {ingesterTab === 'videos' && <VideoIngester />}
+            {ingesterTab === 'quests' && <QuestIngester />}
           </div>
         </div>
       )}

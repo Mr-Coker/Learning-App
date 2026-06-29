@@ -58,6 +58,8 @@ export default defineSchema({
         })
       )
     ),
+    questRegistryKey: v.optional(v.string()),
+    classLevel: v.optional(v.string()),
   }).index("by_subjectId", ["subjectId"]),
 
   questSubmissions: defineTable({
