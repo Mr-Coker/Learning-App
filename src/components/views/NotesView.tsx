@@ -956,8 +956,12 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
 
   const assignedQuest = useQuery(
     api.quests.getAssignedQuest,
-    noteData?.subjectId && noteData?.classLevel
-      ? { subjectId: noteData.subjectId, classLevel: noteData.classLevel }
+    noteData?.subjectId && noteData?.classLevel && noteData?.staticLookupKey
+      ? { 
+          subjectId: noteData.subjectId, 
+          classLevel: noteData.classLevel,
+          staticLookupKey: noteData.staticLookupKey 
+        }
       : 'skip'
   );
 

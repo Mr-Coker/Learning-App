@@ -251,8 +251,8 @@ export const assignQuestRegistryKey = mutation({
 
     const existing = await ctx.db
       .query("quests")
-      .withIndex("by_subjectId_and_classLevel", (q) =>
-        q.eq("subjectId", args.subjectId).eq("classLevel", args.classLevel)
+      .withIndex("by_subjectId_classLevel_and_topic", (q) =>
+        q.eq("subjectId", args.subjectId).eq("classLevel", args.classLevel).eq("staticLookupKey", args.questRegistryKey)
       )
       .first();
 
@@ -266,6 +266,7 @@ export const assignQuestRegistryKey = mutation({
         quizQuestions: blueprint.quizQuestions,
         questRegistryKey: args.questRegistryKey,
         classLevel: args.classLevel,
+        staticLookupKey: args.questRegistryKey,
       });
       return existing._id;
     } else {
@@ -279,6 +280,7 @@ export const assignQuestRegistryKey = mutation({
         quizQuestions: blueprint.quizQuestions,
         questRegistryKey: args.questRegistryKey,
         classLevel: args.classLevel,
+        staticLookupKey: args.questRegistryKey,
       });
       return questId;
     }
