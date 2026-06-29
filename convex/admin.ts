@@ -251,7 +251,9 @@ export const assignQuestRegistryKey = mutation({
 
     const existing = await ctx.db
       .query("quests")
-      .withIndex("by_subjectId", (q) => q.eq("subjectId", args.subjectId))
+      .withIndex("by_subjectId_and_classLevel", (q) =>
+        q.eq("subjectId", args.subjectId).eq("classLevel", args.classLevel)
+      )
       .first();
 
     if (existing) {
