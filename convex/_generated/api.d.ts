@@ -12,6 +12,7 @@ import type * as admin from "../admin.js";
 import type * as chat from "../chat.js";
 import type * as dashboard from "../dashboard.js";
 import type * as notesIngestion from "../notesIngestion.js";
+import type * as questRegistry from "../questRegistry.js";
 import type * as quests from "../quests.js";
 import type * as teacher from "../teacher.js";
 import type * as users from "../users.js";
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   dashboard: typeof dashboard;
   notesIngestion: typeof notesIngestion;
+  questRegistry: typeof questRegistry;
   quests: typeof quests;
   teacher: typeof teacher;
   users: typeof users;

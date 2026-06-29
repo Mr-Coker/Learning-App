@@ -20,41 +20,54 @@ export const questRegistry: Record<string, {
   }>;
 }> = {
   "algorithm-basics": {
-    title: "Algorithm Basics: Sorting & Big O",
-    description: "Learn the fundamentals of sorting algorithms and analyze their runtime complexities using Big O notation.",
+    title: "Introduction to Algorithms Quest",
+    description: "Test your understanding of basic algorithmic constructs: sequence, selection, iteration, and abstraction.",
     xpReward: 150,
     dueDate: "Tomorrow, 11:59 PM",
     steps: [
       {
         stepNumber: 1,
-        title: "Bubble Sort Simulation",
-        instruction: "Trace bubble sort on the array [5, 1, 4, 2]. Swap adjacent elements until sorted.",
-        hint: "Start from index 0. Compare 5 and 1. Since 5 > 1, swap them to get [1, 5, 4, 2]. Repeat for the rest.",
-        expectedOutcome: "[1, 2, 4, 5]"
+        title: "Identify Construct Flow",
+        instruction: "Trace this flowchart process: 1. Put tea in cup. 2. If water is hot, pour water. Else, heat water. Identify which constructs are used.",
+        hint: "We are doing steps in order (Sequence), and making a choice based on water temperature (Selection).",
+        expectedOutcome: "SEQUENCE AND SELECTION"
       },
       {
         stepNumber: 2,
-        title: "Analyze Time Complexity",
-        instruction: "Write down the worst-case time complexity of Bubble Sort using Big O notation.",
-        hint: "Bubble sort uses nested loops to compare elements. Think about the square of the size of the array.",
-        expectedOutcome: "O(N^2)"
+        title: "Define Loop Bounds (Iteration)",
+        instruction: "Write down the condition to repeat a stir action 5 times using a loop counter initialized to 0.",
+        hint: "To stir 5 times starting at 0, repeat WHILE counter < 5, incrementing by 1 each time.",
+        expectedOutcome: "WHILE COUNTER < 5"
       }
     ],
     quizQuestions: [
       {
-        id: "q1",
-        question: "Which sorting algorithm has a worst-case time complexity of O(N log N)?",
-        options: ["Bubble Sort", "Insertion Sort", "Merge Sort", "Selection Sort"],
-        correctAnswerIndex: 2,
-        explanation: "Merge Sort uses a divide-and-conquer strategy which guarantees O(N log N) time complexity in all cases.",
+        id: "alg_q1",
+        question: "Which characteristic states that an algorithm must end after a limited number of steps?",
+        options: ["Unambiguity", "Finiteness", "Effectiveness", "Language Independence"],
+        correctAnswerIndex: 1,
+        explanation: "Finiteness dictates that the algorithm must terminate after a countable number of instructions.",
         xpValue: 30
       },
       {
-        id: "q2",
-        question: "What does Big O notation describe?",
-        options: ["Exact execution time in milliseconds", "The upper bound of the growth rate of an algorithm", "The storage limit of the database", "The number of lines of code"],
+        id: "alg_q2",
+        question: "Which programming construct is implemented using 'IF-THEN-ELSE' statements?",
+        options: ["Sequence", "Selection", "Iteration", "Abstraction"],
         correctAnswerIndex: 1,
-        explanation: "Big O notation describes the limiting behavior of a function, serving as an asymptotic upper bound for runtime or memory.",
+        explanation: "Selection determines which path a program takes depending on whether a specific condition is met.",
+        xpValue: 30
+      },
+      {
+        id: "alg_q3",
+        question: "What is abstraction?",
+        options: [
+          "Breaking a problem down into smaller parts",
+          "Hiding unnecessary implementation details to show only essentials",
+          "Repeating a block of instructions indefinitely",
+          "Translating code to machine language"
+        ],
+        correctAnswerIndex: 1,
+        explanation: "Abstraction is the process of hiding background details or unnecessary complexities so users only see the required information.",
         xpValue: 40
       }
     ]
