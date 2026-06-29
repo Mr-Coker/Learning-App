@@ -25,9 +25,18 @@ interface QuestViewProps {
   quizQuestions?: QuizQuestion[];
   userEmail?: string;
   onQuestComplete?: () => void;
+  onNavigateToLibrary?: () => void;
+  onNavigateToNotes?: () => void;
 }
 
-export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQuestComplete }: QuestViewProps) {
+export function QuestView({ 
+  steps = [], 
+  quizQuestions = [], 
+  userEmail = '', 
+  onQuestComplete,
+  onNavigateToLibrary,
+  onNavigateToNotes
+}: QuestViewProps) {
   const awardQuestXp = useMutation(api.users.awardQuestXp);
 
   if (!steps || steps.length === 0) {
@@ -55,6 +64,7 @@ export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQu
   const [correctAnswers, setCorrectAnswers] = useState<Record<string, boolean>>({});
   const [awardedXpMap, setAwardedXpMap] = useState<Record<string, boolean>>({});
   const [submittingMap, setSubmittingMap] = useState<Record<string, boolean>>({});
+  const [hasCompletedLogged, setHasCompletedLogged] = useState(false);
 
   const toggleHint = (stepNum: number) => {
     setRevealedHints(prev => ({
@@ -70,9 +80,16 @@ export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQu
     }));
   };
 
+  const allStepsRevealed = (steps?.length ?? 0) > 0 && steps?.every(step => !!revealedOutcomes[step.stepNumber]);
+  const isFinished = (quizQuestions?.length ?? 0) > 0 && quizQuestions?.every(q => selectedAnswers[q.id] !== undefined);
+  const correctCount = quizQuestions.filter(q => selectedAnswers[q.id] === q.correctAnswerIndex).length;
+  const scorePercentage = quizQuestions.length > 0 ? (correctCount / quizQuestions.length) * 100 : 0;
+  const isPassed = scorePercentage >= 70;
+
   const handleSelectOption = async (questionId: string, optionIndex: number, correctIndex: number, xpValue: number) => {
     // If already correctly answered, block further interactions
     if (correctAnswers[questionId]) return;
+    if (isFinished) return;
 
     setSelectedAnswers(prev => ({
       ...prev,
@@ -104,15 +121,40 @@ export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQu
     }
   };
 
-  const allStepsRevealed = (steps?.length ?? 0) > 0 && steps?.every(step => !!revealedOutcomes[step.stepNumber]);
-  const completedAllQuestions = (quizQuestions?.length ?? 0) > 0 && quizQuestions?.every(q => !!correctAnswers[q.id]);
+  const handleResetQuest = () => {
+    setSelectedAnswers({});
+    setCorrectAnswers({});
+    setAwardedXpMap({});
+    setRevealedHints({});
+    setRevealedOutcomes({});
+    setHasCompletedLogged(false);
+  };
 
-  // Trigger completion callback if all answers are correct
-  React.useEffect(() => {
-    if (completedAllQuestions && onQuestComplete) {
+  const handleSuccessContinue = () => {
+    if (onQuestComplete) {
       onQuestComplete();
     }
-  }, [completedAllQuestions]);
+    if (onNavigateToLibrary) {
+      onNavigateToLibrary();
+    }
+  };
+
+  const handleReviewReturn = () => {
+    handleResetQuest();
+    if (onNavigateToNotes) {
+      onNavigateToNotes();
+    } else if (onNavigateToLibrary) {
+      onNavigateToLibrary();
+    }
+  };
+
+  // Trigger completion callback if passed
+  React.useEffect(() => {
+    if (isFinished && isPassed && onQuestComplete && !hasCompletedLogged) {
+      onQuestComplete();
+      setHasCompletedLogged(true);
+    }
+  }, [isFinished, isPassed, onQuestComplete, hasCompletedLogged]);
 
   return (
     <div className="w-full space-y-10">
@@ -220,8 +262,14 @@ export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQu
               <CheckCircle size={14} className="text-[#00FF88] stroke-[3px]" />
               <span>QUEST_EVALUATION_PORTAL //</span>
             </h3>
-            <span className="font-mono text-[9px] bg-[#00FF88] border border-black px-2 py-0.5 text-black font-bold uppercase tracking-wider">
-              {completedAllQuestions ? 'SUCCESS: SECURED' : 'QUIZ LOCKED TO STEPS'}
+            <span className={`font-mono text-[9px] border border-black px-2 py-0.5 font-bold uppercase tracking-wider ${
+              isFinished 
+                ? (isPassed ? 'bg-[#00FF88] text-black' : 'bg-red-500 text-white') 
+                : 'bg-[#FFD833] text-black'
+            }`}>
+              {isFinished 
+                ? (isPassed ? 'SUCCESS: SECURED' : 'FAILED: RE-STUDY REQUIRED') 
+                : 'QUIZ ACTIVE'}
             </span>
           </div>
 
@@ -255,7 +303,7 @@ export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQu
                       let optionStyle = "bg-white hover:bg-gray-50 text-black";
 
                       if (isSelected) {
-                        if (isCorrect) {
+                        if (optionIndexCorrect(q.id, idx, q.correctAnswerIndex)) {
                           optionStyle = "bg-[#A7F3D0] text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]";
                         } else {
                           optionStyle = "bg-[#FCA5A5] text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]";
@@ -266,13 +314,13 @@ export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQu
                         <button
                           key={idx}
                           type="button"
-                          disabled={isCorrect || isSubmitting}
+                          disabled={isFinished || isCorrect || isSubmitting}
                           onClick={() => handleSelectOption(q.id, idx, q.correctAnswerIndex, q.xpValue)}
                           className={`border-2 border-black p-3.5 text-left font-mono text-xs uppercase transition-all flex items-center justify-between cursor-pointer rounded-none font-bold active:translate-x-[0.5px] active:translate-y-[0.5px] ${optionStyle} disabled:cursor-not-allowed`}
                         >
                           <span>{option}</span>
-                          {isSelected && isCorrect && <Check size={14} className="text-black" />}
-                          {isSelected && !isCorrect && <X size={14} className="text-black" />}
+                          {isSelected && optionIndexCorrect(q.id, idx, q.correctAnswerIndex) && <Check size={14} className="text-black" />}
+                          {isSelected && !optionIndexCorrect(q.id, idx, q.correctAnswerIndex) && <X size={14} className="text-black" />}
                         </button>
                       );
                     })}
@@ -304,6 +352,104 @@ export function QuestView({ steps = [], quizQuestions = [], userEmail = '', onQu
           </div>
         </div>
       )}
+
+      {/* 3. Quiz Results & Routing Card Modal */}
+      {isFinished && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
+          <div className={`w-full max-w-2xl border-4 border-black p-6 md:p-8 shadow-[8px_8px_0_0_rgba(0,0,0,1)] ${
+            isPassed 
+              ? 'bg-[#00FF88] text-black animate-pop-bounce' 
+              : 'bg-white border-red-500 text-black animate-shake border-r-8 border-b-8'
+          }`}>
+            {isPassed ? (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 border-b-2 border-black pb-4">
+                  <CheckCircle size={32} className="text-black stroke-[3px]" />
+                  <div>
+                    <h3 className="font-serif text-2xl md:text-3xl font-black uppercase tracking-tight">
+                      QUEST SUCCESSFUL //
+                    </h3>
+                    <span className="font-mono text-xs font-bold uppercase tracking-widest bg-black text-[#00FF88] px-2 py-0.5">
+                      PASSING METRIC SECURED
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                    <span className="font-mono text-[10px] font-bold text-gray-500 uppercase block">SCORE ACHIEVED</span>
+                    <span className="font-serif text-2xl font-black text-black">{scorePercentage.toFixed(0)}%</span>
+                    <span className="font-sans text-xs text-gray-600 block mt-1">({correctCount} of {quizQuestions.length} correct)</span>
+                  </div>
+                  <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                    <span className="font-mono text-[10px] font-bold text-gray-500 uppercase block">XP AWARDED</span>
+                    <span className="font-serif text-2xl font-black text-black">
+                      +{quizQuestions.reduce((acc, q) => acc + (selectedAnswers[q.id] === q.correctAnswerIndex ? q.xpValue : 0), 0)} XP
+                    </span>
+                    <span className="font-sans text-xs text-gray-600 block mt-1">synchronized to profile</span>
+                  </div>
+                </div>
+
+                <p className="font-sans text-sm text-black/85 leading-relaxed font-semibold">
+                  Congratulations! You have demonstrated core competency in this topic. Your metrics have been successfully logged to the orbital telemetry node.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleSuccessContinue}
+                  className="w-full sm:w-auto border-2 border-black bg-[#FFD833] text-black px-6 py-3 font-mono text-xs uppercase tracking-widest font-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[5px_5px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer transition-all flex items-center justify-center gap-2"
+                >
+                  <span>CONTINUE TO NEXT TOPIC //</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 border-b-2 border-red-500 pb-4">
+                  <AlertTriangle size={32} className="text-red-500 stroke-[2px]" />
+                  <div>
+                    <h3 className="font-serif text-2xl md:text-3xl font-black uppercase tracking-tight text-red-500">
+                      MASTER CHECK INCOMPLETE //
+                    </h3>
+                    <span className="font-mono text-xs font-bold uppercase tracking-widest bg-red-500 text-white px-2 py-0.5">
+                      REVIEW STATE TRIGGERED
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-red-50 border-2 border-red-500 p-4 shadow-[4px_4px_0_0_rgba(239,68,68,1)]">
+                    <span className="font-mono text-[10px] font-bold text-red-700 uppercase block">SCORE ACHIEVED</span>
+                    <span className="font-serif text-2xl font-black text-red-600">{scorePercentage.toFixed(0)}%</span>
+                    <span className="font-sans text-xs text-red-700 block mt-1">({correctCount} of {quizQuestions.length} correct, 70% required)</span>
+                  </div>
+                  <div className="bg-red-50 border-2 border-red-500 p-4 shadow-[4px_4px_0_0_rgba(239,68,68,1)]">
+                    <span className="font-mono text-[10px] font-bold text-red-700 uppercase block">XP SECURED</span>
+                    <span className="font-serif text-2xl font-black text-red-600">0 XP</span>
+                    <span className="font-sans text-xs text-red-700 block mt-1">complete the quest to secure XP</span>
+                  </div>
+                </div>
+
+                <p className="font-sans text-sm text-gray-800 leading-relaxed font-semibold">
+                  MASTER CHECK INCOMPLETE: Let's reinforce your understanding! Head back to the lesson deck to secure your core metrics before tackling this quest again.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleReviewReturn}
+                  className="w-full sm:w-auto border-2 border-black bg-black text-[#FFD833] px-6 py-3 font-mono text-xs uppercase tracking-widest font-black rounded-none shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[5px_5px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer transition-all flex items-center justify-center gap-2"
+                >
+                  <span>RETURN TO LIBRARY // RE-STUDY</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+// Helper to determine if a option selection is correct
+function optionIndexCorrect(questionId: string, optionIndex: number, correctIndex: number) {
+  return optionIndex === correctIndex;
 }

@@ -116,7 +116,7 @@ export default function App() {
     } else if (user.role === 'admin') {
       document.title = "EDUSPHERE // ADMIN_CONSOLE";
     } else {
-      const tabLabels: Record<ViewState, string> = {
+      const tabLabels: Record<string, string> = {
         home: "EDUSPHERE // DASHBOARD",
         chat: "EDUSPHERE // COMMS_LINK",
         assignments: "EDUSPHERE // QUESTS",
@@ -228,6 +228,13 @@ export default function App() {
                       userEmail={userEmail}
                       onQuestComplete={() => {
                         // Optional callback
+                      }}
+                      onNavigateToLibrary={() => {
+                        setDirectQuest(null);
+                        setCurrentView('library');
+                      }}
+                      onNavigateToNotes={() => {
+                        setCurrentView('notes');
                       }}
                     />
                   </div>

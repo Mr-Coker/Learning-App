@@ -281,6 +281,8 @@ export function AssignmentsView({ userEmail = '' }: AssignmentsViewProps) {
                     quizQuestions={activeQuest.quizQuestions}
                     userEmail={userEmail}
                     onQuestComplete={handleQuestComplete}
+                    onNavigateToLibrary={() => setActiveQuest(null)}
+                    onNavigateToNotes={() => setActiveQuest(null)}
                   />
                 </div>
               )}
