@@ -8,11 +8,13 @@ import { TeacherDashboard } from './components/views/TeacherDashboard';
 import { AdminDashboard } from './components/views/AdminDashboard';
 import { LoginPage } from './components/views/LoginPage';
 import { RegisterPage } from './components/views/RegisterPage';
+import { LandingPage } from './components/views/LandingPage';
 import { ViewState, AppRole } from './types';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { QuestView } from './components/views/QuestView';
 import { ArrowLeft } from 'lucide-react';
+
 
 function LoadingState() {
   return (
@@ -89,6 +91,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('edusphere_email'));
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [showRegister, setShowRegister] = useState(false);
+  const [showLanding, setShowLanding] = useState(!isLoggedIn);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [directQuest, setDirectQuest] = useState<{
     steps: any[];
@@ -151,6 +154,7 @@ export default function App() {
     setUserEmail('');
     setCurrentView('home');
     setShowRegister(false);
+    setShowLanding(true);
     setActiveNoteId(null);
   };
 
@@ -161,6 +165,21 @@ export default function App() {
 
   // Render Authentication Views if not validated
   if (!isUserAuthenticated) {
+    if (showLanding) {
+      return (
+        <LandingPage
+          onEnterPortal={(toRegister) => {
+            if (toRegister) {
+              setShowRegister(true);
+            } else {
+              setShowRegister(false);
+            }
+            setShowLanding(false);
+          }}
+        />
+      );
+    }
+
     if (showRegister) {
       return (
         <RegisterPage

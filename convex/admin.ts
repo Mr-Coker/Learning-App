@@ -231,6 +231,7 @@ export const upsertQuestPipeline = mutation({
         dueDate: args.dueDate,
         steps: args.steps,
         quizQuestions: args.quizQuestions,
+        staticLookupKey: "pipeline",
       });
       return questId;
     }
