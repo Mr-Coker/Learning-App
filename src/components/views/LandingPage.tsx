@@ -66,7 +66,7 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
             FEATURES
           </button>
           <button 
-            onClick={() => setActiveModal('pricing')}
+            onClick={() => scrollToSection('pricing')}
             className="font-mono text-xs font-bold uppercase tracking-widest text-black hover:underline hover:underline-offset-4 decoration-4 transition-all"
           >
             PRICING
@@ -116,7 +116,7 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
             FEATURES
           </button>
           <button 
-            onClick={() => { setIsMobileMenuOpen(false); setActiveModal('pricing'); }}
+            onClick={() => { setIsMobileMenuOpen(false); scrollToSection('pricing'); }}
             className="block w-full text-left font-mono text-xs font-black uppercase tracking-widest text-black py-2 border-b-2 border-dashed border-gray-200"
           >
             PRICING
@@ -302,6 +302,117 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
                 <span>XP REWARDS TELEMETRY</span>
                 <span className="bg-[#00FF88] px-2 py-0.5">LIVE</span>
               </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* Pricing Table Section */}
+        <section id="pricing" className="w-full space-y-8 pt-8">
+          <div className="border-b-4 border-black pb-2">
+            <h2 className="font-serif text-3xl font-black uppercase tracking-tight text-black">
+              PRICING PLANS
+            </h2>
+            <p className="font-mono text-xs uppercase tracking-widest text-gray-500">
+              Select your academic acceleration pace. All metrics in Ghana Cedis (GH₵).
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto w-full">
+            
+            {/* Tier 1: Weekly Sprint */}
+            <div className="bg-white border-4 border-black p-6 md:p-8 shadow-[6px_6px_0_0_rgba(0,0,0,1)] flex flex-col justify-between min-h-[380px] hover:translate-y-[-2px] transition-all">
+              <div className="space-y-6">
+                <div>
+                  <div className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+                    TIER_01 // PACING
+                  </div>
+                  <h3 className="font-serif text-2xl font-black uppercase tracking-tight text-black">
+                    Weekly Sprint
+                  </h3>
+                </div>
+
+                <div className="border-y-2 border-black py-4 flex items-baseline gap-2">
+                  <span className="font-serif text-4xl font-black text-black">GH₵ 20</span>
+                  <span className="font-mono text-xs font-bold text-gray-500 uppercase tracking-wider">/ week</span>
+                </div>
+
+                <p className="font-mono text-xs text-gray-700 leading-relaxed">
+                  Perfect for flexible tracking and targeted lesson review blocks.
+                </p>
+
+                <ul className="space-y-2.5 font-mono text-[11px] uppercase tracking-wide text-black font-bold">
+                  <li className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 bg-[#00FF88] border border-black inline-block"></span>
+                    <span>Full Library Reading blocks</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 bg-[#00FF88] border border-black inline-block"></span>
+                    <span>Step-by-Step Quests with active hints</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 bg-[#00FF88] border border-black inline-block"></span>
+                    <span>Instant MCQs & Real-time XP tracking</span>
+                  </li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => onEnterPortal(true)}
+                className="w-full bg-white hover:bg-gray-100 border-2 border-black py-3 font-mono text-xs font-black uppercase tracking-widest text-black text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] transition-all mt-8"
+              >
+                START SPRINT // GO
+              </button>
+            </div>
+
+            {/* Tier 2: Monthly Mastery */}
+            <div className="bg-[#FFF3C4] border-4 border-black p-6 md:p-8 shadow-[6px_6px_0_0_rgba(0,0,0,1)] flex flex-col justify-between min-h-[380px] hover:translate-y-[-2px] transition-all relative">
+              {/* Floating Best Value Badge */}
+              <div className="absolute -top-4 -right-4 bg-[#FFD833] text-black border-2 border-black px-2 py-1 font-mono text-[8px] font-black uppercase tracking-wider rotate-6 shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                BEST VALUE //
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <div className="font-mono text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+                    TIER_02 // MASTERY
+                  </div>
+                  <h3 className="font-serif text-2xl font-black uppercase tracking-tight text-black">
+                    Monthly Mastery
+                  </h3>
+                </div>
+
+                <div className="border-y-2 border-black py-4 flex items-baseline gap-2">
+                  <span className="font-serif text-4xl font-black text-black">GH₵ 100</span>
+                  <span className="font-mono text-xs font-bold text-gray-500 uppercase tracking-wider">/ month</span>
+                </div>
+
+                <p className="font-mono text-xs text-gray-700 leading-relaxed">
+                  Continuous pipeline access. Saves GH₵ 20 compared to weekly pacing.
+                </p>
+
+                <ul className="space-y-2.5 font-mono text-[11px] uppercase tracking-wide text-black font-bold">
+                  <li className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 bg-[#00FF88] border border-black inline-block"></span>
+                    <span>Full Library Reading blocks</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 bg-[#00FF88] border border-black inline-block"></span>
+                    <span>Step-by-Step Quests with active hints</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 bg-[#00FF88] border border-black inline-block"></span>
+                    <span>Instant MCQs & Real-time XP tracking</span>
+                  </li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => onEnterPortal(true)}
+                className="w-full bg-[#00FF88] border-2 border-black py-3 font-mono text-xs font-black uppercase tracking-widest text-black text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] transition-all mt-8"
+              >
+                ACQUIRE ACCESS PASS // SAVE
+              </button>
             </div>
 
           </div>

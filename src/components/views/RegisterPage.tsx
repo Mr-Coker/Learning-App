@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Shield, Terminal, ArrowRight, ArrowLeft, AlertTriangle } from 'lucide-react';
-import { UserRole } from '../../types';
 
 interface RegisterPageProps {
   onRegisterSuccess: (email: string) => void;
@@ -14,8 +13,6 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('LEARNER');
-  
   // Step management
   const [step, setStep] = useState<1 | 2>(1);
 
@@ -23,8 +20,6 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
   const [classLevel, setClassLevel] = useState('Basic 9');
   const [activeCurriculumTracks, setActiveCurriculumTracks] = useState<string[]>([]);
   const [focusSubjects, setFocusSubjects] = useState<string[]>([]);
-  const [specialtyDesignation, setSpecialtyDesignation] = useState('');
-  const [teachingSubjects, setTeachingSubjects] = useState<string[]>([]);
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -71,20 +66,9 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
     );
   };
 
-  const handleTeachingSubjectChange = (subject: string) => {
-    setTeachingSubjects(prev =>
-      prev.includes(subject) ? prev.filter(s => s !== subject) : [...prev, subject]
-    );
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (role === 'TRANSMITTER' && !specialtyDesignation.trim()) {
-      setError('ERROR: SPECIALTY DESIGNATION IS REQUIRED');
-      return;
-    }
 
     setIsLoading(true);
     setLogs(['> INITIALIZING SECURE REGISTRATION PROTOCOL...']);
@@ -105,12 +89,10 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
           name: name.trim(),
           email: email.trim().toLowerCase(),
           password: password,
-          role: role,
-          classLevel: role === 'LEARNER' ? classLevel : undefined,
-          focusSubjects: role === 'LEARNER' ? focusSubjects : undefined,
-          specialtyDesignation: role === 'TRANSMITTER' ? specialtyDesignation.trim() : undefined,
-          teachingSubjects: role === 'TRANSMITTER' ? teachingSubjects : undefined,
-          activeCurriculumTracks: role === 'LEARNER' ? activeCurriculumTracks : undefined,
+          role: 'student',
+          classLevel: classLevel,
+          focusSubjects: focusSubjects,
+          activeCurriculumTracks: activeCurriculumTracks,
         });
 
         setLogs(prev => [...prev, '> PROFILE SYNCHRONIZED. INITIATING WORKSPACE DEPLOYMENT...']);
@@ -225,37 +207,7 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
                 />
               </div>
 
-              {/* User Role Selection */}
-              <div className="flex flex-col space-y-1.5">
-                <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black flex justify-between">
-                  <span>ASSIGNED_ROLE //</span>
-                  <span className="text-gray-400">LEARNER_VS_TRANSMITTER</span>
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setRole('LEARNER')}
-                    className={`border-2 border-black rounded-none py-2 px-3 font-mono text-[10px] font-bold uppercase cursor-pointer transition-all duration-100 ${
-                      role === 'LEARNER' 
-                        ? 'bg-[#38BDF8] text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
-                        : 'bg-white text-black hover:bg-gray-100'
-                    }`}
-                  >
-                    LEARNER (STUDENT)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole('TRANSMITTER')}
-                    className={`border-2 border-black rounded-none py-2 px-3 font-mono text-[10px] font-bold uppercase cursor-pointer transition-all duration-100 ${
-                      role === 'TRANSMITTER' 
-                        ? 'bg-[#A7F3D0] text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] translate-x-[-1px] translate-y-[-1px]' 
-                        : 'bg-white text-black hover:bg-gray-100'
-                    }`}
-                  >
-                    TRANSMITTER (TEACHER)
-                  </button>
-                </div>
-              </div>
+
 
               {error && (
                 <div className="bg-[#FF3B30] text-black border-2 border-black p-3 rounded-none flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-wide shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
@@ -284,110 +236,67 @@ export function RegisterPage({ onRegisterSuccess, onNavigateToLogin }: RegisterP
             </form>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {role === 'LEARNER' ? (
-                /* Student Custom Fields */
-                <>
-                  <div className="flex flex-col space-y-1.5">
-                    <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
-                      Current Academic Class //
-                    </label>
-                    <select
-                      value={classLevel}
-                      onChange={(e) => setClassLevel(e.target.value)}
-                      disabled={isLoading}
-                      className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs font-bold uppercase text-black focus:outline-none focus:bg-[#FFF3C4]"
-                    >
-                      <option value="Basic 7">Basic 7</option>
-                      <option value="Basic 8">Basic 8</option>
-                      <option value="Basic 9">Basic 9</option>
-                    </select>
-                  </div>
+              {/* Student Custom Fields */}
+              <>
+                <div className="flex flex-col space-y-1.5">
+                  <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
+                    Current Academic Class //
+                  </label>
+                  <select
+                    value={classLevel}
+                    onChange={(e) => setClassLevel(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full bg-white border-2 border-black rounded-none p-3 font-mono text-xs font-bold uppercase text-black focus:outline-none focus:bg-[#FFF3C4]"
+                  >
+                    <option value="Basic 7">Basic 7</option>
+                    <option value="Basic 8">Basic 8</option>
+                    <option value="Basic 9">Basic 9</option>
+                  </select>
+                </div>
 
-                  <div className="flex flex-col space-y-2">
-                    <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
-                      BECE Revision Framework: Select all curriculum tiers you need to review/access //
-                    </label>
-                    <div className="bg-white border-2 border-black p-3 space-y-2">
-                      {['Basic 7', 'Basic 8', 'Basic 9'].map((track) => (
-                        <label key={track} className="flex items-center gap-2 cursor-pointer font-mono text-[10px] uppercase text-black font-bold">
-                          <input
-                            type="checkbox"
-                            checked={activeCurriculumTracks.includes(track)}
-                            onChange={() => handleCurriculumTrackChange(track)}
-                            disabled={isLoading}
-                            className="w-4 h-4 border-2 border-black rounded-none bg-white accent-black cursor-pointer"
-                          />
-                          <span>{track} Curriculum</span>
-                        </label>
-                      ))}
-                    </div>
-                    <div className="border-2 border-black bg-black text-white p-3 font-mono text-[9px] uppercase tracking-wider leading-relaxed">
-                      [ BECE_PREP_MODE: Accessing foundational topics from lower classes is highly recommended for exam candidates. ]
-                    </div>
+                <div className="flex flex-col space-y-2">
+                  <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
+                    BECE Revision Framework: Select all curriculum tiers you need to review/access //
+                  </label>
+                  <div className="bg-white border-2 border-black p-3 space-y-2">
+                    {['Basic 7', 'Basic 8', 'Basic 9'].map((track) => (
+                      <label key={track} className="flex items-center gap-2 cursor-pointer font-mono text-[10px] uppercase text-black font-bold">
+                        <input
+                          type="checkbox"
+                          checked={activeCurriculumTracks.includes(track)}
+                          onChange={() => handleCurriculumTrackChange(track)}
+                          disabled={isLoading}
+                          className="w-4 h-4 border-2 border-black rounded-none bg-white accent-black cursor-pointer"
+                        />
+                        <span>{track} Curriculum</span>
+                      </label>
+                    ))}
                   </div>
+                  <div className="border-2 border-black bg-black text-white p-3 font-mono text-[9px] uppercase tracking-wider leading-relaxed">
+                    [ BECE_PREP_MODE: Accessing foundational topics from lower classes is highly recommended for exam candidates. ]
+                  </div>
+                </div>
 
-                  <div className="flex flex-col space-y-2">
-                    <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
-                      SUBJECT FOCUS REGISTER //
-                    </label>
-                    <div className="bg-white border-2 border-black p-3 space-y-2 max-h-36 overflow-y-auto">
-                      {availableSubjects.map((sub) => (
-                        <label key={sub.code} className="flex items-center gap-2 cursor-pointer font-mono text-[10px] uppercase text-black font-bold">
-                          <input
-                            type="checkbox"
-                            checked={focusSubjects.includes(sub.code)}
-                            onChange={() => handleFocusSubjectChange(sub.code)}
-                            disabled={isLoading}
-                            className="w-4 h-4 border-2 border-black rounded-none bg-white accent-black cursor-pointer"
-                          />
-                          <span>{sub.code} - {sub.name}</span>
-                        </label>
-                      ))}
-                    </div>
+                <div className="flex flex-col space-y-2">
+                  <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
+                    SUBJECT FOCUS REGISTER //
+                  </label>
+                  <div className="bg-white border-2 border-black p-3 space-y-2 max-h-36 overflow-y-auto">
+                    {availableSubjects.map((sub) => (
+                      <label key={sub.code} className="flex items-center gap-2 cursor-pointer font-mono text-[10px] uppercase text-black font-bold">
+                        <input
+                          type="checkbox"
+                          checked={focusSubjects.includes(sub.code)}
+                          onChange={() => handleFocusSubjectChange(sub.code)}
+                          disabled={isLoading}
+                          className="w-4 h-4 border-2 border-black rounded-none bg-white accent-black cursor-pointer"
+                        />
+                        <span>{sub.code} - {sub.name}</span>
+                      </label>
+                    ))}
                   </div>
-                </>
-              ) : (
-                /* Teacher Custom Fields */
-                <>
-                  <div className="flex flex-col space-y-1.5">
-                    <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black flex justify-between">
-                      <span>SPECIALTY //</span>
-                      <span className="text-gray-400">DESIGNATION</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={specialtyDesignation}
-                      onChange={(e) => {
-                        setSpecialtyDesignation(e.target.value);
-                        setError('');
-                      }}
-                      disabled={isLoading}
-                      placeholder="E.G., ICT INSTRUCTOR"
-                      className="w-full bg-white border-2 border-black rounded-none p-3 font-sans text-sm font-semibold uppercase text-black placeholder-gray-400 focus:outline-none focus:bg-[#FFF3C4] transition-colors"
-                    />
-                  </div>
-
-                  <div className="flex flex-col space-y-2">
-                    <label className="font-mono text-[10px] font-bold uppercase tracking-widest text-black">
-                      REGISTERED INSTRUCTION MODULES //
-                    </label>
-                    <div className="bg-white border-2 border-black p-3 space-y-2 max-h-36 overflow-y-auto">
-                      {availableSubjects.map((sub) => (
-                        <label key={sub.code} className="flex items-center gap-2 cursor-pointer font-mono text-[10px] uppercase text-black font-bold">
-                          <input
-                            type="checkbox"
-                            checked={teachingSubjects.includes(sub.code)}
-                            onChange={() => handleTeachingSubjectChange(sub.code)}
-                            disabled={isLoading}
-                            className="w-4 h-4 border-2 border-black rounded-none bg-white accent-black cursor-pointer"
-                          />
-                          <span>{sub.code} - {sub.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
+                </div>
+              </>
 
               {error && (
                 <div className="bg-[#FF3B30] text-black border-2 border-black p-3 rounded-none flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-wide shadow-[2px_2px_0_0_rgba(0,0,0,1)]">

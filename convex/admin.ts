@@ -114,18 +114,19 @@ export const createSubject = mutation({
     code: v.string(),
   },
   handler: async (ctx, args) => {
-    const teachers = await ctx.db.query("users").collect();
-    const firstTeacher = teachers.find(u => u.role === "teacher" || u.role === "TRANSMITTER");
+    const users = await ctx.db.query("users").collect();
+    // Bypass teacher-only restriction by finding an admin to act as supervisor
+    const supervisor = users.find(u => u.role === "admin") || users.find(u => u.role === "teacher" || u.role === "TRANSMITTER");
     
     let teacherId;
-    if (firstTeacher) {
-      teacherId = firstTeacher._id;
+    if (supervisor) {
+      teacherId = supervisor._id;
     } else {
       teacherId = await ctx.db.insert("users", {
-        name: "Default System Facilitator",
-        email: "system-facilitator@edusphere.net",
+        name: "EduSphere Admin Supervisor",
+        email: "admin@edusphere.net",
         passwordHash: "system",
-        role: "teacher",
+        role: "admin",
         xp: 0,
         createdAt: Date.now(),
       });

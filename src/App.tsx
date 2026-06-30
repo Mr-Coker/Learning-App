@@ -269,11 +269,25 @@ export default function App() {
               </>
             )}
             {userRole === 'teacher' && (
-              <TeacherDashboard
-                userEmail={userEmail}
-                onLogout={handleLogout}
-                currentView={currentView}
-              />
+              <div className="bg-white border-4 border-black p-8 md:p-12 shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-xl mx-auto text-center space-y-6 mt-12">
+                <div className="inline-block bg-[#FF3B30] text-white border-2 border-black px-3 py-1 font-mono text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                  ALERT // INFRASTRUCTURE_OFFLINE
+                </div>
+                <h1 className="font-serif text-3xl font-black uppercase text-black">
+                  Portal Maintenance
+                </h1>
+                <p className="font-mono text-xs uppercase tracking-wider text-gray-600 leading-relaxed">
+                  The requested teacher node is currently offline. Please contact the administrator to assign an active gateway supervisor.
+                </p>
+                <div className="pt-4 border-t-2 border-black">
+                  <button 
+                    onClick={handleLogout}
+                    className="bg-[#FFD833] text-black border-2 border-black px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] transition-all cursor-pointer"
+                  >
+                    DISCONNECT NODE
+                  </button>
+                </div>
+              </div>
             )}
             {userRole === 'admin' && (
               <AdminDashboard
