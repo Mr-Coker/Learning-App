@@ -7,6 +7,7 @@ import { GoogleGenAI } from "@google/genai";
 export const lookupWord = action({
   args: {
     word: v.string(),
+    pageContext: v.string(),
   },
   handler: async (ctx, args) => {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -16,13 +17,15 @@ export const lookupWord = action({
     const ai = new GoogleGenAI({ apiKey });
 
     const systemInstruction = 
-      "Act exclusively as a junior school lexicon vocabulary tutor for kids aged 12-15. " +
-      "Do not engage in casual chat conversation. If a word is submitted, parse it strictly into three clear text rows: " +
-      "1. SIMPLE DEFINITION (written in highly clear, digestible basic language), " +
-      "2. SYNONYMS (3-4 basic matching alternative terms), and " +
-      "3. EXAMPLE (A sentence applying the word specifically within a middle school context).";
+      "System Instruction: You are the EduSphere Contextual Assistant for students aged 12-15. " +
+      "You will receive a target word AND the raw text string of the lesson page the student is currently reading. " +
+      "Your mission is to explain the meaning of the target word SPECIFICALLY based on how it functions inside that page context. " +
+      "Maintain our three-row output structure: " +
+      "1. SIMPLE DEFINITION (gated by the lesson context), " +
+      "2. CAPSULE SYNONYMS (simplified alternatives that fit the sentence structure), and " +
+      "3. EDUSPHERE EXAMPLES (reapplying the contextual meaning beautifully).";
 
-    const prompt = `Define the word: "${args.word}"`;
+    const prompt = `Lesson Page Context:\n"""\n${args.pageContext}\n"""\n\nTarget Word: "${args.word}"`;
 
     try {
       const response = await ai.models.generateContent({

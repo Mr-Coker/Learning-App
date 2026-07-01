@@ -39,25 +39,6 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
   const [dictionaryError, setDictionaryError] = useState<string | null>(null);
   const lookupWordAction = useAction(api.dictionary.lookupWord);
 
-  const handleDictionaryLookup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!lookupWordInput.trim()) return;
-
-    setDictionaryLoading(true);
-    setDictionaryError(null);
-    setDictionaryResult(null);
-
-    try {
-      const response = await lookupWordAction({ word: lookupWordInput.trim() });
-      setDictionaryResult(response.result);
-    } catch (err: any) {
-      console.error(err);
-      setDictionaryError(err.message || 'FAILED TO LOOK UP WORD.');
-    } finally {
-      setDictionaryLoading(false);
-    }
-  };
-
   // Robotics View Interactive State
   const [selectedApp, setSelectedApp] = useState<string>('Manufacturing');
   const [simMission, setSimMission] = useState<string>('space');
@@ -1076,6 +1057,39 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
   );
 
   const contentBlocksToRender = fullLessonContent ? fullLessonContent.contentBlocks : [];
+
+  const handleDictionaryLookup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lookupWordInput.trim()) return;
+
+    setDictionaryLoading(true);
+    setDictionaryError(null);
+    setDictionaryResult(null);
+
+    // Build the pageContext string from current note details
+    let activePageText = "";
+    if (noteData?.title) {
+      activePageText += noteData.title + "\n";
+    }
+    if (fullLessonContent?.contentBlocks) {
+      activePageText += fullLessonContent.contentBlocks
+        .map((block: any) => `${block.heading ? block.heading + ": " : ""}${block.body || ""}`)
+        .join("\n");
+    }
+
+    try {
+      const response = await lookupWordAction({ 
+        word: lookupWordInput.trim(), 
+        pageContext: activePageText 
+      });
+      setDictionaryResult(response.result);
+    } catch (err: any) {
+      console.error(err);
+      setDictionaryError(err.message || 'FAILED TO LOOK UP WORD.');
+    } finally {
+      setDictionaryLoading(false);
+    }
+  };
 
   if (!noteData || !fullLessonContent || contentBlocksToRender.length === 0) {
     return <div className="p-6 border-4 border-black font-bold uppercase">[ TRANSMISSION_EMPTY: SEED REAL CHUNK DATA VIA ADMIN ]</div>;
@@ -5249,7 +5263,7 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
         onClick={() => setIsDictionaryOpen(!isDictionaryOpen)}
         className="fixed bottom-6 right-6 border-2 border-black bg-[#00FF88] shadow-[4px_4px_0_0_#000] p-3 font-mono font-bold tracking-wider z-50 cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 transition-transform text-black text-xs"
       >
-        📖DICTIONARY
+        📖 DICTIONARY
       </button>
     </div>
   );
