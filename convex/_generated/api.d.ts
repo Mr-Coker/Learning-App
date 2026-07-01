@@ -11,6 +11,7 @@
 import type * as admin from "../admin.js";
 import type * as chat from "../chat.js";
 import type * as dashboard from "../dashboard.js";
+import type * as dictionary from "../dictionary.js";
 import type * as http from "../http.js";
 import type * as notesIngestion from "../notesIngestion.js";
 import type * as payments from "../payments.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   chat: typeof chat;
   dashboard: typeof dashboard;
+  dictionary: typeof dictionary;
   http: typeof http;
   notesIngestion: typeof notesIngestion;
   payments: typeof payments;

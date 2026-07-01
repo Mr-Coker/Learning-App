@@ -12,7 +12,7 @@ import {
   BrainCircuit,
   ShoppingBag
 } from 'lucide-react';
-import { useQuery } from 'convex/react';
+import { useQuery, useAction } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
 import { useState } from 'react';
@@ -30,6 +30,33 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<string>('IDLE'); // IDLE, SAVING, SAVED
   const [searchAccordionActive, setSearchAccordionActive] = useState<boolean>(false);
+
+  // AI Dictionary State
+  const [isDictionaryOpen, setIsDictionaryOpen] = useState<boolean>(false);
+  const [lookupWordInput, setLookupWordInput] = useState<string>('');
+  const [dictionaryLoading, setDictionaryLoading] = useState<boolean>(false);
+  const [dictionaryResult, setDictionaryResult] = useState<string | null>(null);
+  const [dictionaryError, setDictionaryError] = useState<string | null>(null);
+  const lookupWordAction = useAction(api.dictionary.lookupWord);
+
+  const handleDictionaryLookup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lookupWordInput.trim()) return;
+
+    setDictionaryLoading(true);
+    setDictionaryError(null);
+    setDictionaryResult(null);
+
+    try {
+      const response = await lookupWordAction({ word: lookupWordInput.trim() });
+      setDictionaryResult(response.result);
+    } catch (err: any) {
+      console.error(err);
+      setDictionaryError(err.message || 'FAILED TO LOOK UP WORD.');
+    } finally {
+      setDictionaryLoading(false);
+    }
+  };
 
   // Robotics View Interactive State
   const [selectedApp, setSelectedApp] = useState<string>('Manufacturing');
@@ -5166,6 +5193,64 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
           )
         )}
       </article>
+
+      {/* AI Dictionary Widget */}
+      {isDictionaryOpen && (
+        <div className="fixed bottom-24 right-6 w-80 md:w-96 border-4 border-black bg-white shadow-[4px_4px_0_0_#000] p-4 font-mono z-50 text-black">
+          <div className="flex justify-between items-center border-b-4 border-black pb-2 mb-3 bg-black text-white px-2 py-1">
+            <span className="font-bold tracking-wider text-xs">📖 KID-DICTIONARY //</span>
+            <button 
+              onClick={() => setIsDictionaryOpen(false)}
+              className="font-bold text-xs hover:text-[#00FF88] transition-colors cursor-pointer"
+            >
+              [X]
+            </button>
+          </div>
+
+          <form onSubmit={handleDictionaryLookup} className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={lookupWordInput}
+              onChange={(e) => setLookupWordInput(e.target.value)}
+              placeholder="TYPE UNKNOWN WORD HERE..."
+              className="flex-1 border-2 border-black p-2 text-xs font-mono uppercase bg-gray-50 focus:bg-white focus:outline-none placeholder:text-gray-400 text-black"
+            />
+            <button
+              type="submit"
+              className="border-2 border-black bg-[#FFD833] shadow-[2px_2px_0_0_#000] px-3 py-1 font-bold text-xs cursor-pointer active:translate-x-0.5 active:translate-y-0.5 transition-all text-black"
+            >
+              GO
+            </button>
+          </form>
+
+          {dictionaryLoading && (
+            <div className="border-2 border-black p-3 bg-[#FF99DD] animate-pulse text-xs font-bold text-center uppercase tracking-wider shadow-[2px_2px_0_0_#000] text-black">
+              DICTIONARY IS SEARCHING...
+            </div>
+          )}
+
+          {dictionaryError && (
+            <div className="border-2 border-black p-3 bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0_0_#000]">
+              {dictionaryError}
+            </div>
+          )}
+
+          {dictionaryResult && (
+            <div className="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
+              <div className="text-[11px] leading-relaxed whitespace-pre-wrap font-mono uppercase tracking-wide border-2 border-black p-3 bg-gray-50 shadow-[2px_2px_0_0_#000] text-black">
+                {dictionaryResult}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <button
+        onClick={() => setIsDictionaryOpen(!isDictionaryOpen)}
+        className="fixed bottom-6 right-6 border-4 border-black bg-[#00FF88] shadow-[4px_4px_0_0_#000] p-3 font-mono font-bold tracking-wider z-50 cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 transition-transform text-black text-xs"
+      >
+        📖 ASK AI DICTIONARY //
+      </button>
     </div>
   );
 }
