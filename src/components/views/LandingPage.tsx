@@ -27,6 +27,39 @@ interface LandingPageProps {
 
 type ModalType = 'pricing' | 'help' | null;
 
+interface Testimonial {
+  id: string;
+  name: string;
+  label: string;
+  text: string;
+  color: string;
+}
+
+const TESTIMONIALS_DATA: Testimonial[] = [
+  {
+    id: '1',
+    name: "Kwame A.",
+    label: "[ BASIC 9 STUDENT ]",
+    text: "The step-by-step Quests make studying Information Technology feel like a game. The instant quiz feedback helped me clear my exam difficulties completely!",
+    color: "bg-[#FFD833]"
+  },
+  {
+    id: '2',
+    name: "Aba C.",
+    label: "[ PARENT // TEMA ]",
+    text: "The weekly 20 cedi option is incredibly affordable, and I love that there's no clunky homework submission process. My daughter reads the notes and gets instant mastery results.",
+    color: "bg-[#38BDF8]"
+  },
+  {
+    id: '3',
+    name: "Ekow B.",
+    label: "[ BASIC 7 STUDENT ]",
+    text: "I love unlocking hints when I get stuck on a difficult algorithm procedure step. Watching my profile XP level up keeps me super motivated.",
+    color: "bg-[#A7F3D0]"
+  }
+];
+
+
 export function LandingPage({ onEnterPortal }: LandingPageProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -344,6 +377,47 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
                 </div>
               </div>
 
+            </div>
+          </section>
+
+          {/* Testimonials Section */}
+          <section id="testimonials" className="w-full space-y-8 pt-8">
+            <div className="border-b-4 border-black pb-2">
+              <h2 className="font-serif text-3xl font-black uppercase tracking-tight text-black">
+                SUCCESS STORIES // SOCIAL_PROOF
+              </h2>
+              <p className="font-mono text-xs uppercase tracking-widest text-gray-500">
+                Localized feedback from our active student and parent registry node.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {TESTIMONIALS_DATA.map((item) => (
+                <div 
+                  key={item.id} 
+                  className="bg-white border-4 border-black p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col justify-between hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[2px_2px_0_0_rgba(0,0,0,1)] transition-all min-h-[200px]"
+                >
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="font-mono text-[9px] font-black uppercase tracking-wider text-black bg-gray-100 border border-black px-2 py-0.5 shadow-[1px_1px_0_0_rgba(0,0,0,1)]">
+                        {item.label}
+                      </span>
+                      <span className="text-yellow-400 text-sm">★★★★★</span>
+                    </div>
+
+                    <p className="font-sans text-sm text-gray-800 leading-relaxed font-semibold">
+                      &ldquo;{item.text}&rdquo;
+                    </p>
+                  </div>
+
+                  <div className="border-t-2 border-black pt-3 mt-4 flex items-center justify-between">
+                    <span className="font-serif text-lg font-black uppercase text-black">
+                      {item.name}
+                    </span>
+                    <span className={`w-3.5 h-3.5 ${item.color} border-2 border-black inline-block shadow-[1px_1px_0_0_rgba(0,0,0,1)]`}></span>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 
