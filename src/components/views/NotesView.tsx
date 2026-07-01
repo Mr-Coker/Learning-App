@@ -5247,9 +5247,9 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
 
       <button
         onClick={() => setIsDictionaryOpen(!isDictionaryOpen)}
-        className="fixed bottom-6 right-6 border-4 border-black bg-[#00FF88] shadow-[4px_4px_0_0_#000] p-3 font-mono font-bold tracking-wider z-50 cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 transition-transform text-black text-xs"
+        className="fixed bottom-6 right-6 border-2 border-black bg-[#00FF88] shadow-[4px_4px_0_0_#000] p-3 font-mono font-bold tracking-wider z-50 cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 transition-transform text-black text-xs"
       >
-        📖 ASK AI DICTIONARY //
+        📖DICTIONARY
       </button>
     </div>
   );
