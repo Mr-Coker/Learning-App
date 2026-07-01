@@ -159,6 +159,7 @@ export default function App() {
     localStorage.setItem('eduSphere_session_token', sessionToken);
     setUserEmail(email);
     setIsLoggedIn(true);
+    setShowLanding(true);
   };
 
   const handleLogout = () => {
@@ -184,10 +185,14 @@ export default function App() {
         onEnterPortal={(toRegister) => {
           if (toRegister) {
             setShowRegister(true);
+            setShowLanding(false);
           } else {
             setShowRegister(false);
+            setShowLanding(false);
+            if (isLoggedIn) {
+              setCurrentView('library');
+            }
           }
-          setShowLanding(false);
         }}
       />
     );
