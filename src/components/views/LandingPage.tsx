@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { EventsPage } from './EventsPage';
 
+declare const PaystackPop: any;
+
 interface LandingPageProps {
   onEnterPortal: (toRegister?: boolean) => void;
 }
@@ -72,6 +74,50 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
   const userEmail = localStorage.getItem('edusphere_email') || '';
   const currentUser = useQuery(api.users.getMe, userEmail ? { email: userEmail } : 'skip');
   const isLoggedIn = !!currentUser;
+
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handlePaystackCheckout = (plan: 'weekly' | 'monthly') => {
+    if (!isLoggedIn || !currentUser) {
+      onEnterPortal(true);
+      return;
+    }
+
+    const amountGhs = plan === 'weekly' ? 20 : 100;
+    const amountInPesewas = amountGhs * 100;
+
+    if (typeof PaystackPop === 'undefined') {
+      alert("Paystack SDK is currently loading. Please try again in a moment.");
+      return;
+    }
+
+    const handler = PaystackPop.setup({
+      key: "pk_test_a6b47c0b6f9a0d8c7b8e9d0a1b2c3d4e5f6g7h8i", // Paystack sandbox public key
+      email: currentUser.email,
+      amount: amountInPesewas,
+      currency: "GHS",
+      metadata: {
+        userId: currentUser._id,
+        planType: plan,
+      },
+      callback: function (response: { reference: string }) {
+        alert(`Payment successful! Transaction Reference: ${response.reference}. Activation is processing.`);
+      },
+      onClose: function () {
+        alert("Payment was cancelled.");
+      },
+    });
+
+    handler.openIframe();
+  };
 
   const scrollToSection = (id: string) => {
     setIsMobileMenuOpen(false);
@@ -658,7 +704,7 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
                 </div>
 
                 <button
-                  onClick={() => onEnterPortal(true)}
+                  onClick={() => handlePaystackCheckout('weekly')}
                   className="w-full bg-white hover:bg-gray-100 border-2 border-black py-3 font-mono text-xs font-black uppercase tracking-widest text-black text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] transition-all mt-8"
                 >
                   START SPRINT // GO
@@ -708,7 +754,7 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
                 </div>
 
                 <button
-                  onClick={() => onEnterPortal(true)}
+                  onClick={() => handlePaystackCheckout('monthly')}
                   className="w-full bg-[#00FF88] border-2 border-black py-3 font-mono text-xs font-black uppercase tracking-widest text-black text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] transition-all mt-8"
                 >
                   ACQUIRE ACCESS PASS // SAVE

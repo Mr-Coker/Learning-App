@@ -22,6 +22,7 @@ export default defineSchema({
     teachingSubjects: v.optional(v.array(v.string())),
     activeCurriculumTracks: v.optional(v.array(v.string())),
     currentSessionToken: v.optional(v.string()),
+    accessExpiresAt: v.optional(v.number()),
   }).index("by_email", ["email"]),
 
   subjects: defineTable({
