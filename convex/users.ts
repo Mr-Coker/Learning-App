@@ -66,7 +66,39 @@ export const getCurrentUserRole = query({
       classId: user.classId,
       xp: user.xp,
       createdAt: user.createdAt,
+      currentSessionToken: user.currentSessionToken,
     };
+  },
+});
+
+export const getMe = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email.trim().toLowerCase()))
+      .unique();
+  },
+});
+
+export const createNewSession = mutation({
+  args: { email: v.string(), password: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email.trim().toLowerCase()))
+      .unique();
+    if (!user) {
+      throw new Error("User not found");
+    }
+    if (user.passwordHash !== args.password) {
+      throw new Error("Invalid password credentials");
+    }
+    const sessionToken = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+    await ctx.db.patch(user._id, {
+      currentSessionToken: sessionToken
+    });
+    return { sessionToken };
   },
 });
 

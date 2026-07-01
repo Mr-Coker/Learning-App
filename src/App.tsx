@@ -98,6 +98,7 @@ export default function App() {
     quizQuestions?: any[];
     title: string;
   } | null>(null);
+  const [showSecurityAlert, setShowSecurityAlert] = useState(false);
 
   // Synchronized Convex real-time state for user profile/role
   const user = useQuery(api.users.getCurrentUserRole, userEmail ? { email: userEmail } : 'skip');
@@ -106,6 +107,17 @@ export default function App() {
   const isQueryLoading = isLoggedIn && user === undefined;
   const isUserAuthenticated = isLoggedIn && user !== undefined && user !== null;
   const userRole: AppRole | undefined = isUserAuthenticated ? (user.role as AppRole) : undefined;
+
+  // Live session token mismatch detector
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      const storedToken = localStorage.getItem('eduSphere_session_token');
+      if (user.currentSessionToken && storedToken && user.currentSessionToken !== storedToken) {
+        setShowSecurityAlert(true);
+        handleLogout();
+      }
+    }
+  }, [user, isLoggedIn]);
 
   // Handle title updates dynamically based on the role and view state
   useEffect(() => {
@@ -142,14 +154,16 @@ export default function App() {
     }
   }, [user, isLoggedIn]);
 
-  const handleLogin = (email: string) => {
+  const handleLogin = (email: string, sessionToken: string) => {
     localStorage.setItem('edusphere_email', email);
+    localStorage.setItem('eduSphere_session_token', sessionToken);
     setUserEmail(email);
     setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('edusphere_email');
+    localStorage.removeItem('eduSphere_session_token');
     setIsLoggedIn(false);
     setUserEmail('');
     setCurrentView('home');
@@ -165,8 +179,9 @@ export default function App() {
 
   // Render Authentication Views if not validated
   if (!isUserAuthenticated) {
+    let authView;
     if (showLanding) {
-      return (
+      authView = (
         <LandingPage
           onEnterPortal={(toRegister) => {
             if (toRegister) {
@@ -178,21 +193,49 @@ export default function App() {
           }}
         />
       );
-    }
-
-    if (showRegister) {
-      return (
+    } else if (showRegister) {
+      authView = (
         <RegisterPage
-          onRegisterSuccess={(email) => handleLogin(email)}
+          onRegisterSuccess={(email) => handleLogin(email, '')}
           onNavigateToLogin={() => setShowRegister(false)}
         />
       );
+    } else {
+      authView = (
+        <LoginPage
+          onLogin={handleLogin}
+          onNavigateToRegister={() => setShowRegister(true)}
+        />
+      );
     }
+
     return (
-      <LoginPage
-        onLogin={handleLogin}
-        onNavigateToRegister={() => setShowRegister(true)}
-      />
+      <>
+        {authView}
+        {showSecurityAlert && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="w-full max-w-md bg-white border-4 border-black p-6 shadow-[8px_8px_0_0_rgba(0,0,0,1)] relative text-center space-y-6">
+              <div className="inline-block bg-[#FF3B30] text-white border-2 border-black px-3 py-1 font-mono text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                CRITICAL // SECURITY ALERT
+              </div>
+              <h2 className="font-serif text-2xl font-black uppercase tracking-tight text-black">
+                Session Terminated
+              </h2>
+              <p className="font-mono text-xs uppercase tracking-wider text-gray-700 leading-relaxed">
+                Security Alert: You have been logged out because your account was accessed from another device.
+              </p>
+              <div className="pt-4 border-t-2 border-black">
+                <button 
+                  onClick={() => setShowSecurityAlert(false)}
+                  className="w-full bg-[#FFD833] text-black border-2 border-black py-3 font-mono text-xs font-bold uppercase tracking-widest shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer"
+                >
+                  DISMISS PROTOCOL // RE-LOGIN
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 

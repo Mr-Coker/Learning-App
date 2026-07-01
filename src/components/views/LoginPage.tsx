@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import { Shield, Sparkles, Terminal, ArrowRight, UserCheck, AlertTriangle } from 'lucide-react';
 
 interface LoginPageProps {
-  onLogin: (username: string) => void;
+  onLogin: (username: string, sessionToken: string) => void;
   onNavigateToRegister: () => void;
 }
 
@@ -12,6 +14,8 @@ export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+
+  const createSession = useMutation(api.users.createNewSession);
 
   // Preset accounts for one-click high-fidelity testing
   const presets = [
@@ -25,7 +29,7 @@ export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
     setError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -44,19 +48,31 @@ export function LoginPage({ onLogin, onNavigateToRegister }: LoginPageProps) {
     // Simulate connection logs for high-fidelity interactive feel
     setTimeout(() => {
       setLogs(prev => [...prev, '> RESOLVING NODE: EDUSPHERE.CENTRAL.API']);
-    }, 250);
+    }, 200);
 
     setTimeout(() => {
       setLogs(prev => [...prev, '> INJECTING SECURITY CREDENTIALS...']);
-    }, 500);
+    }, 400);
 
     setTimeout(() => {
       setLogs(prev => [...prev, '> ACCESS GRANTED. SYNCHRONIZING FILESYSTEM...']);
-    }, 750);
+    }, 600);
 
-    setTimeout(() => {
-      onLogin(username);
-    }, 1000);
+    try {
+      const response = await createSession({
+        email: username,
+        password: password
+      });
+      
+      setTimeout(() => {
+        onLogin(username, response.sessionToken);
+      }, 850);
+    } catch (err: any) {
+      setTimeout(() => {
+        setIsLoading(false);
+        setError(err.message || 'ERROR: SECURE CONNECTION FAILURE');
+      }, 850);
+    }
   };
 
   return (
