@@ -18,7 +18,9 @@ import {
   User,
   Heart,
   Globe,
-  Compass
+  Compass,
+  Trophy,
+  Play
 } from 'lucide-react';
 import { EventsPage } from './EventsPage';
 
@@ -64,7 +66,7 @@ const TESTIMONIALS_DATA: Testimonial[] = [
 export function LandingPage({ onEnterPortal }: LandingPageProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentSubView, setCurrentSubView] = useState<'landing' | 'events'>('landing');
+  const [currentSubView, setCurrentSubView] = useState<'landing' | 'events' | 'updates'>('landing');
 
   // Convex Single Session user lookup
   const userEmail = localStorage.getItem('edusphere_email') || '';
@@ -137,6 +139,17 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
             EVENTS
           </button>
           <button 
+            onClick={() => {
+              setCurrentSubView('updates');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`font-mono text-xs font-bold uppercase tracking-widest text-black hover:underline hover:underline-offset-4 decoration-4 transition-all ${
+              currentSubView === 'updates' ? 'underline underline-offset-4 decoration-4 font-black' : 'opacity-70 hover:opacity-100'
+            }`}
+          >
+            UPDATES & EVENTS
+          </button>
+          <button 
             onClick={() => setActiveModal('help')}
             className="font-mono text-xs font-bold uppercase tracking-widest text-black hover:underline hover:underline-offset-4 decoration-4 transition-all opacity-70 hover:opacity-100"
           >
@@ -197,6 +210,15 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
             EVENTS //
           </button>
           <button 
+            onClick={() => {
+              setCurrentSubView('updates');
+              setIsMobileMenuOpen(false);
+            }}
+            className="block w-full text-left font-mono text-xs font-black uppercase tracking-widest text-black py-2 border-b-2 border-dashed border-gray-200"
+          >
+            UPDATES & EVENTS //
+          </button>
+          <button 
             onClick={() => { setIsMobileMenuOpen(false); setActiveModal('help'); }}
             className="block w-full text-left font-mono text-xs font-black uppercase tracking-widest text-black py-2 border-b-2 border-dashed border-gray-200"
           >
@@ -226,6 +248,151 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
       {currentSubView === 'events' ? (
         <main className="flex-1 w-full z-10">
           <EventsPage />
+        </main>
+      ) : currentSubView === 'updates' ? (
+        <main className="flex-1 w-full z-10 max-w-6xl mx-auto px-6 py-12 space-y-12">
+          {/* Header Block */}
+          <header className="border-4 border-black p-6 md:p-10 bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] relative">
+            <div className="space-y-4 max-w-3xl">
+              <div className="inline-block bg-[#FFD833] border-2 border-black px-3 py-1 font-mono text-[10px] font-bold text-black uppercase tracking-widest shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                LIVE // UPDATES & METRICS
+              </div>
+              <h1 className="font-serif text-4xl md:text-6xl font-black uppercase text-black leading-none">
+                TOURNAMENTS &<br />
+                <span className="bg-[#00FF88] border-4 border-black px-3 inline-block my-2 shadow-[6px_6px_0_0_rgba(0,0,0,1)] -rotate-1">
+                  EXCURSION BLOGS
+                </span>
+              </h1>
+              <p className="font-mono text-xs uppercase tracking-wider text-gray-700 max-w-2xl leading-relaxed">
+                &gt; Real-time tournament telemetry, vlog updates from orbital node excursions, and live matching communication channels.
+              </p>
+            </div>
+          </header>
+
+          {/* Dynamic Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* YouTube Vlogs Column */}
+            <div className="lg:col-span-2 space-y-8">
+              <div className="border-b-4 border-black pb-2 flex justify-between items-center">
+                <h2 className="font-serif text-2xl font-black uppercase text-black">YouTube Vlogs & Recaps</h2>
+                <span className="bg-black text-[#00FF88] px-2 py-0.5 font-mono text-[9px] font-bold uppercase">LIVE FEED</span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Vlog Card 1 */}
+                <div className="bg-white border-4 border-black p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col justify-between hover:translate-y-[-2px] transition-all">
+                  <div>
+                    <div className="bg-black text-white h-40 border-2 border-black flex items-center justify-center relative group overflow-hidden">
+                      <div className="absolute inset-0 bg-[#FFD833]/10 group-hover:bg-transparent transition-colors" />
+                      <Play size={36} className="text-[#00FF88] stroke-[3] group-hover:scale-110 transition-transform" />
+                      <span className="absolute bottom-2 right-2 bg-black text-[#38BDF8] border border-black px-1.5 py-0.5 font-mono text-[8px] font-bold">12:45</span>
+                    </div>
+                    <div className="font-mono text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-3">EPISODE #04 // EXCURSION</div>
+                    <h3 className="font-serif text-lg font-black uppercase text-black leading-tight mt-1">Stellar Telemetry Observatory Tour</h3>
+                    <p className="font-mono text-[11px] text-gray-600 mt-2">Checking planetary alignments and routing live database schemas from the observatory nodes.</p>
+                  </div>
+                  <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="mt-4 border-2 border-black bg-[#00FF88] py-2 text-center font-mono text-[10px] font-black uppercase hover:bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] transition-all">WATCH VLOG ➔</a>
+                </div>
+
+                {/* Vlog Card 2 */}
+                <div className="bg-white border-4 border-black p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col justify-between hover:translate-y-[-2px] transition-all">
+                  <div>
+                    <div className="bg-black text-white h-40 border-2 border-black flex items-center justify-center relative group overflow-hidden">
+                      <div className="absolute inset-0 bg-[#38BDF8]/10 group-hover:bg-transparent transition-colors" />
+                      <Play size={36} className="text-[#FFD833] stroke-[3] group-hover:scale-110 transition-transform" />
+                      <span className="absolute bottom-2 right-2 bg-black text-[#38BDF8] border border-black px-1.5 py-0.5 font-mono text-[8px] font-bold">08:12</span>
+                    </div>
+                    <div className="font-mono text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-3">EPISODE #03 // ACADEMICS</div>
+                    <h3 className="font-serif text-lg font-black uppercase text-black leading-tight mt-1">Brutalist UI Layout Engineering</h3>
+                    <p className="font-mono text-[11px] text-gray-600 mt-2">Breaking down the high-contrast layout principles and micro-animation structures used inside EduSphere.</p>
+                  </div>
+                  <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="mt-4 border-2 border-black bg-[#FFD833] py-2 text-center font-mono text-[10px] font-black uppercase hover:bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] transition-all">WATCH VLOG ➔</a>
+                </div>
+              </div>
+            </div>
+
+            {/* Tournament Bracket / Matches & Chat Column */}
+            <div className="space-y-8">
+              {/* Bracket Block */}
+              <div>
+                <div className="border-b-4 border-black pb-2 flex justify-between items-center mb-4">
+                  <h2 className="font-serif text-2xl font-black uppercase text-black flex items-center gap-2">
+                    <Trophy size={20} className="text-[#FFD833]" />
+                    Championship
+                  </h2>
+                  <span className="bg-[#FFD833] text-black border border-black px-2 py-0.5 font-mono text-[9px] font-bold uppercase shadow-[1px_1px_0_0_rgba(0,0,0,1)]">STAGE 2</span>
+                </div>
+
+                <div className="bg-white border-4 border-black p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-4">
+                  {/* Bracket Match 1 */}
+                  <div className="border-2 border-black p-2 bg-[#FFF3C4]">
+                    <div className="flex justify-between items-center text-[9px] font-mono font-bold text-gray-500 uppercase mb-1">
+                      <span>MATCH_08 // SEMI-FINAL</span>
+                      <span className="bg-black text-[#00FF88] px-1">LIVE</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between items-center bg-white border border-black p-1">
+                        <span className="font-mono text-xs font-black uppercase">TEAM_ALPHA_NODE</span>
+                        <span className="font-mono text-xs font-black bg-[#00FF88] px-1 border-l border-black">82</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-white border border-black p-1">
+                        <span className="font-mono text-xs font-black uppercase">TEAM_BETA_REACTION</span>
+                        <span className="font-mono text-xs font-black bg-[#FFD833] px-1 border-l border-black">74</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bracket Match 2 */}
+                  <div className="border-2 border-black p-2 bg-gray-50">
+                    <div className="flex justify-between items-center text-[9px] font-mono font-bold text-gray-400 uppercase mb-1">
+                      <span>MATCH_09 // SEMI-FINAL</span>
+                      <span>COMPLETED</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between items-center bg-white border border-gray-300 p-1 opacity-70">
+                        <span className="font-mono text-xs font-black uppercase text-gray-500">TEAM_GAMMA_QUERY</span>
+                        <span className="font-mono text-xs font-black bg-gray-200 px-1 border-l border-gray-300">45</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-white border border-black p-1">
+                        <span className="font-mono text-xs font-black uppercase">TEAM_DELTA_STREAM</span>
+                        <span className="font-mono text-xs font-black bg-[#00FF88] px-1 border-l border-black">90</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Chat Rooms Block */}
+              <div>
+                <div className="border-b-4 border-black pb-2 flex justify-between items-center mb-4">
+                  <h2 className="font-serif text-2xl font-black uppercase text-black flex items-center gap-2">
+                    <MessageSquare size={20} className="text-[#38BDF8]" />
+                    Chat Rooms
+                  </h2>
+                </div>
+
+                <div className="bg-white border-4 border-black p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] space-y-3">
+                  <div className="border-2 border-black p-2 hover:bg-[#E0F2FE] transition-colors cursor-pointer flex justify-between items-center">
+                    <div>
+                      <h4 className="font-mono text-xs font-black uppercase"># orbital-telemetry</h4>
+                      <p className="font-mono text-[9px] text-gray-500">Discussing astrophysics data logs...</p>
+                    </div>
+                    <span className="bg-[#38BDF8] border border-black text-black px-1.5 py-0.5 font-mono text-[8px] font-black uppercase">12 active</span>
+                  </div>
+
+                  <div className="border-2 border-black p-2 hover:bg-[#DCFCE7] transition-colors cursor-pointer flex justify-between items-center">
+                    <div>
+                      <h4 className="font-mono text-xs font-black uppercase"># algorithm-champs</h4>
+                      <p className="font-mono text-[9px] text-gray-500">Live chat for the active bracket match</p>
+                    </div>
+                    <span className="bg-[#00FF88] border border-black text-black px-1.5 py-0.5 font-mono text-[8px] font-black uppercase">34 active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
         </main>
       ) : (
         <main className="flex-1 flex flex-col items-center justify-center p-6 my-12 z-10 max-w-6xl mx-auto w-full gap-16">
