@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import { 
   BookOpen, 
   HelpCircle, 
@@ -64,6 +66,11 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentSubView, setCurrentSubView] = useState<'landing' | 'events'>('landing');
+
+  // Convex Single Session user lookup
+  const userEmail = localStorage.getItem('edusphere_email') || '';
+  const currentUser = useQuery(api.users.getMe, userEmail ? { email: userEmail } : 'skip');
+  const isLoggedIn = !!currentUser;
 
   const scrollToSection = (id: string) => {
     setIsMobileMenuOpen(false);
@@ -148,12 +155,21 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
           >
             <Github size={16} className="text-black" />
           </a>
-          <button 
-            onClick={() => onEnterPortal(true)}
-            className="bg-[#00FF88] border-2 border-black px-4 py-2 font-mono text-xs font-black uppercase tracking-widest text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[5px_5px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] transition-all cursor-pointer"
-          >
-            START QUEST // FREE
-          </button>
+          {isLoggedIn ? (
+            <button 
+              onClick={() => onEnterPortal(false)}
+              className="bg-[#FFD833] border-2 border-black px-4 py-2 font-mono text-xs font-black uppercase tracking-widest text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[5px_5px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] transition-all cursor-pointer"
+            >
+              WELCOME BACK, {currentUser?.name} // ENTER PORTAL ➔
+            </button>
+          ) : (
+            <button 
+              onClick={() => onEnterPortal(true)}
+              className="bg-[#00FF88] border-2 border-black px-4 py-2 font-mono text-xs font-black uppercase tracking-widest text-black shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[5px_5px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] transition-all cursor-pointer"
+            >
+              START QUEST // FREE
+            </button>
+          )}
         </div>
 
         {/* Hamburger Menu Toggle (Mobile) */}
@@ -204,12 +220,21 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
             >
               <Github size={16} />
             </a>
-            <button 
-              onClick={() => { setIsMobileMenuOpen(false); onEnterPortal(true); }}
-              className="bg-[#00FF88] border-2 border-black px-4 py-2 flex-[2] font-mono text-xs font-black uppercase tracking-widest text-black text-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-            >
-              START QUEST // FREE
-            </button>
+            {isLoggedIn ? (
+              <button 
+                onClick={() => { setIsMobileMenuOpen(false); onEnterPortal(false); }}
+                className="bg-[#FFD833] border-2 border-black px-4 py-2 flex-[2] font-mono text-xs font-black uppercase tracking-widest text-black text-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+              >
+                RESUME LEARNING ➔
+              </button>
+            ) : (
+              <button 
+                onClick={() => { setIsMobileMenuOpen(false); onEnterPortal(true); }}
+                className="bg-[#00FF88] border-2 border-black px-4 py-2 flex-[2] font-mono text-xs font-black uppercase tracking-widest text-black text-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+              >
+                START QUEST // FREE
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -240,22 +265,33 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
               &gt; A gamified curriculum engine built to transform passive reading into active, XP-rewarded skill acquisition. No manual submissions. Real-time telemetry.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <button
-                onClick={() => onEnterPortal(true)}
-                className="w-full sm:w-auto bg-[#00FF88] border-3 border-black px-8 py-4 font-mono text-sm font-black uppercase tracking-widest text-black flex items-center justify-center gap-3 cursor-pointer shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-[9px_9px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_0_rgba(0,0,0,1)] transition-all duration-100"
-              >
-                <span>START LEARNING // GO TO PORTAL</span>
-                <ArrowRight size={18} className="stroke-[3]" />
-              </button>
-              
-              <button
-                onClick={() => onEnterPortal(false)}
-                className="w-full sm:w-auto bg-white border-3 border-black px-8 py-4 font-mono text-sm font-black uppercase tracking-widest text-black flex items-center justify-center gap-2 cursor-pointer shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] transition-all duration-100"
-              >
-                <span>SIGN IN</span>
-              </button>
-            </div>
+            {isLoggedIn ? (
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <button
+                  onClick={() => onEnterPortal(false)}
+                  className="w-full sm:w-auto bg-[#FFD833] border-3 border-black px-10 py-5 font-mono text-sm font-black uppercase tracking-widest text-black flex items-center justify-center gap-3 cursor-pointer shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-[9px_9px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_0_rgba(0,0,0,1)] transition-all duration-100"
+                >
+                  <span>WELCOME BACK, {currentUser?.name} // RESUME LEARNING ➔</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <button
+                  onClick={() => onEnterPortal(true)}
+                  className="w-full sm:w-auto bg-[#00FF88] border-3 border-black px-8 py-4 font-mono text-sm font-black uppercase tracking-widest text-black flex items-center justify-center gap-3 cursor-pointer shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-[9px_9px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_0_rgba(0,0,0,1)] transition-all duration-100"
+                >
+                  <span>START LEARNING // GO TO PORTAL</span>
+                  <ArrowRight size={18} className="stroke-[3]" />
+                </button>
+                
+                <button
+                  onClick={() => onEnterPortal(false)}
+                  className="w-full sm:w-auto bg-white border-3 border-black px-8 py-4 font-mono text-sm font-black uppercase tracking-widest text-black flex items-center justify-center gap-2 cursor-pointer shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] transition-all duration-100"
+                >
+                  <span>SIGN IN</span>
+                </button>
+              </div>
+            )}
 
             {/* Floater Badge (Neo-brutalist visual element) */}
             <div className="hidden lg:block absolute -top-8 -right-8 bg-[#A7F3D0] border-2 border-black p-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rotate-12">

@@ -91,7 +91,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('edusphere_email'));
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [showRegister, setShowRegister] = useState(false);
-  const [showLanding, setShowLanding] = useState(!isLoggedIn);
+  const [showLanding, setShowLanding] = useState(true);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [directQuest, setDirectQuest] = useState<{
     steps: any[];
@@ -177,23 +177,26 @@ export default function App() {
     return <LoadingState />;
   }
 
+  // Render Landing Page if active (for guest or authenticated user resuming)
+  if (showLanding) {
+    return (
+      <LandingPage
+        onEnterPortal={(toRegister) => {
+          if (toRegister) {
+            setShowRegister(true);
+          } else {
+            setShowRegister(false);
+          }
+          setShowLanding(false);
+        }}
+      />
+    );
+  }
+
   // Render Authentication Views if not validated
   if (!isUserAuthenticated) {
     let authView;
-    if (showLanding) {
-      authView = (
-        <LandingPage
-          onEnterPortal={(toRegister) => {
-            if (toRegister) {
-              setShowRegister(true);
-            } else {
-              setShowRegister(false);
-            }
-            setShowLanding(false);
-          }}
-        />
-      );
-    } else if (showRegister) {
+    if (showRegister) {
       authView = (
         <RegisterPage
           onRegisterSuccess={(email) => handleLogin(email, '')}
