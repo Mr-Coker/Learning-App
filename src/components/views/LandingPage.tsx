@@ -10,7 +10,6 @@ import {
   Database, 
   MessageSquare,
   Star,
-  Github,
   Menu,
   X,
   Sparkles,
@@ -147,14 +146,6 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
 
         {/* Right Room: Icons + Primary CTA */}
         <div className="hidden md:flex items-center gap-4">
-          <a 
-            href="https://github.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="bg-white border-2 border-black p-2 shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_0_rgba(0,0,0,1)] transition-all"
-          >
-            <Github size={16} className="text-black" />
-          </a>
           {isLoggedIn ? (
             <button 
               onClick={() => onEnterPortal(false)}
@@ -212,14 +203,6 @@ export function LandingPage({ onEnterPortal }: LandingPageProps) {
             HELP & SUPPORT
           </button>
           <div className="flex gap-4 pt-2">
-            <a 
-              href="https://github.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="bg-white border-2 border-black p-2 flex-1 flex justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-            >
-              <Github size={16} />
-            </a>
             {isLoggedIn ? (
               <button 
                 onClick={() => { setIsMobileMenuOpen(false); onEnterPortal(false); }}
