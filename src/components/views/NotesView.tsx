@@ -37,6 +37,7 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
   const [dictionaryLoading, setDictionaryLoading] = useState<boolean>(false);
   const [dictionaryResult, setDictionaryResult] = useState<string | null>(null);
   const [dictionaryError, setDictionaryError] = useState<string | null>(null);
+  const [searchedWord, setSearchedWord] = useState<string>('');
   const lookupWordAction = useAction(api.dictionary.lookupWord);
 
   // Robotics View Interactive State
@@ -1062,6 +1063,8 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
     e.preventDefault();
     if (!lookupWordInput.trim()) return;
 
+    const targetWord = lookupWordInput.trim();
+    setSearchedWord(targetWord);
     setDictionaryLoading(true);
     setDictionaryError(null);
     setDictionaryResult(null);
@@ -1079,7 +1082,7 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
 
     try {
       const response = await lookupWordAction({ 
-        word: lookupWordInput.trim(), 
+        word: targetWord, 
         pageContext: activePageText 
       });
       setDictionaryResult(response.result);
@@ -1088,6 +1091,16 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
       setDictionaryError(err.message || 'FAILED TO LOOK UP WORD.');
     } finally {
       setDictionaryLoading(false);
+    }
+  };
+
+  const handlePronounceWord = (word: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.rate = 0.85;
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -5251,6 +5264,17 @@ export function NotesView({ activeNoteId, onBack, onStartQuest }: NotesViewProps
 
           {dictionaryResult && (
             <div className="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
+              <div className="flex justify-between items-center border-b-2 border-black pb-1 mb-1">
+                <span className="font-bold text-xs uppercase tracking-wider text-black">
+                  WORD: {searchedWord}
+                </span>
+                <button
+                  onClick={() => handlePronounceWord(searchedWord)}
+                  className="border-2 border-black bg-[#00FF88] shadow-[2px_2px_0_0_#000] px-2 py-1 font-mono text-xs uppercase tracking-wider hover:-translate-y-0.5 active:translate-y-0 transition-transform text-black cursor-pointer"
+                >
+                  🔊 LISTEN
+                </button>
+              </div>
               <div className="text-[11px] leading-relaxed whitespace-pre-wrap font-mono uppercase tracking-wide border-2 border-black p-3 bg-gray-50 shadow-[2px_2px_0_0_#000] text-black">
                 {dictionaryResult}
               </div>
